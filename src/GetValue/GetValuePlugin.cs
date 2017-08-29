@@ -39,6 +39,10 @@ namespace GetValue
         {
             NinjaDirectory = PluginDirectory + $"\\NinjaData\\";
 
+            // Make folder if it doesnt exist
+            FileInfo file = new FileInfo(NinjaDirectory);
+            file.Directory.Create(); // If the directory already exists, this method does nothing.
+
             var Leagues = new List<string>() { "Standard", "Hardcore", "Harbinger", "Hardcore Harbinger" };
             string currentLeague = Leagues[0];
             Settings.LeagueList.SetListValues(Leagues);
