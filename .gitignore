@@ -51,3 +51,5 @@ NinjaData
 .pdb
 GetValue.dll.config
 ErrorLog.txt
+.config
+config.ini

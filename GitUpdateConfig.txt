@@ -1,0 +1,13 @@
+Owner: DetectiveSquirrel
+Name: Get-Chaos-Value
+Repository
+
+Ignore:
+src
+.gitignore
+README.md
+LICENSE
+config.ini
+GetValue.dll.config
+.pdb
+NinjaData
