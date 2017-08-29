@@ -135,15 +135,23 @@ namespace GetValue
                     string className = GetClassName(BaseItemType);
                     var itemBase = item.GetComponent<Base>();
                     var mods = item.GetComponent<Mods>();
+
                     var path = item.Path;
 
+
+                    var stack = item.GetComponent<Stack>();
+                    bool stackable = false;
+                    if (stack != null && stack.Info != null)
+                    {
+                        stackable = true;
+                    }
 
                     var identified = mods.Identified;
                     var UniqueItemName = mods.UniqueName;
                     var BaseItemName = BaseItemType.BaseName;
                     var isMap = item.HasComponent<PoeHUD.Poe.Components.Map>();
                     var itemRarity = mods.ItemRarity;
-                    ShowChaosValue(window, drawPos, item, className, path, identified, UniqueItemName, BaseItemName, isMap, itemRarity, lineCount);
+                    ShowChaosValue(window, drawPos, item, className, path, identified, UniqueItemName, BaseItemName, isMap, itemRarity, lineCount, stackable);
                 }
                 catch (Exception)
                 {
@@ -164,7 +172,7 @@ namespace GetValue
             return className;
         }
 
-        private void ShowChaosValue(RectangleF window, Vector2 TextPos, Entity item, string className, string path, bool identified, string UniqueItemName, string BaseItemName, bool isMap, ItemRarity itemRarity, int lineCount)
+        private void ShowChaosValue(RectangleF window, Vector2 TextPos, Entity item, string className, string path, bool identified, string UniqueItemName, string BaseItemName, bool isMap, ItemRarity itemRarity, int lineCount, bool stackable)
         {
             #region Non-Unique Maps
             if (itemRarity != ItemRarity.Unique && isMap)
@@ -210,6 +218,13 @@ namespace GetValue
                     var _text = $"Chaos: {_item.chaosEquivalent} || Change last 7 days: {_item.receiveSparkLine.totalChange}%";
 
                     DrawText(ref TextPos, ref lineCount, _text);
+
+                    if (stackable)
+                    {
+                        var _text2 = $"Total: {item.GetComponent<Stack>().Size * _item.chaosEquivalent}";
+                        DrawText(ref TextPos, ref lineCount, _text2);
+                    }
+
                     BackgroundBox(window, lineCount);
                 }
             }
@@ -301,7 +316,7 @@ namespace GetValue
                 {
                     var _victariosFlightCorrect = "Victario's Flight";
                     var _victariosFlightIncorrect = "Ondar's Flight";
-                    
+
                     if (UniqueItemName == _victariosFlightIncorrect && UniqueArmours.lines.Find(x => x.name == _victariosFlightCorrect) != null)
                     {
                         var _item = UniqueArmours.lines.Find(x => x.name == _victariosFlightCorrect);
@@ -460,7 +475,7 @@ namespace GetValue
                     DrawText(ref TextPos, ref lineCount, _text);
                     BackgroundBox(window, lineCount);
                 }
-            } 
+            }
             #endregion
         }
 
