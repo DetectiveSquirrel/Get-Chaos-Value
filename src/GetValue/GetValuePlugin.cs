@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using PoeHUD.Controllers;
-using PoeHUD.Framework.Helpers;
 using PoeHUD.Models;
 using PoeHUD.Models.Enums;
 using PoeHUD.Plugins;
