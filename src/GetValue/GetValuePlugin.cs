@@ -529,6 +529,7 @@ namespace GetValue
             }
             #endregion
             #region Not Listed
+            /*
             else
             {
                 if (item != null)
@@ -538,7 +539,7 @@ namespace GetValue
                     lineCount = 4;
                     BackgroundBox(window, lineCount);
                 }
-            } 
+            } */
             #endregion
         }
 
