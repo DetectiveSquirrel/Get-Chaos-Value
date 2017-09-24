@@ -229,6 +229,57 @@ namespace GetValue
                 }
             }
             #endregion
+            #region Shards
+            else if (path.Contains("Currency") && BaseItemName.Contains("Shard") && !BaseItemName.Contains("Essence") && !BaseItemName.Contains("Remnant of") && !BaseItemName.Contains("Wisdom") && BaseItemName != "Prophecy")
+            {
+                if (item != null)
+                {
+                    switch (BaseItemName)
+                    {
+                        case "Transmutation Shard":
+                            GetShardValues("Orb of Transmutation", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Alteration Shard":
+                            GetShardValues("Orb of Alteration", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Annulment Shard":
+                            GetShardValues("Orb of Annulment", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Exalted Shard":
+                            GetShardValues("Exalted Orb", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Mirror Shard":
+                            GetShardValues("Mirror of Kalandra", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Regal Shard":
+                            GetShardValues("Regal Orb", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Alchemy Shard":
+                            GetShardValues("Orb of Alchemy", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Chaos Shard":
+                            GetShardValues("Chaos Orb", TextPos, lineCount, stackable, window);
+                            break;
+                        // Harb Orbs
+                        case "Ancient Shard":
+                            GetShardValues("Ancient Orb", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Engineer's Shard":
+                            GetShardValues("Engineer's Orb", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Harbinger's Shard":
+                            GetShardValues("Harbinger's Orb", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Horizon Shard":
+                            GetShardValues("Orb of Horizons", TextPos, lineCount, stackable, window);
+                            break;
+                        case "Binding Shard":
+                            GetShardValues("Orb of Binding", TextPos, lineCount, stackable, window);
+                            break;
+                    }
+                }
+            }
+            #endregion
             #region Essences
             else if (BaseItemName.Contains("Essence") || BaseItemName.Contains("Remnant of"))
             {
@@ -477,6 +528,18 @@ namespace GetValue
                 }
             }
             #endregion
+            #region Not Listed
+            else
+            {
+                if (item != null)
+                {
+                    var _text = $"Base Name: {BaseItemName}\nClass Name: {className}\nItem Name: {UniqueItemName}\nPath: {path}";
+                    DrawText(ref TextPos, ref lineCount, _text);
+                    lineCount = 4;
+                    BackgroundBox(window, lineCount);
+                }
+            } 
+            #endregion
         }
 
         private void DrawText(ref Vector2 TextPos, ref int lineCount, string _text)
@@ -490,6 +553,39 @@ namespace GetValue
         {
             window.Height *= lineCount;
             Graphics.DrawBox(window, new Color(0, 0, 0, 240));
+        }
+
+        private void GetShardValues(string OrbParent, Vector2 TextPos, int lineCount, bool stackable, RectangleF window)
+        {
+            if (OrbParent != "Chaos Orb")
+            {
+                if (Currency.lines.Find(x => x.currencyTypeName == OrbParent) == null)
+                    return;
+
+                var _item = Currency.lines.Find(x => x.currencyTypeName == OrbParent);
+                var _text = $"1 Shard: {_item.chaosEquivalent / 20} Chaos";
+
+                DrawText(ref TextPos, ref lineCount, _text);
+
+                if (stackable)
+                {
+                    var _text2 = $"Full Stack: {_item.chaosEquivalent} Chaos";
+                    DrawText(ref TextPos, ref lineCount, _text2);
+                } 
+            }
+            else
+            {
+                var _text = $"1 Shard: 0.05 Chaos";
+                DrawText(ref TextPos, ref lineCount, _text);
+
+                if (stackable)
+                {
+                    var _text2 = $"Full Stack: 1 Chaos";
+                    DrawText(ref TextPos, ref lineCount, _text2);
+                }
+            }
+
+            BackgroundBox(window, lineCount);
         }
     }
 }
