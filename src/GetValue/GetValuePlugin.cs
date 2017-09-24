@@ -237,44 +237,44 @@ namespace GetValue
                     switch (BaseItemName)
                     {
                         case "Transmutation Shard":
-                            GetShardValues("Orb of Transmutation", TextPos, lineCount, stackable, window);
+                            GetShardValues("Orb of Transmutation", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Alteration Shard":
-                            GetShardValues("Orb of Alteration", TextPos, lineCount, stackable, window);
+                            GetShardValues("Orb of Alteration", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Annulment Shard":
-                            GetShardValues("Orb of Annulment", TextPos, lineCount, stackable, window);
+                            GetShardValues("Orb of Annulment", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Exalted Shard":
-                            GetShardValues("Exalted Orb", TextPos, lineCount, stackable, window);
+                            GetShardValues("Exalted Orb", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Mirror Shard":
-                            GetShardValues("Mirror of Kalandra", TextPos, lineCount, stackable, window);
+                            GetShardValues("Mirror of Kalandra", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Regal Shard":
-                            GetShardValues("Regal Orb", TextPos, lineCount, stackable, window);
+                            GetShardValues("Regal Orb", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Alchemy Shard":
-                            GetShardValues("Orb of Alchemy", TextPos, lineCount, stackable, window);
+                            GetShardValues("Orb of Alchemy", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Chaos Shard":
-                            GetShardValues("Chaos Orb", TextPos, lineCount, stackable, window);
+                            GetShardValues("Chaos Orb", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         // Harb Orbs
                         case "Ancient Shard":
-                            GetShardValues("Ancient Orb", TextPos, lineCount, stackable, window);
+                            GetShardValues("Ancient Orb", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Engineer's Shard":
-                            GetShardValues("Engineer's Orb", TextPos, lineCount, stackable, window);
+                            GetShardValues("Engineer's Orb", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Harbinger's Shard":
-                            GetShardValues("Harbinger's Orb", TextPos, lineCount, stackable, window);
+                            GetShardValues("Harbinger's Orb", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Horizon Shard":
-                            GetShardValues("Orb of Horizons", TextPos, lineCount, stackable, window);
+                            GetShardValues("Orb of Horizons", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                         case "Binding Shard":
-                            GetShardValues("Orb of Binding", TextPos, lineCount, stackable, window);
+                            GetShardValues("Orb of Binding", TextPos, lineCount, stackable, window, item.GetComponent<Stack>().Size);
                             break;
                     }
                 }
@@ -556,7 +556,7 @@ namespace GetValue
             Graphics.DrawBox(window, new Color(0, 0, 0, 240));
         }
 
-        private void GetShardValues(string OrbParent, Vector2 TextPos, int lineCount, bool stackable, RectangleF window)
+        private void GetShardValues(string OrbParent, Vector2 TextPos, int lineCount, bool stackable, RectangleF window, int stackSize)
         {
             if (OrbParent != "Chaos Orb")
             {
@@ -570,8 +570,12 @@ namespace GetValue
 
                 if (stackable)
                 {
+                    //item.GetComponent<Stack>().Size
                     var _text2 = $"Full Stack: {_item.chaosEquivalent} Chaos";
                     DrawText(ref TextPos, ref lineCount, _text2);
+
+                    var _text3 = $"Total: {((_item.chaosEquivalent/20) * stackSize)} Chaos";
+                    DrawText(ref TextPos, ref lineCount, _text3);
                 } 
             }
             else
@@ -583,6 +587,9 @@ namespace GetValue
                 {
                     var _text2 = $"Full Stack: 1 Chaos";
                     DrawText(ref TextPos, ref lineCount, _text2);
+
+                    var _text3 = $"Total: {(1.00/20.00) * stackSize} Chaos";
+                    DrawText(ref TextPos, ref lineCount, _text3);
                 }
             }
 
