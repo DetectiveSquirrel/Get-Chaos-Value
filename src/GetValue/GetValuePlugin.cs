@@ -70,7 +70,7 @@ namespace GetValue
                     LeagueList.Add(_league.Id);
             }
 
-            string currentLeague = LeagueList[0];
+            currentLeague = LeagueList[0];
             Settings.LeagueList.SetListValues(LeagueList);
 
         }
