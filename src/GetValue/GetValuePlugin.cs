@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using GetValue.poe_ninja_api;
+using Newtonsoft.Json;
 using PoeHUD.Controllers;
 using PoeHUD.Models;
 using PoeHUD.Models.Enums;
@@ -11,6 +12,7 @@ using SharpDX;
 using SharpDX.Direct3D9;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -19,32 +21,83 @@ namespace GetValue
     public class GetValuePlugin : BaseSettingsPlugin<GetValueSettings>
     {
         string NinjaDirectory;
-        public poe_ninja_api.Currency.RootObject Currency;
-        public poe_ninja_api.DivinationCards.RootObject DivinationCards;
-        public poe_ninja_api.Essences.RootObject Essences;
-        public poe_ninja_api.Fragments.RootObject Fragments;
-        public poe_ninja_api.Prophecies.RootObject Prophecies;
-        public poe_ninja_api.UniqueAccessories.RootObject UniqueAccessories;
-        public poe_ninja_api.UniqueArmours.RootObject UniqueArmours;
-        public poe_ninja_api.UniqueFlasks.RootObject UniqueFlasks;
-        public poe_ninja_api.UniqueJewels.RootObject UniqueJewels;
-        public poe_ninja_api.UniqueMaps.RootObject UniqueMaps;
-        public poe_ninja_api.UniqueWeapons.RootObject UniqueWeapons;
-        public poe_ninja_api.WhiteMaps.RootObject WhiteMaps;
+        public Currency.RootObject Currency;
+        public DivinationCards.RootObject DivinationCards;
+        public Essences.RootObject Essences;
+        public Fragments.RootObject Fragments;
+        public Prophecies.RootObject Prophecies;
+        public UniqueAccessories.RootObject UniqueAccessories;
+        public UniqueArmours.RootObject UniqueArmours;
+        public UniqueFlasks.RootObject UniqueFlasks;
+        public UniqueJewels.RootObject UniqueJewels;
+        public UniqueMaps.RootObject UniqueMaps;
+        public UniqueWeapons.RootObject UniqueWeapons;
+        public WhiteMaps.RootObject WhiteMaps;
         public bool DownloadDone = false;
         public bool InitJsonDone = false;
+        public string PoeLeagueAPIList = "http://api.pathofexile.com/leagues?type=main&compact=1";
+
+        public string currentLeague { get; private set; }
+
+        private readonly Stopwatch ReloadStopWatch = Stopwatch.StartNew();
 
         public override void Initialise()
         {
+            Settings.ReloadButton.OnPressed += delegate { Load(); };
             NinjaDirectory = PluginDirectory + $"\\NinjaData\\";
 
             // Make folder if it doesnt exist
             FileInfo file = new FileInfo(NinjaDirectory);
             file.Directory.Create(); // If the directory already exists, this method does nothing.
 
-            var Leagues = new List<string>() { "Standard", "Hardcore", "Harbinger", "Hardcore Harbinger" };
-            string currentLeague = Leagues[0];
-            Settings.LeagueList.SetListValues(Leagues);
+            Load();
+        }
+
+        private void GatherLeagueNames()
+        {
+            string json;
+            // Download it
+            poe_ninja_api.API.SaveJSON(NinjaDirectory + "Leagues.json", poe_ninja_api.API.DownloadAPI(PoeLeagueAPIList));
+
+            using (StreamReader r = new StreamReader(NinjaDirectory + "Leagues.json")) { json = r.ReadToEnd(); }
+
+            var GatheredLeagues = Leagues.FromJson(json);
+            var LeagueList = new List<string>() { };
+
+            foreach (Leagues _league in GatheredLeagues)
+            {
+                if (!_league.Id.Contains("SSF"))
+                    LeagueList.Add(_league.Id);
+            }
+
+            string currentLeague = LeagueList[0];
+            Settings.LeagueList.SetListValues(LeagueList);
+
+        }
+
+        private void InitPoeNinjaData()
+        {
+            using (StreamReader r = new StreamReader(NinjaDirectory + "Currency.json")) { string json = r.ReadToEnd(); Currency = JsonConvert.DeserializeObject<Currency.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "DivinationCards.json")) { string json = r.ReadToEnd(); DivinationCards = JsonConvert.DeserializeObject<DivinationCards.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "Essences.json")) { string json = r.ReadToEnd(); Essences = JsonConvert.DeserializeObject<Essences.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "Fragments.json")) { string json = r.ReadToEnd(); Fragments = JsonConvert.DeserializeObject<Fragments.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "Prophecies.json")) { string json = r.ReadToEnd(); Prophecies = JsonConvert.DeserializeObject<Prophecies.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueAccessories.json")) { string json = r.ReadToEnd(); UniqueAccessories = JsonConvert.DeserializeObject<UniqueAccessories.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueArmours.json")) { string json = r.ReadToEnd(); UniqueArmours = JsonConvert.DeserializeObject<UniqueArmours.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueFlasks.json")) { string json = r.ReadToEnd(); UniqueFlasks = JsonConvert.DeserializeObject<UniqueFlasks.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueJewels.json")) { string json = r.ReadToEnd(); UniqueJewels = JsonConvert.DeserializeObject<UniqueJewels.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueMaps.json")) { string json = r.ReadToEnd(); UniqueMaps = JsonConvert.DeserializeObject<UniqueMaps.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueWeapons.json")) { string json = r.ReadToEnd(); UniqueWeapons = JsonConvert.DeserializeObject<UniqueWeapons.RootObject>(json); }
+            using (StreamReader r = new StreamReader(NinjaDirectory + "WhiteMaps.json")) { string json = r.ReadToEnd(); WhiteMaps = JsonConvert.DeserializeObject<WhiteMaps.RootObject>(json); }
+
+        }
+
+        public void Load()
+        {
+            DownloadDone = false;
+            InitJsonDone = false;
+
+            GatherLeagueNames();
 
             // display default league in setting
             if (Settings.LeagueList.Value == null)
@@ -61,26 +114,8 @@ namespace GetValue
             });
         }
 
-        private void InitPoeNinjaData_Harbinger()
-        {
-            using (StreamReader r = new StreamReader(NinjaDirectory + "Currency.json")) { string json = r.ReadToEnd(); Currency = JsonConvert.DeserializeObject<poe_ninja_api.Currency.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "DivinationCards.json")) { string json = r.ReadToEnd(); DivinationCards = JsonConvert.DeserializeObject<poe_ninja_api.DivinationCards.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "Essences.json")) { string json = r.ReadToEnd(); Essences = JsonConvert.DeserializeObject<poe_ninja_api.Essences.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "Fragments.json")) { string json = r.ReadToEnd(); Fragments = JsonConvert.DeserializeObject<poe_ninja_api.Fragments.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "Prophecies.json")) { string json = r.ReadToEnd(); Prophecies = JsonConvert.DeserializeObject<poe_ninja_api.Prophecies.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueAccessories.json")) { string json = r.ReadToEnd(); UniqueAccessories = JsonConvert.DeserializeObject<poe_ninja_api.UniqueAccessories.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueArmours.json")) { string json = r.ReadToEnd(); UniqueArmours = JsonConvert.DeserializeObject<poe_ninja_api.UniqueArmours.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueFlasks.json")) { string json = r.ReadToEnd(); UniqueFlasks = JsonConvert.DeserializeObject<poe_ninja_api.UniqueFlasks.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueJewels.json")) { string json = r.ReadToEnd(); UniqueJewels = JsonConvert.DeserializeObject<poe_ninja_api.UniqueJewels.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueMaps.json")) { string json = r.ReadToEnd(); UniqueMaps = JsonConvert.DeserializeObject<poe_ninja_api.UniqueMaps.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "UniqueWeapons.json")) { string json = r.ReadToEnd(); UniqueWeapons = JsonConvert.DeserializeObject<poe_ninja_api.UniqueWeapons.RootObject>(json); }
-            using (StreamReader r = new StreamReader(NinjaDirectory + "WhiteMaps.json")) { string json = r.ReadToEnd(); WhiteMaps = JsonConvert.DeserializeObject<poe_ninja_api.WhiteMaps.RootObject>(json); }
-
-        }
-
         private void DownloadPoeNinjaAPI(string league)
         {
-
             poe_ninja_api.API.SaveJSON(NinjaDirectory + "Currency.json", poe_ninja_api.API.DownloadAPI($"http://cdn.poe.ninja/api/Data/GetCurrencyOverview?league={league}"));
             poe_ninja_api.API.SaveJSON(NinjaDirectory + "DivinationCards.json", poe_ninja_api.API.DownloadAPI($"http://cdn.poe.ninja/api/Data/GetDivinationCardsOverview?league={league}"));
             poe_ninja_api.API.SaveJSON(NinjaDirectory + "Essences.json", poe_ninja_api.API.DownloadAPI($"http://cdn.poe.ninja/api/Data/GetEssenceOverview?league={league}"));
@@ -98,12 +133,20 @@ namespace GetValue
         public override void Render()
         {
             base.Render();
-            // Do Stuff Every Frame
+
             if (DownloadDone && !InitJsonDone)
             {
-                InitPoeNinjaData_Harbinger();
+                GatherLeagueNames();
+                InitPoeNinjaData();
                 InitJsonDone = true;
             }
+
+            if (DownloadDone && InitJsonDone && Settings.AutoReload && ReloadStopWatch.ElapsedMilliseconds > 1000*60*Settings.AutoReloadTimer.Value)
+            {
+                Load();
+                ReloadStopWatch.Restart();
+            }
+
             if (DownloadDone && InitJsonDone)
             {
                 try
@@ -574,9 +617,9 @@ namespace GetValue
                     var _text2 = $"Full Stack: {_item.chaosEquivalent} Chaos";
                     DrawText(ref TextPos, ref lineCount, _text2);
 
-                    var _text3 = $"Total: {((_item.chaosEquivalent/20) * stackSize)} Chaos";
+                    var _text3 = $"Total: {((_item.chaosEquivalent / 20) * stackSize)} Chaos";
                     DrawText(ref TextPos, ref lineCount, _text3);
-                } 
+                }
             }
             else
             {
@@ -588,7 +631,7 @@ namespace GetValue
                     var _text2 = $"Full Stack: 1 Chaos";
                     DrawText(ref TextPos, ref lineCount, _text2);
 
-                    var _text3 = $"Total: {(1.00/20.00) * stackSize} Chaos";
+                    var _text3 = $"Total: {(1.00 / 20.00) * stackSize} Chaos";
                     DrawText(ref TextPos, ref lineCount, _text3);
                 }
             }

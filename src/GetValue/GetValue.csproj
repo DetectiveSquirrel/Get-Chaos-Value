@@ -68,6 +68,7 @@
     <Compile Include="GetValuePlugin.cs" />
     <Compile Include="GetValueSettings.cs" />
     <Compile Include="poe_ninja_api\API.cs" />
+    <Compile Include="poe_ninja_api\Classes\Leagues.cs" />
     <Compile Include="poe_ninja_api\Classes\Currency.cs" />
     <Compile Include="poe_ninja_api\Classes\DivinationCards.cs" />
     <Compile Include="poe_ninja_api\Classes\Essences.cs" />
