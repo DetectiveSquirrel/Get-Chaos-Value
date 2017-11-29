@@ -1,69 +1,69 @@
 ﻿using System.Collections.Generic;
 
-namespace GetValue.poe_ninja_api
+namespace GetValue.poe_ninja_api.Classes
 {
     public class Currency
     {
         public class Pay
         {
-            public int id { get; set; }
-            public int leagueId { get; set; }
-            public int payCurrencyId { get; set; }
-            public int getCurrencyId { get; set; }
-            public string sampleTimeUtc { get; set; }
-            public int count { get; set; }
-            public double value { get; set; }
-            public int dataPointCount { get; set; }
+            public int Id { get; set; }
+            public int LeagueId { get; set; }
+            public int PayCurrencyId { get; set; }
+            public int GetCurrencyId { get; set; }
+            public string SampleTimeUtc { get; set; }
+            public int Count { get; set; }
+            public double Value { get; set; }
+            public int DataPointCount { get; set; }
         }
 
         public class Receive
         {
-            public int id { get; set; }
-            public int leagueId { get; set; }
-            public int payCurrencyId { get; set; }
-            public int getCurrencyId { get; set; }
-            public string sampleTimeUtc { get; set; }
-            public int count { get; set; }
-            public double value { get; set; }
-            public int dataPointCount { get; set; }
+            public int Id { get; set; }
+            public int LeagueId { get; set; }
+            public int PayCurrencyId { get; set; }
+            public int GetCurrencyId { get; set; }
+            public string SampleTimeUtc { get; set; }
+            public int Count { get; set; }
+            public double Value { get; set; }
+            public int DataPointCount { get; set; }
         }
 
         public class PaySparkLine
         {
-            public List<object> data { get; set; }
-            public double totalChange { get; set; }
+            public List<object> Data { get; set; }
+            public double TotalChange { get; set; }
         }
 
         public class ReceiveSparkLine
         {
-            public List<object> data { get; set; }
-            public double totalChange { get; set; }
+            public List<object> Data { get; set; }
+            public double TotalChange { get; set; }
         }
 
         public class Line
         {
-            public string currencyTypeName { get; set; }
-            public Pay pay { get; set; }
-            public Receive receive { get; set; }
-            public PaySparkLine paySparkLine { get; set; }
-            public ReceiveSparkLine receiveSparkLine { get; set; }
-            public double chaosEquivalent { get; set; }
+            public string CurrencyTypeName { get; set; }
+            public Pay Pay { get; set; }
+            public Receive Receive { get; set; }
+            public PaySparkLine PaySparkLine { get; set; }
+            public ReceiveSparkLine ReceiveSparkLine { get; set; }
+            public double ChaosEquivalent { get; set; }
         }
 
         public class CurrencyDetail
         {
-            public int id { get; set; }
-            public string name { get; set; }
-            public int poeTradeId { get; set; }
-            public List<string> shorthands { get; set; }
-            public string icon { get; set; }
-            public int type { get; set; }
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int PoeTradeId { get; set; }
+            public List<string> Shorthands { get; set; }
+            public string Icon { get; set; }
+            public int Type { get; set; }
         }
 
         public class RootObject
         {
-            public List<Line> lines { get; set; }
-            public List<CurrencyDetail> currencyDetails { get; set; }
+            public List<Line> Lines { get; set; }
+            public List<CurrencyDetail> CurrencyDetails { get; set; }
         }
     }
 }

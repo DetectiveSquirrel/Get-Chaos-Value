@@ -1,42 +1,42 @@
 ﻿using System.Collections.Generic;
 
-namespace GetValue.poe_ninja_api
+namespace GetValue.poe_ninja_api.Classes
 {
     public class UniqueAccessories
     {
         public class Sparkline
         {
-            public List<object> data { get; set; }
-            public double totalChange { get; set; }
+            public List<object> Data { get; set; }
+            public double TotalChange { get; set; }
         }
 
         public class Line
         {
-            public int id { get; set; }
-            public string name { get; set; }
-            public string icon { get; set; }
-            public int mapTier { get; set; }
-            public int levelRequired { get; set; }
-            public string baseType { get; set; }
-            public int stackSize { get; set; }
-            public string variant { get; set; }
-            public object prophecyText { get; set; }
-            public object artFilename { get; set; }
-            public int links { get; set; }
-            public int itemClass { get; set; }
-            public Sparkline sparkline { get; set; }
-            public List<object> implicitModifiers { get; set; }
-            public List<object> explicitModifiers { get; set; }
-            public string flavourText { get; set; }
-            public string itemType { get; set; }
-            public double chaosValue { get; set; }
-            public double exaltedValue { get; set; }
-            public int count { get; set; }
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string Icon { get; set; }
+            public int MapTier { get; set; }
+            public int LevelRequired { get; set; }
+            public string BaseType { get; set; }
+            public int StackSize { get; set; }
+            public string Variant { get; set; }
+            public object ProphecyText { get; set; }
+            public object ArtFilename { get; set; }
+            public int Links { get; set; }
+            public int ItemClass { get; set; }
+            public Sparkline Sparkline { get; set; }
+            public List<object> ImplicitModifiers { get; set; }
+            public List<object> ExplicitModifiers { get; set; }
+            public string FlavourText { get; set; }
+            public string ItemType { get; set; }
+            public double ChaosValue { get; set; }
+            public double ExaltedValue { get; set; }
+            public int Count { get; set; }
         }
 
         public class RootObject
         {
-            public List<Line> lines { get; set; }
+            public List<Line> Lines { get; set; }
         }
     }
 }
