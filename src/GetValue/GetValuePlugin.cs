@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using GetValue.poe_ninja_api;
 using GetValue.poe_ninja_api.Classes;
@@ -46,10 +47,11 @@ namespace GetValue
 
         public override void Initialise()
         {
-            // Visible Stash Settings
-            var windowSize = GameController.Window.GetWindowRectangle().Size;
-            Settings.X.Max = (int) windowSize.Width;
-            Settings.Y.Max = (int) windowSize.Height;
+            if (Settings.VisibleStashValue.Value)
+            {
+                LoadVisibleStashSettings();
+            }
+            Settings.VisibleStashValue.OnValueChanged += LoadVisibleStashSettings;
 
             Settings.ReloadButton.OnPressed += Load;
             _ninjaDirectory = PluginDirectory + "\\NinjaData\\";
@@ -59,6 +61,28 @@ namespace GetValue
             file.Directory?.Create(); // If the directory already exists, this method does nothing.
 
             Load();
+        }
+
+        private void LoadVisibleStashSettings()
+        {
+            // Visible Stash Settings
+            var windowSize = GameController.Window.GetWindowRectangle().Size;
+            Settings.X.Max = (int)windowSize.Width;
+            Settings.Y.Max = (int)windowSize.Height;
+
+            // check if image exists, if it doesn't, download it.
+            var fileName = $"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png";
+            if (File.Exists(fileName))
+            {
+                return;
+            }
+
+            Directory.CreateDirectory($"{PluginDirectory}//images//");
+
+            using (var client = new WebClient())
+            {
+                client.DownloadFile(new Uri("https://d1u5p3l4wpay3k.cloudfront.net/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"), fileName);
+            }
         }
 
         private void GatherLeagueNames()
@@ -224,7 +248,10 @@ namespace GetValue
                 return;
             }
 
-            var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
+            try
+            {
+                var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
+            
 
             if (Settings.VisibleStashValue.Value && stashPanel.IsVisible)
             {
@@ -232,40 +259,44 @@ namespace GetValue
                 double sum = 0;
                 foreach (var normalInventoryItem in inventoryItems)
                 {
-                    var temp = GetChaosValue(normalInventoryItem);
-                    if (temp == NOT_FOUND && Settings.Debug.Value)
-                    {
-                        Graphics.DrawText("NOT FOUND", 12, normalInventoryItem.GetClientRect().Center,
-                            FontDrawFlags.Center);
-                        Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Aqua);
-                        continue;
-                    }
+                    
+                        if (normalInventoryItem == null)
+                        {
+                            return;
+                        }
 
-                    sum += temp;
+                        var temp = GetChaosValue(normalInventoryItem);
+                        if (temp == NOT_FOUND)
+                        {
+                            if (Settings.Debug.Value)
+                            {
+                                Graphics.DrawText("NOT FOUND", 12, normalInventoryItem.GetClientRect().Center,
+                                    FontDrawFlags.Center);
+                                Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Aqua);
+                            }
+                            continue;
+                        }
+
+                        sum += temp;
+                    
                 }
+
 
                 var color = Settings.ColorNode.Value;
                 var pos = new Vector2(Settings.X.Value, Settings.Y.Value);
 
-                var significantDigits = sum.ToString(CultureInfo.CurrentCulture);
-                if (Settings.SignificantDigits.Value != 0)
-                {
-                    var index = significantDigits.IndexOf('.') + Settings.SignificantDigits.Value + 1;
-                    if (index < significantDigits.Length)
-                    {
-                        significantDigits = significantDigits.Substring(0, index);
-                    }
-                }
-                else
-                {
-                    significantDigits = ((int) sum).ToString();
-                }
+                var significantDigits = Math.Round((decimal) sum, Settings.SignificantDigits.Value);
                 Graphics.DrawText(
                     DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
                         new RectangleF(Settings.X.Value - Settings.FontSize.Value, Settings.Y.Value, Settings.FontSize.Value,
                             Settings.FontSize.Value))
                         ? $"{significantDigits}"
                         : $"{significantDigits} Chaos", Settings.FontSize.Value, pos, color);
+            }
+            }
+            catch
+            {
+                // Divination card tab ugh.
             }
 
             var lineCount = 0;
