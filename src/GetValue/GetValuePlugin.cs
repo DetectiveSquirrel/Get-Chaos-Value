@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,17 +12,18 @@ using PoeHUD.Models;
 using PoeHUD.Models.Enums;
 using PoeHUD.Models.Interfaces;
 using PoeHUD.Plugins;
-using PoeHUD.Poe;
 using PoeHUD.Poe.Components;
 using PoeHUD.Poe.Elements;
 using PoeHUD.Poe.EntityComponents;
 using SharpDX;
+using SharpDX.Direct3D9;
 using Map = PoeHUD.Poe.Components.Map;
 
 namespace GetValue
 {
     public class GetValuePlugin : BaseSettingsPlugin<GetValueSettings>
     {
+        private const int NOT_FOUND = -1;
         private readonly Stopwatch _reloadStopWatch = Stopwatch.StartNew();
         private string _ninjaDirectory;
         public Currency.RootObject Currency;
@@ -42,6 +46,11 @@ namespace GetValue
 
         public override void Initialise()
         {
+            // Visible Stash Settings
+            var windowSize = GameController.Window.GetWindowRectangle().Size;
+            Settings.X.Max = (int) windowSize.Width;
+            Settings.Y.Max = (int) windowSize.Height;
+
             Settings.ReloadButton.OnPressed += Load;
             _ninjaDirectory = PluginDirectory + "\\NinjaData\\";
 
@@ -145,7 +154,9 @@ namespace GetValue
 
             // display default league in setting
             if (Settings.LeagueList.Value == null)
+            {
                 Settings.LeagueList.Value = CurrentLeague;
+            }
             // set wanted league
             CurrentLeague = Settings.LeagueList.Value;
 
@@ -208,7 +219,55 @@ namespace GetValue
                 _reloadStopWatch.Restart();
             }
 
-            if (!DownloadDone || !InitJsonDone) return;
+            if (!DownloadDone || !InitJsonDone)
+            {
+                return;
+            }
+
+            var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
+
+            if (Settings.VisibleStashValue.Value && stashPanel.IsVisible)
+            {
+                var inventoryItems = stashPanel.VisibleStash.VisibleInventoryItems;
+                double sum = 0;
+                foreach (var normalInventoryItem in inventoryItems)
+                {
+                    var temp = GetChaosValue(normalInventoryItem);
+                    if (temp == NOT_FOUND && Settings.Debug.Value)
+                    {
+                        Graphics.DrawText("NOT FOUND", 12, normalInventoryItem.GetClientRect().Center,
+                            FontDrawFlags.Center);
+                        Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Aqua);
+                        continue;
+                    }
+
+                    sum += temp;
+                }
+
+                var color = Settings.ColorNode.Value;
+                var pos = new Vector2(Settings.X.Value, Settings.Y.Value);
+
+                var significantDigits = sum.ToString(CultureInfo.CurrentCulture);
+                if (Settings.SignificantDigits.Value != 0)
+                {
+                    var index = significantDigits.IndexOf('.') + Settings.SignificantDigits.Value + 1;
+                    if (index < significantDigits.Length)
+                    {
+                        significantDigits = significantDigits.Substring(0, index);
+                    }
+                }
+                else
+                {
+                    significantDigits = ((int) sum).ToString();
+                }
+                Graphics.DrawText(
+                    DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
+                        new RectangleF(Settings.X.Value - Settings.FontSize.Value, Settings.Y.Value, Settings.FontSize.Value,
+                            Settings.FontSize.Value))
+                        ? $"{significantDigits}"
+                        : $"{significantDigits} Chaos", Settings.FontSize.Value, pos, color);
+            }
+
             var lineCount = 0;
             var window = GameController.Window.GetWindowRectangle();
             var drawPos = window.TopLeft;
@@ -218,17 +277,24 @@ namespace GetValue
             var uiHover = GameController.Game.IngameState.UIHover;
             var inventoryItemIcon = uiHover.AsObject<HoverItemIcon>();
             if (inventoryItemIcon == null)
+            {
                 return;
+            }
             var tooltip = inventoryItemIcon.Tooltip;
             var poeEntity = inventoryItemIcon.Item;
 
-            if (tooltip == null || poeEntity.Address == 0 || !poeEntity.IsValid) return;
+            if (tooltip == null || poeEntity.Address == 0 || !poeEntity.IsValid)
+            {
+                return;
+            }
 
             var item = inventoryItemIcon.Item;
 
             var baseItemType = GameController.Files.BaseItemTypes.Translate(item.Path);
             if (baseItemType == null)
+            {
                 return;
+            }
             var className = GetClassName(baseItemType);
             item.GetComponent<Base>();
             var mods = item.GetComponent<Mods>();
@@ -256,6 +322,7 @@ namespace GetValue
             return className;
         }
 
+
         private void ShowChaosValue(RectangleF window, Vector2 textPos, IEntity itemEntity, string className,
             string path,
             bool identified, string uniqueItemName, string baseItemName, bool isMap, ItemRarity itemRarity,
@@ -265,9 +332,14 @@ namespace GetValue
 
             if (itemRarity != ItemRarity.Unique && isMap)
             {
-                if (itemEntity == null) return;
-                if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas") == null)
+                if (itemEntity == null)
+                {
                     return;
+                }
+                if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas") == null)
+                {
+                    return;
+                }
 
                 var item = WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas");
                 var text = $"Chaos: {item.ChaosValue} || Change last 7 days: {item.Sparkline.TotalChange}%";
@@ -282,9 +354,14 @@ namespace GetValue
 
             else if (itemRarity == ItemRarity.Unique && isMap)
             {
-                if (itemEntity == null) return;
-                if (UniqueMaps.Lines.Find(x => x.BaseType == baseItemName) == null)
+                if (itemEntity == null)
+                {
                     return;
+                }
+                if (UniqueMaps.Lines.Find(x => x.BaseType == baseItemName) == null)
+                {
+                    return;
+                }
 
                 var item = UniqueMaps.Lines.Find(x => x.BaseType == baseItemName);
                 var text = $"Chaos: {item.ChaosValue} || Change last 7 days: {item.Sparkline.TotalChange}%";
@@ -301,9 +378,14 @@ namespace GetValue
                      !baseItemName.Contains("Essence") && !baseItemName.Contains("Remnant of") &&
                      !baseItemName.Contains("Wisdom") && baseItemName != "Prophecy")
             {
-                if (itemEntity == null) return;
-                if (Currency.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null)
+                if (itemEntity == null)
+                {
                     return;
+                }
+                if (Currency.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null)
+                {
+                    return;
+                }
 
                 var item = Currency.Lines.Find(x => x.CurrencyTypeName == baseItemName);
                 var text =
@@ -328,60 +410,63 @@ namespace GetValue
                      !baseItemName.Contains("Remnant of") && !baseItemName.Contains("Wisdom") &&
                      baseItemName != "Prophecy")
             {
-                if (itemEntity == null) return;
+                if (itemEntity == null)
+                {
+                    return;
+                }
                 switch (baseItemName)
                 {
                     case "Transmutation Shard":
-                        GetShardValues("Orb of Transmutation", textPos, lineCount, stackable, window,
+                        ShowShardValues("Orb of Transmutation", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Alteration Shard":
-                        GetShardValues("Orb of Alteration", textPos, lineCount, stackable, window,
+                        ShowShardValues("Orb of Alteration", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Annulment Shard":
-                        GetShardValues("Orb of Annulment", textPos, lineCount, stackable, window,
+                        ShowShardValues("Orb of Annulment", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Exalted Shard":
-                        GetShardValues("Exalted Orb", textPos, lineCount, stackable, window,
+                        ShowShardValues("Exalted Orb", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Mirror Shard":
-                        GetShardValues("Mirror of Kalandra", textPos, lineCount, stackable, window,
+                        ShowShardValues("Mirror of Kalandra", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Regal Shard":
-                        GetShardValues("Regal Orb", textPos, lineCount, stackable, window,
+                        ShowShardValues("Regal Orb", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Alchemy Shard":
-                        GetShardValues("Orb of Alchemy", textPos, lineCount, stackable, window,
+                        ShowShardValues("Orb of Alchemy", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Chaos Shard":
-                        GetShardValues("Chaos Orb", textPos, lineCount, stackable, window,
+                        ShowShardValues("Chaos Orb", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     // Harb Orbs
                     case "Ancient Shard":
-                        GetShardValues("Ancient Orb", textPos, lineCount, stackable, window,
+                        ShowShardValues("Ancient Orb", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Engineer's Shard":
-                        GetShardValues("Engineer's Orb", textPos, lineCount, stackable, window,
+                        ShowShardValues("Engineer's Orb", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Harbinger's Shard":
-                        GetShardValues("Harbinger's Orb", textPos, lineCount, stackable, window,
+                        ShowShardValues("Harbinger's Orb", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Horizon Shard":
-                        GetShardValues("Orb of Horizons", textPos, lineCount, stackable, window,
+                        ShowShardValues("Orb of Horizons", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                     case "Binding Shard":
-                        GetShardValues("Orb of Binding", textPos, lineCount, stackable, window,
+                        ShowShardValues("Orb of Binding", textPos, lineCount, stackable, window,
                             itemEntity.GetComponent<Stack>().Size);
                         break;
                 }
@@ -415,9 +500,14 @@ namespace GetValue
 
             else if (className.Contains("Divination"))
             {
-                if (itemEntity == null) return;
-                if (DivinationCards.Lines.Find(x => x.Name == baseItemName) == null)
+                if (itemEntity == null)
+                {
                     return;
+                }
+                if (DivinationCards.Lines.Find(x => x.Name == baseItemName) == null)
+                {
+                    return;
+                }
 
                 var item = DivinationCards.Lines.Find(x => x.Name == baseItemName);
                 var text = $"Chaos: {item.ChaosValue} || Change last 7 days: {item.Sparkline.TotalChange}%";
@@ -432,9 +522,14 @@ namespace GetValue
 
             else if (className == "Map Fragments" || baseItemName == "Offering to the Goddess")
             {
-                if (itemEntity == null) return;
-                if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null)
+                if (itemEntity == null)
+                {
                     return;
+                }
+                if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null)
+                {
+                    return;
+                }
 
                 var item = Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName);
                 var text =
@@ -452,15 +547,23 @@ namespace GetValue
                 {
                     #region Amulets, Rings and Belts
 
-                    case ItemRarity.Unique when (className == "Amulets" || className == "Rings" || className == "Belts") && identified:
-                        if (itemEntity == null) return;
+                    case ItemRarity.Unique when
+                    (className == "Amulets" || className == "Rings" || className == "Belts") && identified:
+                        if (itemEntity == null)
+                        {
+                            return;
+                        }
                         const string taliosSignCorrect = "Tasalio's Sign";
                         const string taliosSignIncorrect = "Tasalio’s Sign";
 
                         if (UniqueAccessories.Lines.Find(x => x.Name == uniqueItemName) == null)
+                        {
                             return;
+                        }
                         if (UniqueAccessories.Lines.Find(x => x.Name == taliosSignCorrect) == null)
+                        {
                             return;
+                        }
 
                         if (UniqueAccessories.Lines.Find(x => x.Name == uniqueItemName) != null)
                         {
@@ -580,7 +683,9 @@ namespace GetValue
                         else
                         {
                             if (UniqueFlasks.Lines.Find(x => x.Name == uniqueItemName) == null)
+                            {
                                 return;
+                            }
 
                             var item = UniqueFlasks.Lines.Find(x => x.Name == uniqueItemName);
                             var text = $"Chaos: {item.ChaosValue} || Change last 7 days: {item.Sparkline.TotalChange}%";
@@ -652,11 +757,14 @@ namespace GetValue
                         break;
 
                     #endregion
+
                     default:
                         if (baseItemName.Contains("Breachstone"))
                         {
                             if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null)
+                            {
                                 return;
+                            }
 
                             var item = Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName);
                             var text =
@@ -682,13 +790,16 @@ namespace GetValue
             Graphics.DrawBox(window, new Color(0, 0, 0, 240));
         }
 
-        private void GetShardValues(string orbParent, Vector2 textPos, int lineCount, bool stackable, RectangleF window,
+        private void ShowShardValues(string orbParent, Vector2 textPos, int lineCount, bool stackable,
+            RectangleF window,
             int stackSize)
         {
             if (orbParent != "Chaos Orb")
             {
                 if (Currency.Lines.Find(x => x.CurrencyTypeName == orbParent) == null)
+                {
                     return;
+                }
 
                 var item = Currency.Lines.Find(x => x.CurrencyTypeName == orbParent);
                 var text = $"1 Shard: {item.ChaosEquivalent / 20} Chaos";
@@ -720,6 +831,408 @@ namespace GetValue
             }
 
             BackgroundBox(window, lineCount);
+        }
+
+        /// <summary>
+        /// This function is made by Github.com/Nymann
+        /// </summary>
+        /// <param name="normalInventoryItem"></param>
+        /// <returns></returns>
+        private double GetChaosValue(NormalInventoryItem normalInventoryItem)
+        {
+            var itemEntity = normalInventoryItem.Item;
+            var itemRarity = itemEntity.GetComponent<Mods>().ItemRarity;
+            var isMap = itemEntity.HasComponent<Map>();
+            var baseType = GameController.Files.BaseItemTypes.Translate(itemEntity.Path);
+            var baseItemName = baseType.BaseName;
+            var classItemName = baseType.ClassName;
+            var path = itemEntity.Path;
+            var stack = itemEntity.GetComponent<Stack>();
+            var stackable = stack?.Info != null;
+
+            if (baseItemName.Equals("Scroll of Wisdom") || baseItemName.Equals("Scroll Fragment"))
+            {
+                return 0;
+            }
+
+
+            #region Normal Maps
+
+            if (itemRarity != ItemRarity.Unique && isMap)
+            {
+                if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas") == null)
+                {
+                    return NOT_FOUND;
+                }
+            }
+
+            #endregion
+
+            #region Unique Maps
+
+            else if (itemRarity == ItemRarity.Unique && isMap)
+            {
+                if (UniqueMaps.Lines.Find(x => x.BaseType == baseItemName) == null)
+                {
+                    return NOT_FOUND;
+                }
+
+                var item = UniqueMaps.Lines.Find(x => x.BaseType == baseItemName);
+                return item.ChaosValue;
+            }
+
+            #endregion
+
+            #region Currency, but NOT Shards, Essences, Wisdom Scrolls or Prohecies.
+
+            else if (path.Contains("Currency") && !baseItemName.Contains("Shard") &&
+                     !baseItemName.Contains("Essence") && !baseItemName.Contains("Remnant of") &&
+                     !baseItemName.Contains("Wisdom") && baseItemName != "Prophecy")
+            {
+                if (baseItemName.Equals("Chaos Orb"))
+                {
+                    // If we can't get stack size which we always should be able to, just return 1.
+                    return stack?.Size ?? 1;
+                }
+
+                if (Currency.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null)
+                {
+                    return NOT_FOUND;
+                }
+
+                var item = Currency.Lines.Find(x => x.CurrencyTypeName == baseItemName);
+
+
+                if (stackable)
+                {
+                    var priceForTheStack = stack.Size * item.ChaosEquivalent;
+                    return priceForTheStack;
+                }
+
+                return item.ChaosEquivalent;
+            }
+
+            #endregion
+
+            #region Shards
+
+            else if (path.Contains("Currency") && baseItemName.Contains("Shard") && !baseItemName.Contains("Essence") &&
+                     !baseItemName.Contains("Remnant of") && !baseItemName.Contains("Wisdom") &&
+                     baseItemName != "Prophecy")
+            {
+                var stackSize = stack?.Size ?? 1;
+                return GetShardValues(baseItemName, stackSize);
+            }
+
+            #endregion
+
+            #region Essences
+
+            else if (baseItemName.Contains("Essence") || baseItemName.Contains("Remnant of"))
+            {
+                if (Essences.Lines.Find(x => x.Name == baseItemName) == null)
+                {
+                    return NOT_FOUND;
+                }
+
+                var item = Essences.Lines.Find(x => x.Name == baseItemName);
+                if (stackable)
+                {
+                    var priceForTheStack = stack.Size * item.ChaosValue;
+                    return priceForTheStack;
+                }
+                return item.ChaosValue;
+            }
+
+            #endregion
+
+            #region Divination Cards
+
+            else if (classItemName.Contains("Divination"))
+            {
+                if (DivinationCards.Lines.Find(x => x.Name == baseItemName) == null)
+                {
+                    return NOT_FOUND;
+                }
+
+                var item = DivinationCards.Lines.Find(x => x.Name == baseItemName);
+                if (stackable)
+                {
+                    var priceForTheStack = stack.Size * item.ChaosValue;
+                    return priceForTheStack;
+                }
+
+                return item.ChaosValue;
+            }
+
+            #endregion
+
+            #region Map Fragments and Offerings
+
+            else if (classItemName.Equals("Map Fragments") || baseItemName.Equals("Offering to the Goddess"))
+            {
+                if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null)
+                {
+                    return NOT_FOUND;
+                }
+
+                var item = Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName);
+                return item.ChaosEquivalent;
+            }
+
+            #endregion
+
+            else
+            {
+                var mods = itemEntity.GetComponent<Mods>();
+                var uniqueItemName = mods.UniqueName;
+                var identified = mods.Identified;
+
+                switch (itemRarity)
+                {
+                    #region Amulets, Rings and Belts
+
+                    case ItemRarity.Unique when
+                    (classItemName == "Amulets" || classItemName == "Rings" || classItemName == "Belts") && identified:
+                        const string taliosSignCorrect = "Tasalio's Sign";
+                        const string taliosSignIncorrect = "Tasalio’s Sign";
+
+                        if (UniqueAccessories.Lines.Find(x => x.Name == uniqueItemName) == null)
+                        {
+                            return NOT_FOUND;
+                        }
+                        if (UniqueAccessories.Lines.Find(x => x.Name == taliosSignCorrect) == null)
+                        {
+                            return NOT_FOUND;
+                        }
+
+                        if (UniqueAccessories.Lines.Find(x => x.Name == uniqueItemName) != null)
+                        {
+                            var item = UniqueAccessories.Lines.Find(x => x.Name == uniqueItemName);
+                            return item.ChaosValue;
+                        }
+                        else if (uniqueItemName == taliosSignIncorrect)
+                        {
+                            var item = UniqueAccessories.Lines.Find(x => x.Name == taliosSignCorrect);
+                            return item.ChaosValue;
+                        }
+
+                        break;
+
+                    #endregion
+
+                    #region Quivers and Armour
+
+                    case ItemRarity.Unique when (itemEntity.HasComponent<Armour>() || classItemName == "Quivers") &&
+                                                identified:
+                        const string victariosFlightCorrect = "Victario's Flight";
+                        const string victariosFlightIncorrect = "Ondar's Flight";
+
+                        if (uniqueItemName == victariosFlightIncorrect &&
+                            UniqueArmours.Lines.Find(x => x.Name == victariosFlightCorrect) != null)
+                        {
+                            var item = UniqueArmours.Lines.Find(x => x.Name == victariosFlightCorrect);
+                            return item.ChaosValue;
+                        }
+                        else
+                        {
+                            if (UniqueArmours.Lines.Find(x => x.Name == uniqueItemName && x.Links == 0) != null)
+                            {
+                                var item = UniqueArmours.Lines.Find(x => x.Name == uniqueItemName && x.Links == 0);
+                                return item.ChaosValue;
+                            }
+                            if (UniqueArmours.Lines.Find(x => x.Name == uniqueItemName && x.Links == 5) != null)
+                            {
+                                var item = UniqueArmours.Lines.Find(x => x.Name == uniqueItemName && x.Links == 5);
+                                return item.ChaosValue;
+                            }
+                            if (UniqueArmours.Lines.Find(x => x.Name == uniqueItemName && x.Links == 6) != null)
+                            {
+                                var item = UniqueArmours.Lines.Find(x => x.Name == uniqueItemName && x.Links == 6);
+                                return item.ChaosValue;
+                            }
+                        }
+
+                        break;
+
+                    #endregion
+
+                    #region Flasks
+
+                    case ItemRarity.Unique when itemEntity.HasComponent<Flask>() && identified:
+                        if (uniqueItemName == "Vessel of Vinktar")
+                        {
+                            if (UniqueFlasks.Lines.Find(x =>
+                                    x.Name == uniqueItemName && x.Variant == "Added Attacks") !=
+                                null)
+                            {
+                                var item = UniqueFlasks.Lines.Find(x =>
+                                    x.Name == uniqueItemName && x.Variant == "Added Attacks");
+                                return item.ChaosValue;
+                            }
+                            if (UniqueFlasks.Lines.Find(x => x.Name == uniqueItemName && x.Variant == "Penetration") !=
+                                null)
+                            {
+                                var item = UniqueFlasks.Lines.Find(x =>
+                                    x.Name == uniqueItemName && x.Variant == "Penetration");
+                                return item.ChaosValue;
+                            }
+                            if (UniqueFlasks.Lines.Find(x => x.Name == uniqueItemName && x.Variant == "Added Spells") !=
+                                null)
+                            {
+                                var item = UniqueFlasks.Lines.Find(x =>
+                                    x.Name == uniqueItemName && x.Variant == "Added Spells");
+                                return item.ChaosValue;
+                            }
+                            if (UniqueFlasks.Lines.Find(x => x.Name == uniqueItemName && x.Variant == "Conversion") !=
+                                null)
+                            {
+                                var item = UniqueFlasks.Lines.Find(x =>
+                                    x.Name == uniqueItemName && x.Variant == "Conversion");
+                                return item.ChaosValue;
+                            }
+                        }
+                        else
+                        {
+                            if (UniqueFlasks.Lines.Find(x => x.Name == uniqueItemName) == null)
+                            {
+                                return NOT_FOUND;
+                            }
+
+                            var item = UniqueFlasks.Lines.Find(x => x.Name == uniqueItemName);
+                            return item.ChaosValue;
+                        }
+                        break;
+
+                    #endregion
+
+                    #region Jewels
+
+                    case ItemRarity.Unique when classItemName.Equals("Jewel") && identified:
+                        const string correctOne = "Fortified Legion";
+                        const string incorrectOne = "Bulwark Legion";
+
+                        if (UniqueJewels.Lines.Find(x => x.Name.Equals(uniqueItemName)) != null)
+                        {
+                            var item = UniqueJewels.Lines.Find(x => x.Name.Equals(uniqueItemName));
+                            return item.ChaosValue;
+                        }
+                        else if (uniqueItemName.Equals(incorrectOne) &&
+                                 UniqueJewels.Lines.Find(x => x.Name == correctOne) != null)
+                        {
+                            var item = UniqueJewels.Lines.Find(x => x.Name == correctOne);
+                            return item.ChaosValue;
+                        }
+
+                        break;
+
+                    #endregion
+
+                    #region Weapons
+
+                    case ItemRarity.Unique when itemEntity.HasComponent<Weapon>() && identified:
+                        if (UniqueWeapons.Lines.Find(x => x.Name == uniqueItemName && x.Links == 0) != null)
+                        {
+                            var item = UniqueWeapons.Lines.Find(x => x.Name == uniqueItemName && x.Links == 0);
+                            return item.ChaosValue;
+                        }
+                        if (UniqueWeapons.Lines.Find(x => x.Name == uniqueItemName && x.Links == 5) != null)
+                        {
+                            var item = UniqueWeapons.Lines.Find(x => x.Name == uniqueItemName && x.Links == 5);
+                            return item.ChaosValue;
+                        }
+                        if (UniqueWeapons.Lines.Find(x => x.Name == uniqueItemName && x.Links == 6) != null)
+                        {
+                            var item = UniqueWeapons.Lines.Find(x => x.Name == uniqueItemName && x.Links == 6);
+                            return item.ChaosValue;
+                        }
+
+                        break;
+
+                    #endregion
+
+                    default:
+                        if (baseItemName.Contains("Breachstone"))
+                        {
+                            if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null)
+                            {
+                                return NOT_FOUND;
+                            }
+
+                            var item = Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName);
+                            return item.ChaosEquivalent;
+                        }
+                        break;
+                }
+            }
+
+            return NOT_FOUND;
+        }
+
+
+        /// <summary>
+        /// This function is made by Github.com/Nymann
+        /// </summary>
+        /// <param name="baseItemName"></param>
+        /// <param name="stackSize"></param>
+        /// <returns></returns>
+        private double GetShardValues(string baseItemName, int stackSize)
+        {
+            var orbsAndTheirRespectiveShards = new Dictionary<string, string>
+            {
+                {"Transmutation Shard", "Orb of Transmutation"},
+                {"Alteration Shard", "Orb of Alteration"},
+                {"Annulment Shard", "Orb of Annulment"},
+                {"Exalted Shard", "Exalted Orb"},
+                {"Mirror Shard", "Mirror of Kalandra"},
+                {"Regal Shard", "Regal Orb"},
+                {"Alchemy Shard", "Orb of Alchemy"},
+                {"Chaos Shard", "Chaos Orb"},
+                {"Ancient Shard", "Ancient Orb"},
+                {"Engineer's Shard", "Engineer's Orb"},
+                {"Harbinger's Shard", "Harbinger's Orb"},
+                {"Horizon Shard", "Orb of Horizons"},
+                {"Binding Shard", "Orb of Binding"}
+            };
+
+            var name = "";
+            try
+            {
+                name = orbsAndTheirRespectiveShards[baseItemName];
+            }
+            catch
+            {
+                LogMessage($"Couldn't find key with value: {baseItemName}.", 1);
+            }
+            var item = Currency.Lines.Find(x => x.CurrencyTypeName == name);
+
+            if (item == null)
+            {
+                return NOT_FOUND;
+            }
+
+            var value = item.ChaosEquivalent / 20 * stackSize;
+
+            return value;
+        }
+
+        /// <summary>
+        /// Draws a plugin image to screen.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        private bool DrawImage(string fileName, RectangleF rec)
+        {
+            try
+            {
+                Graphics.DrawPluginImage(fileName, rec);
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
