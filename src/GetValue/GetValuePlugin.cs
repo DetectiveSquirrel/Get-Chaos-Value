@@ -7,6 +7,7 @@ using GetValue.poe_ninja_api.Classes;
 using Newtonsoft.Json;
 using PoeHUD.Models;
 using PoeHUD.Models.Enums;
+using PoeHUD.Models.Interfaces;
 using PoeHUD.Plugins;
 using PoeHUD.Poe;
 using PoeHUD.Poe.Components;
@@ -255,11 +256,13 @@ namespace GetValue
             return className;
         }
 
-        private void ShowChaosValue(RectangleF window, Vector2 textPos, Entity itemEntity, string className,
+        private void ShowChaosValue(RectangleF window, Vector2 textPos, IEntity itemEntity, string className,
             string path,
             bool identified, string uniqueItemName, string baseItemName, bool isMap, ItemRarity itemRarity,
             int lineCount, bool stackable)
         {
+            #region Normal Maps
+
             if (itemRarity != ItemRarity.Unique && isMap)
             {
                 if (itemEntity == null) return;
@@ -273,6 +276,10 @@ namespace GetValue
                 BackgroundBox(window, lineCount);
             }
 
+            #endregion
+
+            #region Unique Maps
+
             else if (itemRarity == ItemRarity.Unique && isMap)
             {
                 if (itemEntity == null) return;
@@ -285,6 +292,10 @@ namespace GetValue
                 DrawText(ref textPos, ref lineCount, text);
                 BackgroundBox(window, lineCount);
             }
+
+            #endregion
+
+            #region Currency, but NOT Chaos Orbs, Shards, Essences, Wisdom Scrolls or Prohecies.
 
             else if (path.Contains("Currency") && baseItemName != "Chaos Orb" && !baseItemName.Contains("Shard") &&
                      !baseItemName.Contains("Essence") && !baseItemName.Contains("Remnant of") &&
@@ -308,6 +319,10 @@ namespace GetValue
 
                 BackgroundBox(window, lineCount);
             }
+
+            #endregion
+
+            #region Shards
 
             else if (path.Contains("Currency") && baseItemName.Contains("Shard") && !baseItemName.Contains("Essence") &&
                      !baseItemName.Contains("Remnant of") && !baseItemName.Contains("Wisdom") &&
@@ -372,11 +387,20 @@ namespace GetValue
                 }
             }
 
+            #endregion
+
+            #region Essences
+
             else if (baseItemName.Contains("Essence") || baseItemName.Contains("Remnant of"))
             {
-                if (itemEntity == null) return;
-                if (Essences.Lines.Find(x => x.Name == baseItemName) == null)
+                if (itemEntity == null)
+                {
                     return;
+                }
+                if (Essences.Lines.Find(x => x.Name == baseItemName) == null)
+                {
+                    return;
+                }
 
                 var item = Essences.Lines.Find(x => x.Name == baseItemName);
                 var text = $"Chaos: {item.ChaosValue} || Change last 7 days: {item.Sparkline.TotalChange}%";
@@ -384,6 +408,10 @@ namespace GetValue
                 DrawText(ref textPos, ref lineCount, text);
                 BackgroundBox(window, lineCount);
             }
+
+            #endregion
+
+            #region Divination Cards
 
             else if (className.Contains("Divination"))
             {
@@ -397,6 +425,10 @@ namespace GetValue
                 DrawText(ref textPos, ref lineCount, text);
                 BackgroundBox(window, lineCount);
             }
+
+            #endregion
+
+            #region Map Fragments and Offerings
 
             else if (className == "Map Fragments" || baseItemName == "Offering to the Goddess")
             {
@@ -412,10 +444,14 @@ namespace GetValue
                 BackgroundBox(window, lineCount);
             }
 
+            #endregion
+
             else
             {
                 switch (itemRarity)
                 {
+                    #region Amulets, Rings and Belts
+
                     case ItemRarity.Unique when (className == "Amulets" || className == "Rings" || className == "Belts") && identified:
                         if (itemEntity == null) return;
                         const string taliosSignCorrect = "Tasalio's Sign";
@@ -443,6 +479,11 @@ namespace GetValue
 
                         BackgroundBox(window, lineCount);
                         break;
+
+                    #endregion
+
+                    #region Quivers
+
                     case ItemRarity.Unique when (itemEntity.HasComponent<Armour>() || className == "Quivers") &&
                                                 identified:
                         const string victariosFlightCorrect = "Victario's Flight";
@@ -486,6 +527,11 @@ namespace GetValue
 
                         BackgroundBox(window, lineCount);
                         break;
+
+                    #endregion
+
+                    #region Flasks
+
                     case ItemRarity.Unique when itemEntity.HasComponent<Flask>() && identified:
                         if (uniqueItemName == "Vessel of Vinktar")
                         {
@@ -544,6 +590,11 @@ namespace GetValue
 
                         BackgroundBox(window, lineCount);
                         break;
+
+                    #endregion
+
+                    #region Jewels
+
                     case ItemRarity.Unique when className == "Jewel" && identified:
                         const string correctOne = "Fortified Legion";
                         const string incorrectOne = "Bulwark Legion";
@@ -566,6 +617,11 @@ namespace GetValue
 
                         BackgroundBox(window, lineCount);
                         break;
+
+                    #endregion
+
+                    #region Weapons
+
                     case ItemRarity.Unique when itemEntity.HasComponent<Weapon>() && identified:
                         if (UniqueWeapons.Lines.Find(x => x.Name == uniqueItemName && x.Links == 0) != null)
                         {
@@ -594,6 +650,8 @@ namespace GetValue
 
                         BackgroundBox(window, lineCount);
                         break;
+
+                    #endregion
                     default:
                         if (baseItemName.Contains("Breachstone"))
                         {
