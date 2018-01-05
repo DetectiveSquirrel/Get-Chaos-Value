@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using GetValue.poe_ninja_api;
 using GetValue.poe_ninja_api.Classes;
@@ -16,7 +14,6 @@ using PoeHUD.Models.Interfaces;
 using PoeHUD.Plugins;
 using PoeHUD.Poe.Components;
 using PoeHUD.Poe.Elements;
-using PoeHUD.Poe.EntityComponents;
 using SharpDX;
 using SharpDX.Direct3D9;
 using Map = PoeHUD.Poe.Components.Map;
@@ -54,6 +51,12 @@ namespace GetValue
             }
             Settings.VisibleStashValue.OnValueChanged += LoadVisibleStashSettings;
 
+            if (Settings.InventoryValue.Value)
+            {
+                LoadVisibleInventorySettings();
+            }
+            Settings.InventoryValue.OnValueChanged += LoadVisibleInventorySettings;
+
             Settings.ReloadButton.OnPressed += Load;
             _ninjaDirectory = PluginDirectory + "\\NinjaData\\";
 
@@ -66,10 +69,17 @@ namespace GetValue
 
         private void LoadVisibleStashSettings()
         {
+            // If the Visible Stash Value is deactivated, then return.
+            // We do this since this method is called OnValueChanged (could be 'turn on' or 'turn off).
+            if (!Settings.VisibleStashValue.Value)
+            {
+                return;
+            }
+
             // Visible Stash Settings
             var windowSize = GameController.Window.GetWindowRectangle().Size;
-            Settings.X.Max = (int)windowSize.Width;
-            Settings.Y.Max = (int)windowSize.Height;
+            Settings.StashValueX.Max = (int) windowSize.Width;
+            Settings.StashValueY.Max = (int) windowSize.Height;
 
             // check if image exists, if it doesn't, download it.
             var fileName = $"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png";
@@ -82,7 +92,42 @@ namespace GetValue
 
             using (var client = new WebClient())
             {
-                client.DownloadFile(new Uri("https://d1u5p3l4wpay3k.cloudfront.net/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"), fileName);
+                client.DownloadFile(
+                    new Uri(
+                        "https://d1u5p3l4wpay3k.cloudfront.net/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"),
+                    fileName);
+            }
+        }
+
+        private void LoadVisibleInventorySettings()
+        {
+            // If the Visible Inventory Value is deactivated, then return.
+            // We do this since this method is called OnValueChanged (could be 'turn on' or 'turn off).
+            if (!Settings.InventoryValue.Value)
+            {
+                return;
+            }
+
+            // Visible Inventory Settings
+            var windowSize = GameController.Window.GetWindowRectangle().Size;
+            Settings.InventoryValueX.Max = (int) windowSize.Width;
+            Settings.InventoryValueY.Max = (int) windowSize.Height;
+
+            // check if image exists, if it doesn't, download it.
+            var fileName = $"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png";
+            if (File.Exists(fileName))
+            {
+                return;
+            }
+
+            Directory.CreateDirectory($"{PluginDirectory}//images//");
+
+            using (var client = new WebClient())
+            {
+                client.DownloadFile(
+                    new Uri(
+                        "https://d1u5p3l4wpay3k.cloudfront.net/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"),
+                    fileName);
             }
         }
 
@@ -249,57 +294,10 @@ namespace GetValue
                 return;
             }
 
-            try
-            {
-                var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
-            
 
-            if (Settings.VisibleStashValue.Value && stashPanel.IsVisible)
-            {
-                var inventoryItems = stashPanel.VisibleStash.VisibleInventoryItems;
-                double sum = 0;
-                foreach (var normalInventoryItem in inventoryItems)
-                {
-                    
-                        if (normalInventoryItem == null)
-                        {
-                            return;
-                        }
+            InventoryValue();
 
-                        var temp = GetChaosValue(normalInventoryItem);
-                        if (temp == NOT_FOUND)
-                        {
-                            if (Settings.Debug.Value)
-                            {
-                                //Graphics.DrawText("NOT FOUND", 12, normalInventoryItem.GetClientRect().Center, FontDrawFlags.Center);
-                                Graphics.DrawLine(normalInventoryItem.GetClientRect().TopLeft, normalInventoryItem.GetClientRect().BottomRight, 1, Color.Red);
-                                Graphics.DrawLine(normalInventoryItem.GetClientRect().TopRight, normalInventoryItem.GetClientRect().BottomLeft, 1, Color.Red);
-                                Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Red);
-                            }
-                            continue;
-                        }
-
-                        sum += temp;
-                    
-                }
-
-
-                var color = Settings.ColorNode.Value;
-                var pos = new Vector2(Settings.X.Value, Settings.Y.Value);
-
-                var significantDigits = Math.Round((decimal) sum, Settings.SignificantDigits.Value);
-                Graphics.DrawText(
-                    DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
-                        new RectangleF(Settings.X.Value - Settings.FontSize.Value, Settings.Y.Value, Settings.FontSize.Value,
-                            Settings.FontSize.Value))
-                        ? $"{significantDigits}"
-                        : $"{significantDigits} Chaos", Settings.FontSize.Value, pos, color);
-            }
-            }
-            catch
-            {
-                // Divination card tab ugh.
-            }
+            VisibleStashValue();
 
             var lineCount = 0;
             var window = GameController.Window.GetWindowRectangle();
@@ -354,7 +352,6 @@ namespace GetValue
             return className;
         }
 
-
         private void ShowChaosValue(RectangleF window, Vector2 textPos, IEntity itemEntity, string className,
             string path,
             bool identified, string uniqueItemName, string baseItemName, bool isMap, ItemRarity itemRarity,
@@ -373,7 +370,9 @@ namespace GetValue
                 foreach (var itemList in itemEntity.GetComponent<Mods>().ItemMods)
                 {
                     if (itemList.RawName.Contains("MapShaped"))
+                    {
                         isShaped = true;
+                    }
                 }
                 if (isShaped)
                 {
@@ -889,7 +888,7 @@ namespace GetValue
         }
 
         /// <summary>
-        /// This function is made by Github.com/Nymann
+        ///     This function is made by Github.com/Nymann
         /// </summary>
         /// <param name="normalInventoryItem"></param>
         /// <returns></returns>
@@ -921,7 +920,9 @@ namespace GetValue
                 foreach (var itemList in itemEntity.GetComponent<Mods>().ItemMods)
                 {
                     if (itemList.RawName.Contains("MapShaped"))
+                    {
                         isShaped = true;
+                    }
                 }
                 if (isShaped)
                 {
@@ -938,7 +939,6 @@ namespace GetValue
                     {
                         var item = WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2");
                         return item.ChaosValue;
-
                     }
                 }
             }
@@ -1247,7 +1247,7 @@ namespace GetValue
 
 
         /// <summary>
-        /// This function is made by Github.com/Nymann
+        ///     This function is made by Github.com/Nymann
         /// </summary>
         /// <param name="baseItemName"></param>
         /// <param name="stackSize"></param>
@@ -1293,9 +1293,10 @@ namespace GetValue
         }
 
         /// <summary>
-        /// Draws a plugin image to screen.
+        ///     Draws a plugin image to screen.
         /// </summary>
-        /// <param name="path"></param>
+        /// <param name="rec"></param>
+        /// <param name="fileName">The full path including file, fx. C:\\image\\Carl.png</param>
         /// <returns></returns>
         private bool DrawImage(string fileName, RectangleF rec)
         {
@@ -1309,6 +1310,137 @@ namespace GetValue
             }
 
             return true;
+        }
+
+        private void InventoryValue()
+        {
+            try
+            {
+                var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel;
+
+
+                if (!Settings.InventoryValue.Value || !inventory.IsVisible)
+                {
+                    return;
+                }
+
+                var inventoryItems = inventory[InventoryIndex.PlayerInventory].VisibleInventoryItems;
+                double sum = 0;
+                foreach (var normalInventoryItem in inventoryItems)
+                {
+                    if (normalInventoryItem == null)
+                    {
+                        continue;
+                    }
+
+                    var isUnique = normalInventoryItem.Item.GetComponent<Mods>().ItemRarity == ItemRarity.Unique;
+                    if (!isUnique)
+                    {
+                        continue;
+                    }
+                    LogMessage("We found an item!", 1);
+                    var temp = GetChaosValue(normalInventoryItem);
+                    if (temp == NOT_FOUND)
+                    {
+                        if (Settings.Debug.Value)
+                        {
+                            Graphics.DrawLine(normalInventoryItem.GetClientRect().TopLeft,
+                                normalInventoryItem.GetClientRect().BottomRight, 1, Color.Red);
+                            Graphics.DrawLine(normalInventoryItem.GetClientRect().TopRight,
+                                normalInventoryItem.GetClientRect().BottomLeft, 1, Color.Red);
+                            Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Red);
+                        }
+                        continue;
+                    }
+
+                    if (temp >= Settings.InventoryValueCutOff.Value)
+                    {
+                        sum += temp;
+                        continue;
+                    }
+
+                    Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Red);
+                    Graphics.DrawText($"{temp:F}c", Settings.InventoryValueFontSize.Value, normalInventoryItem.GetClientRect().Center,
+                        Settings.InventoryValueColorNode,
+                        FontDrawFlags.Center);
+                }
+
+
+                var color = Settings.InventoryValueColorNode.Value;
+                var pos = new Vector2(Settings.InventoryValueX.Value, Settings.InventoryValueY.Value);
+
+                var significantDigits = Math.Round((decimal) sum, Settings.InventoryValueSignificantDigits.Value);
+                Graphics.DrawText(
+                    DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
+                        new RectangleF(Settings.InventoryValueX.Value - Settings.InventoryValueFontSize.Value,
+                            Settings.InventoryValueY.Value,
+                            Settings.InventoryValueFontSize.Value,
+                            Settings.InventoryValueFontSize.Value))
+                        ? $"{significantDigits}"
+                        : $"{significantDigits} Chaos", Settings.InventoryValueFontSize.Value, pos, color);
+            }
+            catch
+            {
+                // Divination card tab ugh.
+            }
+        }
+
+        private void VisibleStashValue()
+        {
+            try
+            {
+                var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
+
+
+                if (!Settings.VisibleStashValue.Value || !stashPanel.IsVisible)
+                {
+                    return;
+                }
+
+                var inventoryItems = stashPanel.VisibleStash.VisibleInventoryItems;
+                double sum = 0;
+                foreach (var normalInventoryItem in inventoryItems)
+                {
+                    if (normalInventoryItem == null)
+                    {
+                        continue;
+                    }
+
+                    var temp = GetChaosValue(normalInventoryItem);
+                    if (temp == NOT_FOUND)
+                    {
+                        if (Settings.Debug.Value)
+                        {
+                            Graphics.DrawLine(normalInventoryItem.GetClientRect().TopLeft,
+                                normalInventoryItem.GetClientRect().BottomRight, 1, Color.Red);
+                            Graphics.DrawLine(normalInventoryItem.GetClientRect().TopRight,
+                                normalInventoryItem.GetClientRect().BottomLeft, 1, Color.Red);
+                            Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Red);
+                        }
+                        continue;
+                    }
+
+                    sum += temp;
+                }
+
+
+                var color = Settings.StashValueColorNode.Value;
+                var pos = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
+
+                var significantDigits = Math.Round((decimal) sum, Settings.StashValueSignificantDigits.Value);
+                Graphics.DrawText(
+                    DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
+                        new RectangleF(Settings.StashValueX.Value - Settings.StashValueFontSize.Value,
+                            Settings.StashValueY.Value,
+                            Settings.StashValueFontSize.Value,
+                            Settings.StashValueFontSize.Value))
+                        ? $"{significantDigits}"
+                        : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos, color);
+            }
+            catch
+            {
+                // Divination card tab ugh.
+            }
         }
     }
 }
