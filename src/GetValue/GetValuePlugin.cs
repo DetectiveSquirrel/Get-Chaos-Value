@@ -327,7 +327,6 @@ namespace GetValue
                 return;
             }
             var className = GetClassName(baseItemType);
-            item.GetComponent<Base>();
             var mods = item.GetComponent<Mods>();
 
             var path = item.Path;
@@ -367,16 +366,39 @@ namespace GetValue
                 {
                     return;
                 }
-                if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2") == null)
+                // Ssaped map check
+                var isShaped = false;
+                foreach (var itemList in itemEntity.GetComponent<Mods>().ItemMods)
                 {
-                    return;
+                    if (itemList.RawName.Contains("MapShaped"))
+                        isShaped = true;
                 }
+                if (isShaped)
+                {
+                    if (WhiteMaps.Lines.Find(x => x.Name == "Shaped" + baseItemName && x.Variant == "Atlas2") == null)
+                    {
+                        var item = WhiteMaps.Lines.Find(x =>
+                            x.BaseType == "Shaped " + baseItemName && x.Variant == "Atlas2");
 
-                var item = WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2");
-                var text = $"Chaos: {item.ChaosValue} || Change last 7 days: {item.Sparkline.TotalChange}%";
+                        var text =
+                            $"Chaos: {item.ChaosValue} || Change last 7 days: {item.Sparkline.TotalChange}%";
 
-                DrawText(ref textPos, ref lineCount, text);
-                BackgroundBox(window, lineCount);
+                        DrawText(ref textPos, ref lineCount, text);
+                        BackgroundBox(window, lineCount);
+                    }
+                }
+                else
+                {
+                    if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2") != null)
+                    {
+                        var item = WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2");
+
+                        var text = $"Chaos: {item.ChaosValue} || Change last 7 days: {item.Sparkline.TotalChange}%";
+
+                        DrawText(ref textPos, ref lineCount, text);
+                        BackgroundBox(window, lineCount);
+                    }
+                }
             }
 
             #endregion
@@ -892,13 +914,31 @@ namespace GetValue
 
             if (itemRarity != ItemRarity.Unique && isMap)
             {
-                if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2") == null)
+                // Ssaped map check
+                var isShaped = false;
+                foreach (var itemList in itemEntity.GetComponent<Mods>().ItemMods)
                 {
-                    return NOT_FOUND;
+                    if (itemList.RawName.Contains("MapShaped"))
+                        isShaped = true;
                 }
+                if (isShaped)
+                {
+                    if (WhiteMaps.Lines.Find(x => x.Name == "Shaped" + baseItemName && x.Variant == "Atlas2") == null)
+                    {
+                        var item = WhiteMaps.Lines.Find(x =>
+                            x.BaseType == "Shaped " + baseItemName && x.Variant == "Atlas2");
+                        return item.ChaosValue;
+                    }
+                }
+                else
+                {
+                    if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2") != null)
+                    {
+                        var item = WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2");
+                        return item.ChaosValue;
 
-                var item = WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2");
-                return item.ChaosValue;
+                    }
+                }
             }
 
             #endregion
