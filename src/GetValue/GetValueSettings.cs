@@ -24,12 +24,10 @@ namespace GetValue
             StashValueSignificantDigits = new RangeNode<int>(5, 0, 10);
 
             // Inventory Value
-            HighlightJunk = new ToggleNode(true);
-            InventoryValueX = new RangeNode<int>(100, 0, 1920);
-            InventoryValueY = new RangeNode<int>(800, 0, 1080);
-            InventoryValueColorNode = new ColorNode(Color.AliceBlue);
-            InventoryValueFontSize = new RangeNode<int>(20, 0, 200);
-            InventoryValueSignificantDigits = new RangeNode<int>(5, 0, 10);
+            HighlightUniqueJunk = new ToggleNode(true);
+            HighlightColor = new ColorNode(Color.AliceBlue);
+            HighlightFontSize = new RangeNode<int>(20, 0, 200);
+            HighlightSignificantDigits = new RangeNode<int>(5, 0, 10);
             InventoryValueCutOff = new RangeNode<int>(1, 0, 10);
         }
 
@@ -69,25 +67,19 @@ namespace GetValue
 
         #region Visible Inventory Value
 
-        [Menu("Visible Inventory Value", 5)]
-        public ToggleNode HighlightJunk { get; set; }
-
-        [Menu("X", "Horizontal position of where the value in chaos should be drawn.", 51, 5)]
-        public RangeNode<int> InventoryValueX { get; set; }
-
-        [Menu("Y", "Horizontal position of where the value in chaos should be drawn.", 52, 5)]
-        public RangeNode<int> InventoryValueY { get; set; }
+        [Menu("Highlight Unique Junk", "Highlight unique items under X value (useful for quick-selling to vendor).",5)]
+        public ToggleNode HighlightUniqueJunk { get; set; }
 
         [Menu("Size", "Size of the font used to draw the chaos value of the visible inventory.", 53, 5)]
-        public RangeNode<int> InventoryValueFontSize { get; set; }
+        public RangeNode<int> HighlightFontSize { get; set; }
 
         [Menu("Color", 54, 5)]
-        public ColorNode InventoryValueColorNode { get; set; }
+        public ColorNode HighlightColor { get; set; }
 
-        [Menu("Significant Digits", 55, 5)]
-        public RangeNode<int> InventoryValueSignificantDigits { get; set; }
+        [Menu("Significant Digits", "The number of wanted decimals", 55, 5)]
+        public RangeNode<int> HighlightSignificantDigits { get; set; }
 
-        [Menu("Cut off Value for Uniques", "Draws a border and auto sells unique items if it's under X value in chaos", 56, 5)]
+        [Menu("Cut off Value", "Draws a border arround unique items if it's under X value in chaos", 56, 5)]
         public RangeNode<int> InventoryValueCutOff { get; set; }
 
         #endregion

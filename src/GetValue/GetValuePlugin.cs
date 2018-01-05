@@ -51,11 +51,11 @@ namespace GetValue
             }
             Settings.VisibleStashValue.OnValueChanged += LoadVisibleStashSettings;
 
-            if (Settings.InventoryValue.Value)
+            if (Settings.HighlightUniqueJunk.Value)
             {
-                LoadVisibleInventorySettings();
+                LoadHighligherSettings();
             }
-            Settings.InventoryValue.OnValueChanged += LoadVisibleInventorySettings;
+            Settings.HighlightUniqueJunk.OnValueChanged += LoadHighligherSettings;
 
             Settings.ReloadButton.OnPressed += Load;
             _ninjaDirectory = PluginDirectory + "\\NinjaData\\";
@@ -99,19 +99,14 @@ namespace GetValue
             }
         }
 
-        private void LoadVisibleInventorySettings()
+        private void LoadHighligherSettings()
         {
             // If the Visible Inventory Value is deactivated, then return.
             // We do this since this method is called OnValueChanged (could be 'turn on' or 'turn off).
-            if (!Settings.InventoryValue.Value)
+            if (!Settings.HighlightUniqueJunk.Value)
             {
                 return;
             }
-
-            // Visible Inventory Settings
-            var windowSize = GameController.Window.GetWindowRectangle().Size;
-            Settings.InventoryValueX.Max = (int) windowSize.Width;
-            Settings.InventoryValueY.Max = (int) windowSize.Height;
 
             // check if image exists, if it doesn't, download it.
             var fileName = $"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png";
@@ -295,7 +290,7 @@ namespace GetValue
             }
 
 
-            InventoryValue();
+            HighlightJunkUniques();
 
             VisibleStashValue();
 
@@ -1312,20 +1307,19 @@ namespace GetValue
             return true;
         }
 
-        private void InventoryValue()
+        private void HighlightJunkUniques()
         {
             try
             {
                 var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel;
 
 
-                if (!Settings.InventoryValue.Value || !inventory.IsVisible)
+                if (!Settings.HighlightUniqueJunk.Value || !inventory.IsVisible)
                 {
                     return;
                 }
 
                 var inventoryItems = inventory[InventoryIndex.PlayerInventory].VisibleInventoryItems;
-                double sum = 0;
                 foreach (var normalInventoryItem in inventoryItems)
                 {
                     if (normalInventoryItem == null)
@@ -1338,9 +1332,9 @@ namespace GetValue
                     {
                         continue;
                     }
-                    LogMessage("We found an item!", 1);
+
                     var temp = GetChaosValue(normalInventoryItem);
-                    if (temp == NOT_FOUND)
+                    if ((int) temp == NOT_FOUND)
                     {
                         if (Settings.Debug.Value)
                         {
@@ -1355,29 +1349,20 @@ namespace GetValue
 
                     if (temp >= Settings.InventoryValueCutOff.Value)
                     {
-                        sum += temp;
                         continue;
                     }
+                    var significantDigits = Math.Round((decimal) temp, Settings.HighlightSignificantDigits.Value);
+                    var color = Settings.HighlightColor.Value;
+                    var rec = normalInventoryItem.GetClientRect();
+                    var fontSize = Settings.HighlightFontSize.Value;
+                    Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Settings.HighlightColor.Value);
+                    Graphics.DrawText($"{significantDigits}", fontSize, new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y), color, FontDrawFlags.Right);
 
-                    Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Red);
-                    Graphics.DrawText($"{temp:F}c", Settings.InventoryValueFontSize.Value, normalInventoryItem.GetClientRect().Center,
-                        Settings.InventoryValueColorNode,
-                        FontDrawFlags.Center);
-                }
-
-
-                var color = Settings.InventoryValueColorNode.Value;
-                var pos = new Vector2(Settings.InventoryValueX.Value, Settings.InventoryValueY.Value);
-
-                var significantDigits = Math.Round((decimal) sum, Settings.InventoryValueSignificantDigits.Value);
-                Graphics.DrawText(
                     DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
-                        new RectangleF(Settings.InventoryValueX.Value - Settings.InventoryValueFontSize.Value,
-                            Settings.InventoryValueY.Value,
-                            Settings.InventoryValueFontSize.Value,
-                            Settings.InventoryValueFontSize.Value))
-                        ? $"{significantDigits}"
-                        : $"{significantDigits} Chaos", Settings.InventoryValueFontSize.Value, pos, color);
+                        new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y,
+                            Settings.HighlightFontSize.Value,
+                            Settings.HighlightFontSize.Value));
+                }
             }
             catch
             {
@@ -1407,7 +1392,7 @@ namespace GetValue
                     }
 
                     var temp = GetChaosValue(normalInventoryItem);
-                    if (temp == NOT_FOUND)
+                    if ((int) temp == NOT_FOUND)
                     {
                         if (Settings.Debug.Value)
                         {
