@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using GetValue.poe_ninja_api;
 using GetValue.poe_ninja_api.Classes;
@@ -270,9 +271,10 @@ namespace GetValue
                         {
                             if (Settings.Debug.Value)
                             {
-                                Graphics.DrawText("NOT FOUND", 12, normalInventoryItem.GetClientRect().Center,
-                                    FontDrawFlags.Center);
-                                Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Aqua);
+                                //Graphics.DrawText("NOT FOUND", 12, normalInventoryItem.GetClientRect().Center, FontDrawFlags.Center);
+                                Graphics.DrawLine(normalInventoryItem.GetClientRect().TopLeft, normalInventoryItem.GetClientRect().BottomRight, 1, Color.Red);
+                                Graphics.DrawLine(normalInventoryItem.GetClientRect().TopRight, normalInventoryItem.GetClientRect().BottomLeft, 1, Color.Red);
+                                Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Red);
                             }
                             continue;
                         }
@@ -1068,7 +1070,7 @@ namespace GetValue
                     #region Amulets, Rings and Belts
 
                     case ItemRarity.Unique when
-                    (classItemName == "Amulets" || classItemName == "Rings" || classItemName == "Belts") && identified:
+                    (className == "Amulets" || className == "Rings" || className == "Belts") && identified:
                         const string taliosSignCorrect = "Tasalio's Sign";
                         const string taliosSignIncorrect = "Tasalio’s Sign";
 
@@ -1091,7 +1093,6 @@ namespace GetValue
                             var item = UniqueAccessories.Lines.Find(x => x.Name == taliosSignCorrect);
                             return item.ChaosValue;
                         }
-
                         break;
 
                     #endregion
