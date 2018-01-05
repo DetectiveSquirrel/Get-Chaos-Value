@@ -4,7 +4,7 @@ using SharpDX;
 
 namespace GetValue
 {
-    public class GetValueSettings : SettingsBase
+    public class GetValueSettings : PoeHUD.Hud.Settings.SettingsBase
     {
         public GetValueSettings()
         {

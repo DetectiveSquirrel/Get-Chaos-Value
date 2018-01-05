@@ -367,12 +367,12 @@ namespace GetValue
                 {
                     return;
                 }
-                if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas") == null)
+                if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2") == null)
                 {
                     return;
                 }
 
-                var item = WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas");
+                var item = WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2");
                 var text = $"Chaos: {item.ChaosValue} || Change last 7 days: {item.Sparkline.TotalChange}%";
 
                 DrawText(ref textPos, ref lineCount, text);
@@ -875,6 +875,7 @@ namespace GetValue
             var itemRarity = itemEntity.GetComponent<Mods>().ItemRarity;
             var isMap = itemEntity.HasComponent<Map>();
             var baseType = GameController.Files.BaseItemTypes.Translate(itemEntity.Path);
+            var className = GetClassName(baseType);
             var baseItemName = baseType.BaseName;
             var classItemName = baseType.ClassName;
             var path = itemEntity.Path;
@@ -891,10 +892,13 @@ namespace GetValue
 
             if (itemRarity != ItemRarity.Unique && isMap)
             {
-                if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas") == null)
+                if (WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2") == null)
                 {
                     return NOT_FOUND;
                 }
+
+                var item = WhiteMaps.Lines.Find(x => x.Name == baseItemName && x.Variant == "Atlas2");
+                return item.ChaosValue;
             }
 
             #endregion
@@ -1000,7 +1004,7 @@ namespace GetValue
 
             #region Map Fragments and Offerings
 
-            else if (classItemName.Equals("Map Fragments") || baseItemName.Equals("Offering to the Goddess"))
+            else if (className == "Map Fragments" || baseItemName == "Offering to the Goddess")
             {
                 if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null)
                 {
