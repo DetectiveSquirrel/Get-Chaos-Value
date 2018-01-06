@@ -289,10 +289,26 @@ namespace GetValue
                 return;
             }
 
+            
+            try
+            {
+                Highlighter();
+            }
+            catch
+            {
+                // This is sadly needed at the moment, because of PoEHUD's failure to read classNames on some occasitions.
+                LogMessage("Error in: Highlighter(), restart PoEHUD.", 5);
+            }
 
-            HighlightJunkUniques();
-
-            VisibleStashValue();
+            try
+            {
+                VisibleStashValue();
+            }
+            catch
+            {
+                LogMessage("Error in: VisibleStashValue(), restart PoEHUD.", 5);
+            }
+            
 
             var lineCount = 0;
             var window = GameController.Window.GetWindowRectangle();
@@ -339,12 +355,35 @@ namespace GetValue
                 isMap, itemRarity, lineCount, stackable);
         }
 
+        private void Highlighter()
+        {
+            if (!Settings.HighlightUniqueJunk.Value)
+            {
+                return;
+            }
+
+            var inventoryItems = GetInventoryItems();
+            if (inventoryItems != null)
+            {
+                HighlightJunkUniques(inventoryItems);
+            }
+            
+            var stashTabItems = GameController.Game.IngameState.ServerData.StashPanel?.VisibleStash
+                ?.VisibleInventoryItems;
+
+            if (stashTabItems == null)
+            {
+                return;
+            }
+
+            HighlightJunkUniques(stashTabItems);
+        }
+
         private string GetClassName(BaseItemType baseItemType)
         {
-            var className = GameController.Files.itemClasses.contents.TryGetValue(baseItemType.ClassName, out var tmp)
+            return GameController.Files.itemClasses.contents.TryGetValue(baseItemType.ClassName, out var tmp)
                 ? tmp.ClassName
                 : baseItemType.ClassName;
-            return className;
         }
 
         private void ShowChaosValue(RectangleF window, Vector2 textPos, IEntity itemEntity, string className,
@@ -1094,7 +1133,7 @@ namespace GetValue
 
                     #region Quivers and Armour
 
-                    case ItemRarity.Unique when (itemEntity.HasComponent<Armour>() || classItemName == "Quivers") &&
+                    case ItemRarity.Unique when (itemEntity.HasComponent<Armour>() || classItemName == "Quiver") &&
                                                 identified:
                         const string victariosFlightCorrect = "Victario's Flight";
                         const string victariosFlightIncorrect = "Ondar's Flight";
@@ -1307,66 +1346,71 @@ namespace GetValue
             return true;
         }
 
-        private void HighlightJunkUniques()
+
+        private void HighlightStashUniques()
         {
-            try
+            var element = GameController.Game.IngameState.ServerData.StashPanel;
+            Graphics.DrawFrame(element.GetClientRect(), 4, Color.Red);
+
+            var items = element.VisibleStash.VisibleInventoryItems;
+            foreach (var normalInventoryItem in items)
             {
-                var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel;
-
-
-                if (!Settings.HighlightUniqueJunk.Value || !inventory.IsVisible)
-                {
-                    return;
-                }
-
-                var inventoryItems = inventory[InventoryIndex.PlayerInventory].VisibleInventoryItems;
-                foreach (var normalInventoryItem in inventoryItems)
-                {
-                    if (normalInventoryItem == null)
-                    {
-                        continue;
-                    }
-
-                    var isUnique = normalInventoryItem.Item.GetComponent<Mods>().ItemRarity == ItemRarity.Unique;
-                    if (!isUnique)
-                    {
-                        continue;
-                    }
-
-                    var temp = GetChaosValue(normalInventoryItem);
-                    if ((int) temp == NOT_FOUND)
-                    {
-                        if (Settings.Debug.Value)
-                        {
-                            Graphics.DrawLine(normalInventoryItem.GetClientRect().TopLeft,
-                                normalInventoryItem.GetClientRect().BottomRight, 1, Color.Red);
-                            Graphics.DrawLine(normalInventoryItem.GetClientRect().TopRight,
-                                normalInventoryItem.GetClientRect().BottomLeft, 1, Color.Red);
-                            Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Red);
-                        }
-                        continue;
-                    }
-
-                    if (temp >= Settings.InventoryValueCutOff.Value)
-                    {
-                        continue;
-                    }
-                    var significantDigits = Math.Round((decimal) temp, Settings.HighlightSignificantDigits.Value);
-                    var color = Settings.HighlightColor.Value;
-                    var rec = normalInventoryItem.GetClientRect();
-                    var fontSize = Settings.HighlightFontSize.Value;
-                    Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Settings.HighlightColor.Value);
-                    Graphics.DrawText($"{significantDigits}", fontSize, new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y), color, FontDrawFlags.Right);
-
-                    DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
-                        new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y,
-                            Settings.HighlightFontSize.Value,
-                            Settings.HighlightFontSize.Value));
-                }
+                Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Aqua);
             }
-            catch
+        }
+
+        /// <summary>
+        /// Displays price for all unique items, and highlights all the uniques under X value by drawing a border arround them.
+        /// </summary>
+        /// <param name="items"></param>
+        private void HighlightJunkUniques(IEnumerable<NormalInventoryItem> items)
+        {
+            foreach (var normalInventoryItem in items)
             {
-                // Divination card tab ugh.
+                if (normalInventoryItem == null || !normalInventoryItem.Item.HasComponent<Mods>())
+                {
+                    continue;
+                }
+
+                var isUnique = normalInventoryItem.Item.GetComponent<Mods>().ItemRarity == ItemRarity.Unique;
+                if (!isUnique)
+                {
+                    continue;
+                }
+
+                var chaosValue = GetChaosValue(normalInventoryItem);
+                if ((int) chaosValue == NOT_FOUND)
+                {
+                    if (Settings.Debug.Value)
+                    {
+                        Graphics.DrawLine(normalInventoryItem.GetClientRect().TopLeft,
+                            normalInventoryItem.GetClientRect().BottomRight, 1, Color.Red);
+                        Graphics.DrawLine(normalInventoryItem.GetClientRect().TopRight,
+                            normalInventoryItem.GetClientRect().BottomLeft, 1, Color.Red);
+                        Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Color.Red);
+                    }
+                    continue;
+                }
+
+                
+                var chaosValueSignificanDigits = Math.Round((decimal) chaosValue, Settings.HighlightSignificantDigits.Value);
+                var color = Settings.HighlightColor.Value;
+                var rec = normalInventoryItem.GetClientRect();
+                var fontSize = Settings.HighlightFontSize.Value;
+                
+                Graphics.DrawText($"{chaosValueSignificanDigits}", fontSize,
+                    new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y), color, FontDrawFlags.Right);
+
+                DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
+                    new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y,
+                        Settings.HighlightFontSize.Value,
+                        Settings.HighlightFontSize.Value));
+
+                if (chaosValueSignificanDigits >= Settings.InventoryValueCutOff.Value)
+                {
+                    continue;
+                }
+                Graphics.DrawFrame(normalInventoryItem.GetClientRect(), 2, Settings.HighlightColor.Value);
             }
         }
 
@@ -1426,6 +1470,13 @@ namespace GetValue
             {
                 // Divination card tab ugh.
             }
+        }
+
+        private List<NormalInventoryItem> GetInventoryItems()
+        {
+            var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel;
+
+            return !inventory.IsVisible ? null : inventory[InventoryIndex.PlayerInventory].VisibleInventoryItems;
         }
     }
 }
