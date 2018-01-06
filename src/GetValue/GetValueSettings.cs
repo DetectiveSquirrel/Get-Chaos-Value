@@ -84,6 +84,8 @@ namespace GetValue
 
         #endregion
 
+
+
         [Menu("Debug", "Displays a border with text, on items we cannot calculate a price for.", 6)]
         public ToggleNode Debug { get; set; }
     }
