@@ -867,7 +867,7 @@ namespace GetValue
 
         private void DrawText(ref Vector2 textPos, ref int lineCount, string text)
         {
-            Graphics.DrawText(text, 15, textPos);
+            Graphics.DrawText(text, 15, textPos, Settings.UniTextColor);
             lineCount++;
             textPos.Y += 15;
         }
@@ -1399,7 +1399,7 @@ namespace GetValue
                 var fontSize = Settings.HighlightFontSize.Value;
                 
                 Graphics.DrawText($"{chaosValueSignificanDigits}", fontSize,
-                    new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y), color, FontDrawFlags.Right);
+                    new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y), Settings.UniTextColor, FontDrawFlags.Right);
 
                 DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
                     new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y,
@@ -1464,7 +1464,7 @@ namespace GetValue
                             Settings.StashValueFontSize.Value,
                             Settings.StashValueFontSize.Value))
                         ? $"{significantDigits}"
-                        : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos, color);
+                        : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos, Settings.UniTextColor);
             }
             catch
             {

@@ -12,6 +12,7 @@ namespace GetValue
             ReloadButton = new ButtonNode();
             AutoReload = new ToggleNode();
             AutoReloadTimer = new RangeNode<int>(15, 1, 60);
+            UniTextColor = Color.White;
 
             Debug = new ToggleNode(false);
 
@@ -42,6 +43,9 @@ namespace GetValue
 
         [Menu("Auto Reload (Minutes)", 31, 3)]
         public RangeNode<int> AutoReloadTimer { get; set; }
+
+        [Menu("Plugi WIde Text Color", 355, 3)]
+        public ColorNode UniTextColor { get; set; }
 
         #region Visible Stash Value
 

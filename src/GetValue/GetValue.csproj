@@ -35,31 +35,30 @@
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\PoEHUD-x64\release\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\..\PoE HUD #1\Release\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PoeHUD">
-      <HintPath>..\..\..\..\..\..\PoEHUD-x64\release\lib\PoeHUD.exe</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\PoeHUD.exe</HintPath>
     </Reference>
     <Reference Include="SharpDX, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\PoEHUD-x64\release\SharpDX.dll</HintPath>
+      <HintPath>..\..\..\..\PoE HUD #1\Release\SharpDX.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="SharpDX.Desktop, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\PoEHUD-x64\release\SharpDX.Desktop.dll</HintPath>
+      <HintPath>..\..\..\..\PoE HUD #1\Release\SharpDX.Desktop.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="SharpDX.Direct3D9, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\PoEHUD-x64\release\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>..\..\..\..\PoE HUD #1\Release\SharpDX.Direct3D9.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="SharpDX.Mathematics, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\PoEHUD-x64\release\SharpDX.Mathematics.dll</HintPath>
+      <HintPath>..\..\..\..\PoE HUD #1\Release\SharpDX.Mathematics.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
