@@ -2,7 +2,7 @@
 
 namespace GetValue.poe_ninja_api.Classes
 {
-    public class WhiteMaps
+    public class SkillGems
     {
         public class Sparkline
         {
@@ -17,7 +17,7 @@ namespace GetValue.poe_ninja_api.Classes
             public string       Icon              { get; set; }
             public int          MapTier           { get; set; }
             public int          LevelRequired     { get; set; }
-            public string       BaseType          { get; set; }
+            public object       BaseType          { get; set; }
             public int          StackSize         { get; set; }
             public string       Variant           { get; set; }
             public object       ProphecyText      { get; set; }
@@ -28,6 +28,9 @@ namespace GetValue.poe_ninja_api.Classes
             public List<object> ImplicitModifiers { get; set; }
             public List<object> ExplicitModifiers { get; set; }
             public string       FlavourText       { get; set; }
+            public bool         Corrupted         { get; set; }
+            public int          GemLevel          { get; set; }
+            public int          GemQuality        { get; set; }
             public string       ItemType          { get; set; }
             public double       ChaosValue        { get; set; }
             public double       ExaltedValue      { get; set; }

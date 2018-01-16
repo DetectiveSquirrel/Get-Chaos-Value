@@ -22,9 +22,6 @@ namespace GetValue.poe_ninja_api
             }
         }
 
-        public static string ReadJson(string filePath)
-        {
-            return File.ReadAllText(filePath);
-        }
+        public static string ReadJson(string filePath) => File.ReadAllText(filePath);
     }
 }

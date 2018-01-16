@@ -80,6 +80,7 @@
     <Compile Include="poe_ninja_api\Classes\Fragments.cs" />
     <Compile Include="poe_ninja_api\Classes\Leagues.cs" />
     <Compile Include="poe_ninja_api\Classes\Prophecies.cs" />
+    <Compile Include="poe_ninja_api\Classes\SkillGems.cs" />
     <Compile Include="poe_ninja_api\Classes\UniqueAccessories.cs" />
     <Compile Include="poe_ninja_api\Classes\UniqueArmours.cs" />
     <Compile Include="poe_ninja_api\Classes\UniqueFlasks.cs" />
