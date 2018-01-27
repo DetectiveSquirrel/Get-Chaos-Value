@@ -306,9 +306,29 @@ namespace GetValue
         private void ShowChaosValue(RectangleF window, Vector2 textPos, IEntity itemEntity, string className, string path, bool identified, string uniqueItemName, string baseItemName, bool isMap,
                                     ItemRarity itemRarity, int lineCount, bool  stackable)
         {
+
+            #region Map Fragments and Offerings
+
+            if (className == "Map Fragments")
+            {
+                if (itemEntity == null) return;
+                if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null) return;
+                var item = Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName);
+                var text = $"Chaos: {item.ChaosEquivalent} || Change last 7 days: {item.ReceiveSparkLine.TotalChange}%";
+                DrawText(ref textPos, ref lineCount, text);
+                if (stackable)
+                {
+                    var text2 = $"Total: {itemEntity.GetComponent<Stack>().Size * item.ChaosEquivalent}";
+                    DrawText(ref textPos, ref lineCount, text2);
+                }
+                BackgroundBox(window, lineCount);
+            }
+
+            #endregion
+
             #region Normal Maps
 
-            if (itemRarity != ItemRarity.Unique && isMap)
+             else if (itemRarity != ItemRarity.Unique && isMap)
             {
                 if (itemEntity == null) return;
                 // Ssaped map check
@@ -459,20 +479,6 @@ namespace GetValue
                 if (DivinationCards.Lines.Find(x => x.Name == baseItemName) == null) return;
                 var item = DivinationCards.Lines.Find(x => x.Name == baseItemName);
                 var text = $"Chaos: {item.ChaosValue} || Change last 7 days: {item.Sparkline.TotalChange}%";
-                DrawText(ref textPos, ref lineCount, text);
-                BackgroundBox(window, lineCount);
-            }
-
-            #endregion
-
-            #region Map Fragments and Offerings
-
-            else if (className == "Map Fragments" || baseItemName == "Offering to the Goddess")
-            {
-                if (itemEntity == null) return;
-                if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null) return;
-                var item = Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName);
-                var text = $"Chaos: {item.ChaosEquivalent} || Change last 7 days: {item.ReceiveSparkLine.TotalChange}%";
                 DrawText(ref textPos, ref lineCount, text);
                 BackgroundBox(window, lineCount);
             }
@@ -724,9 +730,23 @@ namespace GetValue
             var stackable     = stack?.Info != null;
             if (baseItemName.Equals("Scroll of Wisdom") || baseItemName.Equals("Scroll Fragment")) return 0;
 
+
+            if (className == "Map Fragments")
+            {
+                if (itemEntity == null) return NotFound;
+                if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null) return NotFound;
+                var item = Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName);
+                if (stackable)
+                {
+                    return itemEntity.GetComponent<Stack>().Size * item.ChaosEquivalent;
+                }
+
+                return item.ChaosEquivalent;
+            }
+
             #region Normal Maps
 
-            if (itemRarity != ItemRarity.Unique && isMap)
+            else if (itemRarity != ItemRarity.Unique && isMap)
             {
                 // Ssaped map check
                 var isShaped = false;
@@ -832,17 +852,6 @@ namespace GetValue
                 }
 
                 return item.ChaosValue;
-            }
-
-            #endregion
-
-            #region Map Fragments and Offerings
-
-            else if (className == "Map Fragments" || baseItemName == "Offering to the Goddess")
-            {
-                if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null) return NotFound;
-                var item = Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName);
-                return item.ChaosEquivalent;
             }
 
             #endregion
