@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using GetValue.poe_ninja_api;
+﻿using GetValue.poe_ninja_api;
 using GetValue.poe_ninja_api.Classes;
 using Newtonsoft.Json;
 using PoeHUD.Models;
@@ -16,6 +9,13 @@ using PoeHUD.Poe.Components;
 using PoeHUD.Poe.Elements;
 using SharpDX;
 using SharpDX.Direct3D9;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using Map = PoeHUD.Poe.Components.Map;
 
 namespace GetValue
@@ -301,7 +301,7 @@ namespace GetValue
             HighlightJunkUniques(stashTabItems);
         }
 
-        private string GetClassName(BaseItemType baseItemType) => GameController.Files.itemClasses.contents.TryGetValue(baseItemType.ClassName, out var tmp) ? tmp.ClassName : baseItemType.ClassName;
+        private string GetClassName(BaseItemType baseItemType) => GameController.Files.ItemClasses.contents.TryGetValue(baseItemType.ClassName, out var tmp) ? tmp.ClassName : baseItemType.ClassName;
 
         private void ShowChaosValue(RectangleF window, Vector2 textPos, IEntity itemEntity, string className, string path, bool identified, string uniqueItemName, string baseItemName, bool isMap,
                                     ItemRarity itemRarity, int lineCount, bool  stackable)
@@ -733,7 +733,6 @@ namespace GetValue
 
             if (className == "Map Fragments")
             {
-                if (itemEntity == null) return NotFound;
                 if (Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName) == null) return NotFound;
                 var item = Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName);
                 if (stackable)
@@ -746,7 +745,7 @@ namespace GetValue
 
             #region Normal Maps
 
-            else if (itemRarity != ItemRarity.Unique && isMap)
+            if (itemRarity != ItemRarity.Unique && isMap)
             {
                 // Ssaped map check
                 var isShaped = false;
@@ -828,13 +827,10 @@ namespace GetValue
             {
                 if (Essences.Lines.Find(x => x.Name == baseItemName) == null) return NotFound;
                 var item = Essences.Lines.Find(x => x.Name == baseItemName);
-                if (stackable)
-                {
-                    var priceForTheStack = stack.Size * item.ChaosValue;
-                    return priceForTheStack;
-                }
+                if (!stackable) return item.ChaosValue;
+                var priceForTheStack = stack.Size * item.ChaosValue;
+                return priceForTheStack;
 
-                return item.ChaosValue;
             }
 
             #endregion
@@ -1115,7 +1111,6 @@ namespace GetValue
                 }
 
                 var chaosValueSignificanDigits = Math.Round((decimal) chaosValue, Settings.HighlightSignificantDigits.Value);
-                var color                      = Settings.HighlightColor.Value;
                 var rec                        = normalInventoryItem.GetClientRect();
                 var fontSize                   = Settings.HighlightFontSize.Value;
                 Graphics.DrawText($"{chaosValueSignificanDigits}", fontSize, new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y), Settings.UniTextColor, FontDrawFlags.Right);
@@ -1153,7 +1148,6 @@ namespace GetValue
                     sum += temp;
                 }
 
-                var color             = Settings.StashValueColorNode.Value;
                 var pos               = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
                 var significantDigits = Math.Round((decimal) sum, Settings.StashValueSignificantDigits.Value);
                 Graphics.DrawText(DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png", new RectangleF(Settings.StashValueX.Value - Settings.StashValueFontSize.Value, Settings.StashValueY.Value, Settings.StashValueFontSize.Value, Settings.StashValueFontSize.Value)) ? $"{significantDigits}" : $"{significantDigits} Chaos",
