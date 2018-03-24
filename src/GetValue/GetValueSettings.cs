@@ -39,7 +39,7 @@ namespace GetValue
 
         [Menu("Auto Reload (Minutes)", 31, 3)] public RangeNode<int> AutoReloadTimer { get; set; }
 
-        [Menu("Plugi WIde Text Color", 355, 3)]
+        [Menu("Plugin Wide Text Color", 355, 3)]
         public ColorNode UniTextColor { get; set; }
 
 

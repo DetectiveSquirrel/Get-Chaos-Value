@@ -16,12 +16,17 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using ImGuiNET;
 using Map = PoeHUD.Poe.Components.Map;
 
 namespace GetValue
 {
     public class GetValuePlugin : BaseSettingsPlugin<GetValueSettings>
     {
+        //https://stackoverflow.com/questions/826777/how-to-have-an-auto-incrementing-version-number-visual-studio
+        public Version version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        public string PluginVersion;
+        public DateTime buildDate;
         private const    int                          NotFound         = -1;
         private readonly Stopwatch                    _reloadStopWatch = Stopwatch.StartNew();
         private          string                       _ninjaDirectory;
@@ -43,8 +48,17 @@ namespace GetValue
 
         public string CurrentLeague { get; private set; }
 
+        public GetValuePlugin()
+        {
+            PluginName = "Poe.Ninja Pricer";
+        }
+
+
         public override void Initialise()
         {
+            buildDate = new DateTime(2000, 1, 1).AddDays(version.Build).AddSeconds(version.Revision * 2);
+            PluginVersion = $"{version}";
+
             if (Settings.VisibleStashValue.Value) LoadVisibleStashSettings();
             Settings.VisibleStashValue.OnValueChanged += LoadVisibleStashSettings;
             if (Settings.HighlightUniqueJunk.Value) LoadHighligherSettings();
@@ -56,6 +70,14 @@ namespace GetValue
             var file = new FileInfo(_ninjaDirectory);
             file.Directory?.Create(); // If the directory already exists, this method does nothing.
             Load();
+        }
+
+        public override void DrawSettingsMenu()
+        {
+            ImGui.BulletText($"v{PluginVersion}");
+            ImGui.BulletText($"Last Updated: {buildDate}");
+
+            base.DrawSettingsMenu();
         }
 
         private void LoadVisibleStashSettings()
