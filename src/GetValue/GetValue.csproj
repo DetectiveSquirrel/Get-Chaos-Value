@@ -59,10 +59,17 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GetValuePlugin.cs" />
     <Compile Include="GetValueSettings.cs" />
+    <Compile Include="Draws.cs" />
+    <Compile Include="JSON_Things.cs" />
     <Compile Include="poe_ninja_api\API.cs" />
     <Compile Include="poe_ninja_api\Classes\Currency.cs" />
     <Compile Include="poe_ninja_api\Classes\DivinationCards.cs" />
@@ -82,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

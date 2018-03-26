@@ -29,6 +29,8 @@ namespace GetValue
             HighlightFontSize          = new RangeNode<int>(20, 0, 200);
             HighlightSignificantDigits = new RangeNode<int>(5,  0, 10);
             InventoryValueCutOff       = new RangeNode<int>(1,  0, 10);
+
+            ProphecyBackground = Color.Black;
         }
 
         [Menu("League", 1)] public ListNode LeagueList { get; set; }
@@ -84,5 +86,15 @@ namespace GetValue
         public RangeNode<int> InventoryValueCutOff { get; set; }
 
         #endregion
+
+
+        [Menu("Prophecy Prices", "This shows your proph prices whilst you have your stash tab open", 567765)]
+        public ToggleNode ProphecyOverrideColors { get; set; } = true;
+
+        [Menu("Prophecy Background", 234, 567765)]
+        public ColorNode ProphecyBackground { get; set; }
+
+        [Menu("Prophecy Locked", "This will lock the proh box so you can click through it without accidentally moving it", 652, 567765)]
+        public ToggleNode ProphecyLocked { get; set; } = false;
     }
 }
