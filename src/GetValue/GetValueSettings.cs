@@ -89,6 +89,9 @@ namespace GetValue
 
 
         [Menu("Prophecy Prices", "This shows your proph prices whilst you have your stash tab open", 567765)]
+        public ToggleNode ProphecyPrices { get; set; } = true;
+
+        [Menu("Override Background Color from the default theme color", 123345, 567765)]
         public ToggleNode ProphecyOverrideColors { get; set; } = true;
 
         [Menu("Prophecy Background", 234, 567765)]

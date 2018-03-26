@@ -803,6 +803,10 @@ namespace GetValue
 
         private void PropheccyDisplay()
         {
+
+            if (!Settings.ProphecyPrices)
+                return;
+
             try
             {
                 var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
