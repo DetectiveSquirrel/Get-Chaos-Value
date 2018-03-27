@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using ImGuiNET;
 using PoeHUD.Models;
 using PoeHUD.Models.Enums;
@@ -12,6 +14,8 @@ using Map = PoeHUD.Poe.Components.Map;
 using ImVector2 = System.Numerics.Vector2;
 using ImVector4 = System.Numerics.Vector4;
 using Vector4 = SharpDX.Vector4;
+using Color = SharpDX.Color;
+using RectangleF = SharpDX.RectangleF;
 
 namespace GetValue
 {
@@ -799,7 +803,7 @@ namespace GetValue
             }
         }
 
-        private ImVector4 ToImVector4(Vector4 vector) => new ImVector4(vector.X, vector.Y, vector.Z, vector.W);
+        private ImVector4 ToImVector4(ImVector4 vector) => new ImVector4(vector.X, vector.Y, vector.Z, vector.W);
 
         private void PropheccyDisplay()
         {
@@ -815,8 +819,11 @@ namespace GetValue
                 var prophystringlist = new List<string>();
                 var propicies = GameController.Player.GetComponent<Player>().Prophecies;
                 foreach (var prophecyDat in propicies)
-                {                 
-                      prophystringlist.Add($"{GetProphecyValues(prophecyDat.Name)}c - " + prophecyDat.Name);
+                {
+                    //var text = $"{GetProphecyValues(prophecyDat.Name)}c - {prophecyDat.Name}({prophecyDat.SealCost})";
+                    var text = $"{{{HexConverter(Settings.ProphecyChaosValue)}}}{GetProphecyValues(prophecyDat.Name)}c {{}}- {{{HexConverter(Settings.ProphecyProecyName)}}}{prophecyDat.Name}{{}} ({{{HexConverter(Settings.ProphecyProecySealColor)}}}{prophecyDat.SealCost}{{}})";
+                    if (prophystringlist.Any(x => Equals(x, text))) continue;
+                    prophystringlist.Add(text);
                 }
 
 
@@ -840,7 +847,8 @@ namespace GetValue
 
                 foreach (var VARIABLE in prophystringlist)
                 {
-                    ImGui.Text(VARIABLE);
+                    //ImGui.Text(VARIABLE);
+                    Coloredtext(VARIABLE);
                 }
 
                 ImGui.EndWindow();
@@ -943,6 +951,85 @@ namespace GetValue
             }
 
             return true;
+        }
+
+
+        private ImVector4 ToImVector4(Vector4 vector) => new ImVector4(vector.X, vector.Y, vector.Z, vector.W);
+        /*
+         * format is as follows
+         * To change color of the string surround hex codes with {} Example: "Uncolored {#AARRGGBB}Colored"
+         * having a blank {} will make it go back to default imgui text color, Example: "Uncolored {#AARRGGBB}Colored {}Back to orig color"
+         */
+        public void Coloredtext(string TextIn)
+        {
+            try
+            {
+                var accumulatedText = "";
+                var StartColor = ImGui.GetStyle().GetColor(ColorTarget.Text);
+                var foundBracketStart = "";
+                var hexCode = "";
+                var sameLine = false;
+                var nextColor = StartColor;
+                for (var i = 0; i < TextIn.Length; i++)
+                {
+                    if (TextIn[i] == '{')
+                    {
+                        foundBracketStart = TextIn.Substring(i + 1);
+                        for (var j = 0; j < foundBracketStart.Length; j++)
+                        {
+                            i++;
+                            if (foundBracketStart[j] == '}')
+                                break;
+                            hexCode += foundBracketStart[j];
+                        }
+
+                        if (sameLine)
+                            ImGui.SameLine(0f, 0f);
+                        ImGui.Text(accumulatedText, nextColor);
+                        if (TextIn[i - 1] == '{')
+                            nextColor = StartColor;
+                        accumulatedText = "";
+                        sameLine = true;
+                        if (hexCode != "")
+                        {
+                            var tempColor = ColorTranslator.FromHtml(hexCode);
+                            var tempColor2 = new SharpDX.Color(tempColor.R, tempColor.G, tempColor.B, tempColor.A).ToVector4();
+                            nextColor = new System.Numerics.Vector4(tempColor2.X, tempColor2.Y, tempColor2.Z, tempColor2.W);
+                        }
+
+                        i++;
+                        hexCode = "";
+                    }
+
+                    accumulatedText += TextIn[i];
+                }
+
+                if (sameLine)
+                    ImGui.SameLine(0f, 0f);
+                ImGui.Text(accumulatedText, nextColor);
+            }
+            catch (Exception e)
+            {
+                // This spams all the time even tho nothing seems broken so it can fuck riiiiiiiight off
+                //LogError("ColorText: Incorrect hex format \n" + e, 15);
+            }
+        }
+
+        // Used for converting SharpDX.Color into string #AARRGGBB
+        private static string HexConverter(Color c)
+        {
+            var rtn = string.Empty;
+            try
+            {
+                rtn = "#" + c.A.ToString("X2") + c.R.ToString("X2") + c.G.ToString("X2") + c.B.ToString("X2");
+                return rtn;
+            }
+            catch (Exception)
+            {
+                //doing nothing
+            }
+
+            return rtn;
         }
     }
 }

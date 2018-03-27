@@ -99,5 +99,14 @@ namespace GetValue
 
         [Menu("Prophecy Locked", "This will lock the proh box so you can click through it without accidentally moving it", 652, 567765)]
         public ToggleNode ProphecyLocked { get; set; } = false;
+
+        [Menu("Chaos Value", 653, 567765)]
+        public ColorNode ProphecyChaosValue { get; set; } = Color.White;
+
+        [Menu("Prophecy Name", 654, 567765)]
+        public ColorNode ProphecyProecyName { get; set; } = Color.White;
+
+        [Menu("Prophecy Seal Cost", 655, 567765)]
+        public ColorNode ProphecyProecySealColor { get; set; } = Color.White;
     }
 }
