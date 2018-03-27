@@ -805,6 +805,9 @@ namespace GetValue
 
         private ImVector4 ToImVector4(ImVector4 vector) => new ImVector4(vector.X, vector.Y, vector.Z, vector.W);
 
+        private static Vector2 lastProphWindowPos = new Vector2(0, 0);
+        private static Vector2 lastProphWindowSize = new Vector2(0, 0);
+
         private void PropheccyDisplay()
         {
 
@@ -814,20 +817,7 @@ namespace GetValue
             try
             {
                 var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
-                var stashPanelVisable = GameController.Game.IngameState.ServerData.StashPanel.IsVisible;
-                if (!Settings.VisibleStashValue.Value || !stashPanel.IsVisible) return;
-                var prophystringlist = new List<string>();
-                var propicies = GameController.Player.GetComponent<Player>().Prophecies;
-                foreach (var prophecyDat in propicies)
-                {
-                    //var text = $"{GetProphecyValues(prophecyDat.Name)}c - {prophecyDat.Name}({prophecyDat.SealCost})";
-                    var text = $"{{{HexConverter(Settings.ProphecyChaosValue)}}}{GetProphecyValues(prophecyDat.Name)}c {{}}- {{{HexConverter(Settings.ProphecyProecyName)}}}{prophecyDat.Name} {{{HexConverter(Settings.ProphecyProecySealColor)}}}({prophecyDat.SealCost}){{}}";
-                    if (prophystringlist.Any(x => Equals(x, text))) continue;
-                    prophystringlist.Add(text);
-                }
-
-
-                var refBool = true;
+                
                 float menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
                 if (Settings.ProphecyOverrideColors)
                 {
@@ -837,21 +827,43 @@ namespace GetValue
                     menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
                 }
 
-                ImGui.BeginWindow("Poe.NinjaProphs", ref refBool, new ImVector2(200, 150), menuOpacity, Settings.ProphecyLocked ? WindowFlags.NoCollapse | WindowFlags.NoScrollbar | WindowFlags.NoMove | WindowFlags.NoResize | WindowFlags.NoInputs | WindowFlags.NoBringToFrontOnFocus | WindowFlags.NoTitleBar | WindowFlags.NoFocusOnAppearing : WindowFlags.Default | WindowFlags.NoTitleBar | WindowFlags.ResizeFromAnySide);
 
-                if (Settings.ProphecyOverrideColors)
+                var UIHover = GameController.Game.IngameState.UIHover;
+                var newBox = new RectangleF(lastProphWindowPos.X, lastProphWindowPos.Y, lastProphWindowSize.X, lastProphWindowSize.Y);
+
+                if (!Settings.VisibleStashValue.Value || !stashPanel.IsVisible) return;
+                var refBool = true;
+
+                if (!UIHover.Tooltip.GetClientRect().Intersects(newBox))
                 {
-                    ImGui.PopStyleColor();
-                }
-                                                                                                                                                                                                  
+                    ImGui.BeginWindow("Poe.NinjaProphs", ref refBool, new ImVector2(200, 150), menuOpacity, Settings.ProphecyLocked ? WindowFlags.NoCollapse | WindowFlags.NoScrollbar | WindowFlags.NoMove | WindowFlags.NoResize | WindowFlags.NoInputs | WindowFlags.NoBringToFrontOnFocus | WindowFlags.NoTitleBar | WindowFlags.NoFocusOnAppearing : WindowFlags.Default | WindowFlags.NoTitleBar | WindowFlags.ResizeFromAnySide);
 
-                foreach (var VARIABLE in prophystringlist)
-                {
-                    //ImGui.Text(VARIABLE);
-                    Coloredtext(VARIABLE);
-                }
+                    if (Settings.ProphecyOverrideColors)
+                    {
+                        ImGui.PopStyleColor();
+                    }
 
-                ImGui.EndWindow();
+
+                    var prophystringlist = new List<string>();
+                    var propicies = GameController.Player.GetComponent<Player>().Prophecies;
+                    foreach (var prophecyDat in propicies)
+                    {
+                        //var text = $"{GetProphecyValues(prophecyDat.Name)}c - {prophecyDat.Name}({prophecyDat.SealCost})";
+                        var text = $"{{{HexConverter(Settings.ProphecyChaosValue)}}}{GetProphecyValues(prophecyDat.Name)}c {{}}- {{{HexConverter(Settings.ProphecyProecyName)}}}{prophecyDat.Name} {{{HexConverter(Settings.ProphecyProecySealColor)}}}({prophecyDat.SealCost}){{}}";
+                        if (prophystringlist.Any(x => Equals(x, text))) continue;
+                        prophystringlist.Add(text);
+                    }
+
+                    foreach (var proph in prophystringlist)
+                    {
+                        //ImGui.Text(VARIABLE);
+                        Coloredtext(proph);
+                    }
+
+                    lastProphWindowSize = new Vector2(ImGui.GetWindowSize().X, ImGui.GetWindowSize().Y);
+                    lastProphWindowPos = new Vector2(ImGui.GetWindowPosition().X, ImGui.GetWindowPosition().Y);
+                    ImGui.EndWindow();
+                }
             }
             catch
             {
