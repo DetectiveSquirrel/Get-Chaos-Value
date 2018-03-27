@@ -821,7 +821,7 @@ namespace GetValue
                 foreach (var prophecyDat in propicies)
                 {
                     //var text = $"{GetProphecyValues(prophecyDat.Name)}c - {prophecyDat.Name}({prophecyDat.SealCost})";
-                    var text = $"{{{HexConverter(Settings.ProphecyChaosValue)}}}{GetProphecyValues(prophecyDat.Name)}c {{}}- {{{HexConverter(Settings.ProphecyProecyName)}}}{prophecyDat.Name}{{}} ({{{HexConverter(Settings.ProphecyProecySealColor)}}}{prophecyDat.SealCost}{{}})";
+                    var text = $"{{{HexConverter(Settings.ProphecyChaosValue)}}}{GetProphecyValues(prophecyDat.Name)}c {{}}- {{{HexConverter(Settings.ProphecyProecyName)}}}{prophecyDat.Name} {{{HexConverter(Settings.ProphecyProecySealColor)}}}({prophecyDat.SealCost}){{}}";
                     if (prophystringlist.Any(x => Equals(x, text))) continue;
                     prophystringlist.Add(text);
                 }

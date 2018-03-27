@@ -31,6 +31,10 @@ namespace GetValue
             InventoryValueCutOff       = new RangeNode<int>(1,  0, 10);
 
             ProphecyBackground = Color.Black;
+
+            ProphecyChaosValue = Color.White;
+            ProphecyProecyName = Color.White;
+            ProphecyProecySealColor = Color.White;
         }
 
         [Menu("League", 1)] public ListNode LeagueList { get; set; }
@@ -101,12 +105,12 @@ namespace GetValue
         public ToggleNode ProphecyLocked { get; set; } = false;
 
         [Menu("Chaos Value", 653, 567765)]
-        public ColorNode ProphecyChaosValue { get; set; } = Color.White;
+        public ColorNode ProphecyChaosValue { get; set; }
 
         [Menu("Prophecy Name", 654, 567765)]
-        public ColorNode ProphecyProecyName { get; set; } = Color.White;
+        public ColorNode ProphecyProecyName { get; set; }
 
         [Menu("Prophecy Seal Cost", 655, 567765)]
-        public ColorNode ProphecyProecySealColor { get; set; } = Color.White;
+        public ColorNode ProphecyProecySealColor { get; set; }
     }
 }
