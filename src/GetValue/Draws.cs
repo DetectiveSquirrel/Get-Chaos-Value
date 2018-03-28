@@ -817,15 +817,6 @@ namespace GetValue
             try
             {
                 var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
-                
-                float menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
-                if (Settings.ProphecyOverrideColors)
-                {
-                    var tempColor = new Vector4(Settings.ProphecyBackground.Value.R / 255.0f, Settings.ProphecyBackground.Value.G / 255.0f,
-                            Settings.ProphecyBackground.Value.B / 255.0f, Settings.ProphecyBackground.Value.A / 255.0f);
-                    ImGui.PushStyleColor(ColorTarget.WindowBg, ToImVector4(tempColor));
-                    menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
-                }
 
 
                 var UIHover = GameController.Game.IngameState.UIHover;
@@ -836,6 +827,16 @@ namespace GetValue
 
                 if (!UIHover.Tooltip.GetClientRect().Intersects(newBox))
                 {
+
+                    float menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
+                    if (Settings.ProphecyOverrideColors)
+                    {
+                        var tempColor = new Vector4(Settings.ProphecyBackground.Value.R / 255.0f, Settings.ProphecyBackground.Value.G / 255.0f,
+                                Settings.ProphecyBackground.Value.B / 255.0f, Settings.ProphecyBackground.Value.A / 255.0f);
+                        ImGui.PushStyleColor(ColorTarget.WindowBg, ToImVector4(tempColor));
+                        menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
+                    }
+
                     ImGui.BeginWindow("Poe.NinjaProphs", ref refBool, new ImVector2(200, 150), menuOpacity, Settings.ProphecyLocked ? WindowFlags.NoCollapse | WindowFlags.NoScrollbar | WindowFlags.NoMove | WindowFlags.NoResize | WindowFlags.NoInputs | WindowFlags.NoBringToFrontOnFocus | WindowFlags.NoTitleBar | WindowFlags.NoFocusOnAppearing : WindowFlags.Default | WindowFlags.NoTitleBar | WindowFlags.ResizeFromAnySide);
 
                     if (Settings.ProphecyOverrideColors)
