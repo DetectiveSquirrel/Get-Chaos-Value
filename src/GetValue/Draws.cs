@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using GetValue.Enums;
+using GetValue.poe_ninja_api.Classes;
 using ImGuiNET;
+using PoeHUD.Hud.UI;
 using PoeHUD.Models;
 using PoeHUD.Models.Enums;
 using PoeHUD.Models.Interfaces;
 using PoeHUD.Poe.Components;
 using PoeHUD.Poe.Elements;
+using PoeHUD.Poe.RemoteMemoryObjects;
 using SharpDX;
 using SharpDX.Direct3D9;
 using Map = PoeHUD.Poe.Components.Map;
@@ -25,6 +29,43 @@ namespace GetValue
 
         private void ShowChaosValue(RectangleF window, Vector2 textPos, IEntity itemEntity, string className, string path, bool identified, string uniqueItemName, string baseItemName, bool isMap, ItemRarity itemRarity, int lineCount, bool stackable)
         {
+            #region Helmet Enchants
+
+            //if (itemEntity.HasComponent<Mods>())
+            //{
+            //    List<ItemMod> mods = itemEntity.GetComponent<Mods>().ItemMods;
+
+            //    foreach (HelmetEnchants.Line ninjaEnchant in HelmetEnchants.lines)
+            //    {
+            //        foreach (ItemMod itemMod in mods)
+            //        {
+            //            object tempvar = Enum.Parse(typeof(Enchants.Helmet), itemMod.RawName);
+            //            var stringValue = (Enchants.Helmet)tempvar;
+
+            //            string ModString = ninjaEnchant.name;
+            //            ImGui.SetTooltip(ModString);
+
+            //            if (stringValue.GetStringValue() == ModString)
+            //            {
+            //                ImGui.SetTooltip(ModString);
+            //            }
+            //        }
+            //    }
+
+            //    //var item = Fragments.Lines.Find(x => x.CurrencyTypeName == baseItemName);
+            //    //var text = $"Chaos: {item.ChaosEquivalent} || Change last 7 days: {item.ReceiveSparkLine.TotalChange}%";
+            //    //DrawText(ref textPos, ref lineCount, text);
+            //    //if (stackable)
+            //    //{
+            //    //    var text2 = $"Total: {itemEntity.GetComponent<Stack>().Size * item.ChaosEquivalent}";
+            //    //    DrawText(ref textPos, ref lineCount, text2);
+            //    //}
+
+            //    //BackgroundBox(window, lineCount);
+            //}
+
+            #endregion
+
             #region Map Fragments and Offerings
 
             if (className == "Map Fragments")

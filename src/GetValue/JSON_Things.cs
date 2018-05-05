@@ -82,6 +82,12 @@ namespace GetValue
                 WhiteMaps = JsonConvert.DeserializeObject<WhiteMaps.RootObject>(json);
             }
 
+            //using (var r = new StreamReader(_ninjaDirectory + "HelmetEnchants.json"))
+            //{
+            //    var json = r.ReadToEnd();
+            //    HelmetEnchants = JsonConvert.DeserializeObject<HelmetEnchants.RootObject>(json);
+            //}
+
             //using (var r = new StreamReader(_ninjaDirectory + "SkillGems.json"))
             //{
             //    var json  = r.ReadToEnd();
@@ -91,19 +97,20 @@ namespace GetValue
 
         private void DownloadPoeNinjaApi(string league)
         {
-            Api.SaveJson(_ninjaDirectory + "Currency.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetCurrencyOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "DivinationCards.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetDivinationCardsOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "Essences.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetEssenceOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "Fragments.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetFragmentOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "Prophecies.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetProphecyOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "UniqueAccessories.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetUniqueAccessoryOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "UniqueArmours.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetUniqueArmourOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "UniqueFlasks.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetUniqueFlaskOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "UniqueJewels.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetUniqueJewelOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "UniqueMaps.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetUniqueMapOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "UniqueWeapons.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetUniqueWeaponOverview?league={league}"));
-            Api.SaveJson(_ninjaDirectory + "WhiteMaps.json", Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetMapOverview?league={league}"));
-            //Api.SaveJson(_ninjaDirectory + "SkillGems.json",         Api.DownloadApi($"http://cdn.poe.ninja/api/Data/GetSkillGemsOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "Currency.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetCurrencyOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "DivinationCards.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetDivinationCardsOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "Essences.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetEssenceOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "Fragments.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetFragmentOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "Prophecies.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetProphecyOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "UniqueAccessories.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetUniqueAccessoryOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "UniqueArmours.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetUniqueArmourOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "UniqueFlasks.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetUniqueFlaskOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "UniqueJewels.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetUniqueJewelOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "UniqueMaps.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetUniqueMapOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "UniqueWeapons.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetUniqueWeaponOverview?league={league}"));
+            Api.SaveJson(_ninjaDirectory + "WhiteMaps.json", Api.DownloadApi($"http://poe.ninja/api/Data/GetMapOverview?league={league}"));
+            //Api.SaveJson(_ninjaDirectory + "HelmetEnchants.json", Api.DownloadApi($"http://poe.ninja/api/Data/GethelmetenchantOverview?league={league}"));
+            //Api.SaveJson(_ninjaDirectory + "SkillGems.json",         Api.DownloadApi($"http://poe.ninja/api/Data/GetSkillGemsOverview?league={league}"));
         }
     }
 }

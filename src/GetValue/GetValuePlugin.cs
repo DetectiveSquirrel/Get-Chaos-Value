@@ -23,26 +23,26 @@ namespace GetValue
         private readonly Stopwatch _reloadStopWatch = Stopwatch.StartNew();
         private string _ninjaDirectory;
         public DateTime buildDate;
-        public Currency.RootObject Currency;
-        public DivinationCards.RootObject DivinationCards;
         public bool DownloadDone;
-        public Essences.RootObject Essences;
-        public Fragments.RootObject Fragments;
         public bool InitJsonDone;
         public string PluginVersion;
         public string PoeLeagueApiList = "http://api.pathofexile.com/leagues?type=main&compact=1";
+        public Currency.RootObject Currency;
+        public DivinationCards.RootObject DivinationCards;
+        public Essences.RootObject Essences;
+        public Fragments.RootObject Fragments;
         public Prophecies.RootObject Prophecies;
         public UniqueAccessories.RootObject UniqueAccessories;
         public UniqueArmours.RootObject UniqueArmours;
         public UniqueFlasks.RootObject UniqueFlasks;
         public UniqueJewels.RootObject UniqueJewels;
         public UniqueMaps.RootObject UniqueMaps;
-
         public UniqueWeapons.RootObject UniqueWeapons;
+        public WhiteMaps.RootObject WhiteMaps;
+        public HelmetEnchants.RootObject HelmetEnchants;
 
         //https://stackoverflow.com/questions/826777/how-to-have-an-auto-incrementing-version-number-visual-studio
         public Version version = Assembly.GetExecutingAssembly().GetName().Version;
-        public WhiteMaps.RootObject WhiteMaps;
 
         public GetValuePlugin() => PluginName = "Poe.Ninja Pricer";
 
