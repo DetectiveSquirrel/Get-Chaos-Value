@@ -70,6 +70,30 @@ namespace GetValue
 
         [Menu("Significant Digits", 45, 4)] public RangeNode<int> StashValueSignificantDigits { get; set; }
 
+        [Menu("Currency Tab Specifc", 23452, 4)]
+        public EmptyNode CurrencyTabSpecifc { get; set; }
+
+        [Menu("Currency Tab Specifc", 75465, 23452)]
+        public ToggleNode CurrencyTabSpecifcToggle { get; set; } = true;
+
+        [Menu("Value Font Size", 57, 23452)]
+        public RangeNode<int> CurrencyTabFontSize { get; set; } = new RangeNode<int>(14, 5, 50);
+
+        [Menu("Significant Digits Per Currency", 58, 23452)]
+        public RangeNode<int> CurrenctTabSigDigits { get; set; } = new RangeNode<int>(2, 0, 10);
+
+        [Menu("Box Height", 59, 23452)]
+        public RangeNode<int> CurrencyTabBoxHeight { get; set; } = new RangeNode<int>(15, 0, 100);
+
+        [Menu("Font Color", 60, 23452)]
+        public ColorNode CurrencyTabFontColor { get; set; } = new Color(216, 216, 216, 255);
+
+        [Menu("Background Color", 61, 23452)]
+        public ColorNode CurrencyTabBackgroundColor { get; set; } = new Color(0, 0, 0, 255);
+
+        [Menu("Border Color", 62, 23452)]
+        public ColorNode CurrencyTabBorderColor { get; set; } = new Color(146, 107, 43, 255);
+
         #endregion
 
 

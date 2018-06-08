@@ -9,6 +9,7 @@ using PoeHUD.Hud.UI;
 using PoeHUD.Models;
 using PoeHUD.Models.Enums;
 using PoeHUD.Models.Interfaces;
+using PoeHUD.Poe;
 using PoeHUD.Poe.Components;
 using PoeHUD.Poe.Elements;
 using PoeHUD.Poe.RemoteMemoryObjects;
@@ -774,12 +775,15 @@ namespace GetValue
         /// <param name="items"></param>
         private void HighlightJunkUniques(IEnumerable<NormalInventoryItem> items)
         {
-            foreach (var normalInventoryItem in items)
+            foreach (NormalInventoryItem normalInventoryItem in items)
             {
                 if (normalInventoryItem == null || !normalInventoryItem.Item.HasComponent<Mods>()) continue;
-                var isUnique = normalInventoryItem.Item.GetComponent<Mods>().ItemRarity == ItemRarity.Unique;
-                if (!isUnique) continue;
-                var chaosValue = GetChaosValue(normalInventoryItem);
+                Element HoverUI = GameController.Game.IngameState.UIHoverTooltip.Tooltip;
+                bool isUnique = normalInventoryItem.Item.GetComponent<Mods>().ItemRarity == ItemRarity.Unique;
+                if (HoverUI == null)
+                    continue;
+                if (!isUnique || HoverUI.GetClientRect().Intersects(normalInventoryItem.GetClientRect()) && HoverUI.IsVisibleLocal) continue;
+                double chaosValue = GetChaosValue(normalInventoryItem);
                 if ((int) chaosValue == NotFound)
                 {
                     if (Settings.Debug.Value)
@@ -792,9 +796,9 @@ namespace GetValue
                     continue;
                 }
 
-                var chaosValueSignificanDigits = Math.Round((decimal) chaosValue, Settings.HighlightSignificantDigits.Value);
-                var rec = normalInventoryItem.GetClientRect();
-                var fontSize = Settings.HighlightFontSize.Value;
+                decimal chaosValueSignificanDigits = Math.Round((decimal) chaosValue, Settings.HighlightSignificantDigits.Value);
+                RectangleF rec = normalInventoryItem.GetClientRect();
+                int fontSize = Settings.HighlightFontSize.Value;
                 Graphics.DrawText($"{chaosValueSignificanDigits}", fontSize, new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y), Settings.UniTextColor, FontDrawFlags.Right);
                 DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png", new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y, Settings.HighlightFontSize.Value, Settings.HighlightFontSize.Value));
                 if (chaosValueSignificanDigits >= Settings.InventoryValueCutOff.Value) continue;
@@ -825,6 +829,8 @@ namespace GetValue
 
                         continue;
                     }
+                    if (stashPanel.VisibleStash.InvType == InventoryType.CurrencyStash && Settings.CurrencyTabSpecifcToggle)
+                    CurrencyTabSpecifcPrices(normalInventoryItem, temp);
 
                     sum += temp;
                 }
@@ -842,6 +848,17 @@ namespace GetValue
             {
                 // Divination card tab ugh.
             }
+        }
+
+        private void CurrencyTabSpecifcPrices(NormalInventoryItem item, double worth)
+        {
+            RectangleF box = item.GetClientRect();
+            RectangleF DrawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.CurrencyTabBoxHeight);
+            Vector2 position = new Vector2(DrawBox.Center.X, DrawBox.Center.Y - Settings.CurrencyTabFontSize.Value / 2);
+            
+            Graphics.DrawText(Math.Round((decimal)worth, Settings.CurrenctTabSigDigits.Value).ToString(), Settings.CurrencyTabFontSize.Value, position, Settings.CurrencyTabFontColor, FontDrawFlags.Center);
+            Graphics.DrawBox(DrawBox, Settings.CurrencyTabBackgroundColor);
+            Graphics.DrawFrame(DrawBox, 1, Settings.CurrencyTabBorderColor);
         }
 
         private ImVector4 ToImVector4(ImVector4 vector) => new ImVector4(vector.X, vector.Y, vector.Z, vector.W);
@@ -863,7 +880,7 @@ namespace GetValue
                 var UIHover = GameController.Game.IngameState.UIHover;
                 var newBox = new RectangleF(lastProphWindowPos.X, lastProphWindowPos.Y, lastProphWindowSize.X, lastProphWindowSize.Y);
 
-                if (!Settings.VisibleStashValue.Value || !stashPanel.IsVisible) return;
+                if (!stashPanel.IsVisible) return;
                 var refBool = true;
 
                 if (!UIHover.Tooltip.GetClientRect().Intersects(newBox))
