@@ -58,6 +58,7 @@ namespace Ninja_Price.Main
                 UpdatePoeNinjaData();
             }
 
+            CurrentLeague = Settings.LeagueList.Value; //  Update selected league
             // Enable Events
             Settings.ReloadButton.OnPressed += LoadJsonData;
         }
