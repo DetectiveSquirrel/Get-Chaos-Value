@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Ninja_Price.API.PoeNinja;
@@ -25,7 +26,13 @@ namespace Ninja_Price.Main
         {
             Task.Run(() =>
             {
+                while (UpdatingFromAPI || UpdatingFromJson)
+                {
+                    if (DebugMode) { MethodLog("Waiting on UpdatePoeNinjaData() to finish");}
+                    Thread.Sleep(250);
+                }
                 LogMessage("Gathering Data from Poe.Ninja.", 5);
+                UpdatingFromAPI = true;
                 Api.Json.SaveSettingFile(NinjaDirectory + "Currency.json", JsonConvert.DeserializeObject<Currency.RootObject>(Api.DownloadFromUrl(CurrencyURL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "DivinationCards.json", JsonConvert.DeserializeObject<DivinationCards.RootObject>(Api.DownloadFromUrl(DivinationCards_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "Essences.json", JsonConvert.DeserializeObject<Essences.RootObject>(Api.DownloadFromUrl(Essences_URL + league)));
@@ -39,6 +46,7 @@ namespace Ninja_Price.Main
                 Api.Json.SaveSettingFile(NinjaDirectory + "UniqueWeapons.json", JsonConvert.DeserializeObject<UniqueWeapons.RootObject>(Api.DownloadFromUrl(UniqueWeapons_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "WhiteMaps.json", JsonConvert.DeserializeObject<WhiteMaps.RootObject>(Api.DownloadFromUrl(WhiteMaps_URL + league)));
                 LogMessage("Finished Gathering Data from Poe.Ninja.", 5);
+                UpdatingFromAPI = false;
                 UpdatePoeNinjaData();
             });
         }
@@ -50,94 +58,104 @@ namespace Ninja_Price.Main
 
         private void UpdatePoeNinjaData()
         {
-            var newData = new CollectiveApiData();
-
-            if (JsonExists("Currency.json"))
-                using (var r = new StreamReader(NinjaDirectory + "Currency.json"))
+            Task.Run(() =>
+            {
+                while (UpdatingFromAPI || UpdatingFromJson)
                 {
-                    var json = r.ReadToEnd();
-                    newData.Currency = JsonConvert.DeserializeObject<Currency.RootObject>(json);
+                    if (DebugMode) MethodLog("Waiting on GetJsonData() to finish");
+                    Thread.Sleep(250);
                 }
+                var newData = new CollectiveApiData();
 
-            if (JsonExists("DivinationCards.json"))
-                using (var r = new StreamReader(NinjaDirectory + "DivinationCards.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.DivinationCards = JsonConvert.DeserializeObject<DivinationCards.RootObject>(json);
-                }
+                UpdatingFromJson = true;
+                if (JsonExists("Currency.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "Currency.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.Currency = JsonConvert.DeserializeObject<Currency.RootObject>(json);
+                    }
 
-            if (JsonExists("Essences.json"))
-                using (var r = new StreamReader(NinjaDirectory + "Essences.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.Essences = JsonConvert.DeserializeObject<Essences.RootObject>(json);
-                }
+                if (JsonExists("DivinationCards.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "DivinationCards.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.DivinationCards = JsonConvert.DeserializeObject<DivinationCards.RootObject>(json);
+                    }
 
-            if (JsonExists("Fragments.json"))
-                using (var r = new StreamReader(NinjaDirectory + "Fragments.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.Fragments = JsonConvert.DeserializeObject<Fragments.RootObject>(json);
-                }
+                if (JsonExists("Essences.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "Essences.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.Essences = JsonConvert.DeserializeObject<Essences.RootObject>(json);
+                    }
 
-            if (JsonExists("Prophecies.json"))
-                using (var r = new StreamReader(NinjaDirectory + "Prophecies.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.Prophecies = JsonConvert.DeserializeObject<Prophecies.RootObject>(json);
-                }
+                if (JsonExists("Fragments.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "Fragments.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.Fragments = JsonConvert.DeserializeObject<Fragments.RootObject>(json);
+                    }
 
-            if (JsonExists("UniqueAccessories.json"))
-                using (var r = new StreamReader(NinjaDirectory + "UniqueAccessories.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.UniqueAccessories = JsonConvert.DeserializeObject<UniqueAccessories.RootObject>(json);
-                }
+                if (JsonExists("Prophecies.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "Prophecies.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.Prophecies = JsonConvert.DeserializeObject<Prophecies.RootObject>(json);
+                    }
 
-            if (JsonExists("UniqueArmours.json"))
-                using (var r = new StreamReader(NinjaDirectory + "UniqueArmours.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.UniqueArmours = JsonConvert.DeserializeObject<UniqueArmours.RootObject>(json);
-                }
+                if (JsonExists("UniqueAccessories.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "UniqueAccessories.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.UniqueAccessories = JsonConvert.DeserializeObject<UniqueAccessories.RootObject>(json);
+                    }
 
-            if (JsonExists("UniqueFlasks.json"))
-                using (var r = new StreamReader(NinjaDirectory + "UniqueFlasks.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.UniqueFlasks = JsonConvert.DeserializeObject<UniqueFlasks.RootObject>(json);
-                }
+                if (JsonExists("UniqueArmours.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "UniqueArmours.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.UniqueArmours = JsonConvert.DeserializeObject<UniqueArmours.RootObject>(json);
+                    }
 
-            if (JsonExists("UniqueJewels.json"))
-                using (var r = new StreamReader(NinjaDirectory + "UniqueJewels.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.UniqueJewels = JsonConvert.DeserializeObject<UniqueJewels.RootObject>(json);
-                }
+                if (JsonExists("UniqueFlasks.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "UniqueFlasks.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.UniqueFlasks = JsonConvert.DeserializeObject<UniqueFlasks.RootObject>(json);
+                    }
 
-            if (JsonExists("UniqueMaps.json"))
-                using (var r = new StreamReader(NinjaDirectory + "UniqueMaps.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.UniqueMaps = JsonConvert.DeserializeObject<UniqueMaps.RootObject>(json);
-                }
+                if (JsonExists("UniqueJewels.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "UniqueJewels.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.UniqueJewels = JsonConvert.DeserializeObject<UniqueJewels.RootObject>(json);
+                    }
 
-            if (JsonExists("UniqueWeapons.json"))
-                using (var r = new StreamReader(NinjaDirectory + "UniqueWeapons.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.UniqueWeapons = JsonConvert.DeserializeObject<UniqueWeapons.RootObject>(json);
-                }
+                if (JsonExists("UniqueMaps.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "UniqueMaps.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.UniqueMaps = JsonConvert.DeserializeObject<UniqueMaps.RootObject>(json);
+                    }
 
-            if (JsonExists("WhiteMaps.json"))
-                using (var r = new StreamReader(NinjaDirectory + "WhiteMaps.json"))
-                {
-                    var json = r.ReadToEnd();
-                    newData.WhiteMaps = JsonConvert.DeserializeObject<WhiteMaps.RootObject>(json);
-                }
+                if (JsonExists("UniqueWeapons.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "UniqueWeapons.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.UniqueWeapons = JsonConvert.DeserializeObject<UniqueWeapons.RootObject>(json);
+                    }
 
-            CollectedData = newData;
-            LogMessage("Updated CollectedData.", 5);
+                if (JsonExists("WhiteMaps.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "WhiteMaps.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.WhiteMaps = JsonConvert.DeserializeObject<WhiteMaps.RootObject>(json);
+                    }
+
+                CollectedData = newData;
+                LogMessage("Updated CollectedData.", 5);
+                UpdatingFromJson = false;
+            });
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Ninja_Price.Main
         private static Vector2 lastProphWindowPos = new Vector2(0, 0);
 
         private static Vector2 lastProphWindowSize = new Vector2(0, 0);
-        public bool DebugMode = false;
+        public bool DebugMode = true;
         public Stopwatch ValueUpdateTimer = Stopwatch.StartNew();
         public double StashTabValue { get; set; }
         public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
@@ -63,11 +63,14 @@ namespace Ninja_Price.Main
 
                 if (DebugMode) LogMessage($"Selected League: {Settings.LeagueList.Value}", 5);
 
+                // Everything is updated, lets check if we should draw
+                if (!StashPanel.IsVisible) return;
+
                 if (ShouldUpdateValues())
                 {
                     // Format stash items
                     ItemList.Clear();
-                    ItemList = GameController.Game.IngameState.ServerData.StashPanel.VisibleStash.VisibleInventoryItems.ToList();
+                    ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
                     FortmattedItemList = FormatItems(ItemList);
 
                     // Format Inventory Items
@@ -248,13 +251,10 @@ namespace Ninja_Price.Main
 
             try
             {
-                var stashPanel = GameController.Game.IngameState.ServerData.StashPanel;
-
-
                 var UIHover = GameController.Game.IngameState.UIHover;
                 var newBox = new RectangleF(lastProphWindowPos.X, lastProphWindowPos.Y, lastProphWindowSize.X, lastProphWindowSize.Y);
 
-                if (!stashPanel.IsVisible) return;
+                if (!StashPanel.IsVisible) return;
                 var refBool = true;
 
                 if (!UIHover.Tooltip.GetClientRect().Intersects(newBox))
@@ -295,7 +295,7 @@ namespace Ninja_Price.Main
             }
             catch
             {
-                // Divination card tab ugh.
+                ImGui.EndWindow();
             }
         }
     }

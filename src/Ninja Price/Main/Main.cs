@@ -23,6 +23,8 @@ namespace Ninja_Price.Main
         public bool InitJsonDone;
         public string PluginVersion;
         public string PoeLeagueApiList = "http://api.pathofexile.com/leagues?type=main&compact=1";
+        public bool UpdatingFromJson { get; set; } = false;
+        public bool UpdatingFromAPI { get; set; } = false;
 
         //https://stackoverflow.com/questions/826777/how-to-have-an-auto-incrementing-version-number-visual-studio
         public Version Version = Assembly.GetExecutingAssembly().GetName().Version;
