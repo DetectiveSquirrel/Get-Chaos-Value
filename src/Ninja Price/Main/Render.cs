@@ -20,7 +20,7 @@ namespace Ninja_Price.Main
         private static Vector2 lastProphWindowPos = new Vector2(0, 0);
 
         private static Vector2 lastProphWindowSize = new Vector2(0, 0);
-        public bool DebugMode = true;
+        public bool DebugMode = false;
         public Stopwatch ValueUpdateTimer = Stopwatch.StartNew();
         public double StashTabValue { get; set; }
         public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
