@@ -20,7 +20,6 @@ namespace Ninja_Price.Main
         private static Vector2 lastProphWindowPos = new Vector2(0, 0);
 
         private static Vector2 lastProphWindowSize = new Vector2(0, 0);
-        public bool DebugMode = false;
         public Stopwatch ValueUpdateTimer = Stopwatch.StartNew();
         public double StashTabValue { get; set; }
         public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
@@ -47,8 +46,8 @@ namespace Ninja_Price.Main
                     LoadJsonData();
                     Settings.LastUpDateTime = DateTime.Now;
                 }
-
-                if (DebugMode) MethodLog(".Loop() is Alive", 5);
+                
+                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.Loop() is Alive", 5, Color.LawnGreen); }
 
                 #region Reset All Data
 
@@ -60,8 +59,8 @@ namespace Ninja_Price.Main
                 StashPanel = GameController.Game.IngameState.ServerData.StashPanel;
 
                 #endregion
-
-                if (DebugMode) LogMessage($"Selected League: {Settings.LeagueList.Value}", 5);
+                
+                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}: Selected League: {Settings.LeagueList.Value}", 5, Color.White); }
 
                 // Everything is updated, lets check if we should draw
                 if (!StashPanel.IsVisible) return;
@@ -77,9 +76,8 @@ namespace Ninja_Price.Main
                     InventoryItemList.Clear();
                     InventoryItemList = GetInventoryItems();
                     FortmattedInventoryItemList = FormatItems(InventoryItemList);
-
-
-                    if (DebugMode) MethodLog(".Render() Looping if (ShouldUpdateValues())", 5, Color.DarkGray);
+                    
+                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.Render() Looping if (ShouldUpdateValues())", 5, Color.LawnGreen); }
 
                     foreach (var item in FortmattedItemList)
                         GetValue(item);
@@ -150,7 +148,7 @@ namespace Ninja_Price.Main
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}";
                         break;
                 }
-                if (DebugMode) text += $"\n\rItemType: {Hovereditem.ItemType}";
+                if (Settings.Debug) text += $"\n\rItemType: {Hovereditem.ItemType}";
                 var textMeasure = Graphics.MeasureText(text, 15);
                 Graphics.DrawBox(new RectangleF(0, 0, textMeasure.Width, textMeasure.Height), Color.Black);
                 Graphics.DrawText(text, 15, new Vector2(0, 0), Color.White);

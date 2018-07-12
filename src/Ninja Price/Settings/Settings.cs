@@ -61,7 +61,7 @@ namespace Ninja_Price.Settings
         public ColorNode UniTextColor { get; set; }
 
 
-        [Menu("Debug", "Displays a border with text, on items we cannot calculate a price for.", 6)]
+        [Menu("Debug", "Display debug strings", 6)]
         public ToggleNode Debug { get; set; }
 
 

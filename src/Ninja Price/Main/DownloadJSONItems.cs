@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Ninja_Price.API.PoeNinja;
 using Ninja_Price.API.PoeNinja.Classes;
+using SharpDX;
 
 namespace Ninja_Price.Main
 {
@@ -28,7 +29,7 @@ namespace Ninja_Price.Main
             {
                 while (UpdatingFromAPI || UpdatingFromJson)
                 {
-                    if (DebugMode) { MethodLog("Waiting on UpdatePoeNinjaData() to finish");}
+                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}: Waiting on UpdatePoeNinjaData() to finish", 5, Color.Orange);}
                     Thread.Sleep(250);
                 }
                 LogMessage("Gathering Data from Poe.Ninja.", 5);
@@ -62,7 +63,7 @@ namespace Ninja_Price.Main
             {
                 while (UpdatingFromAPI || UpdatingFromJson)
                 {
-                    if (DebugMode) MethodLog("Waiting on GetJsonData() to finish");
+                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}: Waiting on GetJsonData() to finish", 5, Color.Orange); }
                     Thread.Sleep(250);
                 }
                 var newData = new CollectiveApiData();

@@ -360,7 +360,7 @@ namespace Ninja_Price.Main
             }
             catch (Exception e)
             {
-                //if (DebugMode) MethodLog($".GetValue() Error that i dont understand", Color.Red);
+                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.GetValue() Error that i dont understand", 5, Color.Red); }
             }
         }
 
@@ -369,7 +369,7 @@ namespace Ninja_Price.Main
             if (ValueUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
             {
                 ValueUpdateTimer.Restart();
-                if (DebugMode) MethodLog(".ShouldUpdateValues() ValueUpdateTimer.Restart()", 5, Color.DarkGray);
+                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
             }
             else
             {
@@ -380,24 +380,24 @@ namespace Ninja_Price.Main
             {
                 if (!Settings.VisibleStashValue.Value || !GameController.Game.IngameState.ServerData.StashPanel.IsVisible)
                 {
-                    if (DebugMode) MethodLog(".ShouldUpdateValues() Stash is not visable", 5, Color.DarkGray);
+                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Stash is not visable", 5, Color.DarkGray); }
                     return false;
                 }
 
                 // Dont continue if the stash page isnt even open
                 if (GameController.Game.IngameState.ServerData.StashPanel.VisibleStash.VisibleInventoryItems == null)
                 {
-                    if (DebugMode) MethodLog(".ShouldUpdateValues() Items == null", 5, Color.DarkGray);
+                    if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Items == null", 5, Color.DarkGray);
                     return false;
                 }
             }
             catch (Exception)
             {
-                if (DebugMode) MethodLog(".ShouldUpdateValues() Error that i need to fucking fix", 5, Color.DarkGray);
+                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Error that i need to fucking fix", 5, Color.DarkGray);
                 return false;
             }
 
-            if (DebugMode) MethodLog(".ShouldUpdateValues() == True", 5, Color.LimeGreen);
+            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
             return true;
         }
 

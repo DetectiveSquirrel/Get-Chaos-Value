@@ -6,26 +6,6 @@ namespace Ninja_Price.Main
 {
     public partial class Main
     {
-        public void MethodLog(string message)
-        {
-            LogMessage($"{GetCurrentMethod()}{message}", 5, Color.LawnGreen);
-        }
-
-        public void MethodLog(string message, int time)
-        {
-            LogMessage($"{GetCurrentMethod()}{message}", time, Color.LawnGreen);
-        }
-
-        public void MethodLog(string message, Color color)
-        {
-            LogMessage($"{GetCurrentMethod()}{message}", 5, color);
-        }
-
-        public void MethodLog(string message, int time, Color color)
-        {
-            LogMessage($"{GetCurrentMethod()}{message}", time, color);
-        }
-
         [MethodImpl(MethodImplOptions.NoInlining)]
         public string GetCurrentMethod()
         {
