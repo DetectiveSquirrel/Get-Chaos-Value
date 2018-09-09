@@ -80,8 +80,6 @@ namespace Ninja_Price.Main
                         GetValue(item);
                 }
 
-                GetHoveredItem(); // Get information for the hovered item
-
                 // Everything is updated, lets check if we should draw
                 if (StashPanel.IsVisible)
                 {
@@ -108,6 +106,8 @@ namespace Ninja_Price.Main
 
                 // TODO: Graphical part from gathered data
 
+
+                GetHoveredItem(); // Get information for the hovered item
                 DrawGraphics();
             }
             catch
@@ -162,30 +162,30 @@ namespace Ninja_Price.Main
             // Stash Tab Value
             VisibleStashValue();
 
-            if (Settings.HighlightUniqueJunk)
+            var tabType = StashPanel.VisibleStash.InvType;
+            foreach (var customItem in ItemsToDrawList)
             {
-                var tabType = StashPanel.VisibleStash.InvType;
-                foreach (var customItem in ItemsToDrawList)
+                if (customItem.ItemType == ItemTypes.None) continue;
+                switch (tabType)
                 {
-                    if (customItem.ItemType == ItemTypes.None) continue;
-                    switch (tabType)
-                    {
-                        case InventoryType.CurrencyStash:
-                            PriceBoxOverItem(customItem);
-                            break;
-                        case InventoryType.FragmentStash:
-                            PriceBoxOverItem(customItem);
-                            break;
-                    }
-                    //HighlightJunkUniques(customItem);
+                    case InventoryType.CurrencyStash:
+                        PriceBoxOverItem(customItem);
+                        break;
+                    case InventoryType.FragmentStash:
+                        PriceBoxOverItem(customItem);
+                        break;
                 }
+
+                HighlightJunkUniques(customItem);
+            }
+
+            if (Settings.HighlightUniqueJunk)
                 foreach (var customItem in InventoryItemsToDrawList)
                 {
                     if (customItem.ItemType == ItemTypes.None) continue;
 
                     HighlightJunkUniques(customItem);
                 }
-            }
         }
 
         private void VisibleStashValue()
