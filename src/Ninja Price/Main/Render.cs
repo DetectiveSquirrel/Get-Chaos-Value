@@ -78,6 +78,8 @@ namespace Ninja_Price.Main
 
                     foreach (var item in FortmattedItemList)
                         GetValue(item);
+                    foreach (var item in FortmattedInventoryItemList)
+                        GetValue(item);
                 }
 
                 // Everything is updated, lets check if we should draw
@@ -176,7 +178,8 @@ namespace Ninja_Price.Main
                         break;
                 }
 
-                HighlightJunkUniques(customItem);
+                if (Settings.HighlightUniqueJunk)
+                    HighlightJunkUniques(customItem);
             }
 
             if (Settings.HighlightUniqueJunk)
@@ -238,7 +241,7 @@ namespace Ninja_Price.Main
             var position = new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y);
 
             Graphics.DrawBox(new RectangleF(position.X - backgroundBox.Width, position.Y, backgroundBox.Width, backgroundBox.Height), Color.Black);
-            Graphics.DrawText($"{item.PriceData.ToString()}", fontSize, position, Settings.UniTextColor, FontDrawFlags.Right);
+            Graphics.DrawText($"{chaosValueSignificanDigits}", fontSize, position, Settings.UniTextColor, FontDrawFlags.Right);
 
             DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
                 new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y,
