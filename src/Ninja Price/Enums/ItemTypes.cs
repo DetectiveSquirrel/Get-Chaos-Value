@@ -14,6 +14,8 @@
         UniqueJewel,
         UniqueMap,
         UniqueWeapon,
-        NormalMap
+        NormalMap,
+        Resonator,
+        Fossil
     }
 }

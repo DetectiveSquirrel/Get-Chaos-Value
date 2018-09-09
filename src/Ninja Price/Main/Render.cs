@@ -145,6 +145,8 @@ namespace Ninja_Price.Main
                     case ItemTypes.UniqueWeapon:
                     case ItemTypes.NormalMap:
                     case ItemTypes.DivinationCard:
+                    case ItemTypes.Resonator:
+                    case ItemTypes.Fossil:
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}";
                         break;
                 }
@@ -157,29 +159,29 @@ namespace Ninja_Price.Main
             // Stash Tab Value
             VisibleStashValue();
 
-            var tabType = StashPanel.VisibleStash.InvType;
-            foreach (var customItem in ItemsToDrawList)
+            if (Settings.HighlightUniqueJunk)
             {
-                if (customItem.ItemType == ItemTypes.None) continue;
-                switch (tabType)
+                var tabType = StashPanel.VisibleStash.InvType;
+                foreach (var customItem in ItemsToDrawList)
                 {
-                    case InventoryType.CurrencyStash:
-                        PriceBoxOverItem(customItem);
-                        break;
-                    case InventoryType.FragmentStash:
-                        PriceBoxOverItem(customItem);
-                        break;
+                    if (customItem.ItemType == ItemTypes.None) continue;
+                    switch (tabType)
+                    {
+                        case InventoryType.CurrencyStash:
+                            PriceBoxOverItem(customItem);
+                            break;
+                        case InventoryType.FragmentStash:
+                            PriceBoxOverItem(customItem);
+                            break;
+                    }
+                    HighlightJunkUniques(customItem);
                 }
+                foreach (var customItem in InventoryItemsToDrawList)
+                {
+                    if (customItem.ItemType == ItemTypes.None) continue;
 
-                if (Settings.HighlightUniqueJunk)
                     HighlightJunkUniques(customItem);
-            }
-            foreach (var customItem in InventoryItemsToDrawList)
-            {
-                if (customItem.ItemType == ItemTypes.None) continue;
-
-                if (Settings.HighlightUniqueJunk)
-                    HighlightJunkUniques(customItem);
+                }
             }
         }
 

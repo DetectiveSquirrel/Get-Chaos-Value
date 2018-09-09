@@ -111,10 +111,16 @@ namespace Ninja_Price.Main
 
             if (item.Item.HasComponent<Sockets>())
             {
-                var sockets = item.Item.GetComponent<Sockets>();
-                IsRgb = sockets.IsRGB;
-                Sockets = sockets.NumberOfSockets;
-                LargestLink = sockets.LargestLinkSize;
+                try
+                {
+                    var sockets = item.Item.GetComponent<Sockets>();
+                    IsRgb = sockets.IsRGB;
+                    Sockets = sockets.NumberOfSockets;
+                    LargestLink = sockets.LargestLinkSize;
+                }
+                catch
+                {
+                }
             }
 
             if (weaponClass.Any(ClassName.Equals))
@@ -145,7 +151,7 @@ namespace Ninja_Price.Main
 
             // sort items into types to use correct json data later from poe.ninja
             // This might need tweaking since if this catches anything other than currency.
-            if (ClassName == "StackableCurrency" && !BaseName.Contains("Essence") && !BaseName.Contains("Remnant of") && BaseName != "Prophecy" && ClassName != "MapFragment"  /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/)
+            if (ClassName == "StackableCurrency" && !BaseName.Contains("Essence") && !BaseName.Contains("Remnant of") && BaseName != "Prophecy" && ClassName != "MapFragment" && !BaseName.EndsWith(" Fossil")  /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/)
             {
                 ItemType = ItemTypes.Currency;
             }
@@ -168,6 +174,14 @@ namespace Ninja_Price.Main
             else if (MapInfo.IsMap && Rarity != ItemRarity.Unique)
             {
                 ItemType = ItemTypes.NormalMap;
+            }
+            else if (BaseName.EndsWith(" Fossil"))
+            {
+                ItemType = ItemTypes.Fossil;
+            }
+            else if (ClassName == "DelveSocketableCurrency")
+            {
+                ItemType = ItemTypes.Resonator;
             }
             else switch (Rarity) // Unique information
             {

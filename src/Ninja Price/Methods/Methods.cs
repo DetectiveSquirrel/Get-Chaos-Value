@@ -296,6 +296,24 @@ namespace Ninja_Price.Main
                         }
 
                         break;
+                    case ItemTypes.Resonator:
+                        var resonatorSearch = CollectedData.Resonators.Lines.Find(x => x.Name == item.BaseName);
+                        if (resonatorSearch != null)
+                        {
+                            item.PriceData.ChaosValue = resonatorSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = resonatorSearch.Sparkline.TotalChange;
+                        }
+
+                        break;
+                    case ItemTypes.Fossil:
+                        var fossilSearch = CollectedData.Fossils.Lines.Find(x => x.Name == item.BaseName);
+                        if (fossilSearch != null)
+                        {
+                            item.PriceData.ChaosValue = fossilSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = fossilSearch.Sparkline.TotalChange;
+                        }
+
+                        break;
                     case ItemTypes.UniqueWeapon:
                         switch (item.LargestLink)
                         {

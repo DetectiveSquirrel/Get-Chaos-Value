@@ -10,18 +10,20 @@ namespace Ninja_Price.Main
 {
     public partial class Main
     {
-        private const string CurrencyURL = "http://poe.ninja/api/Data/GetCurrencyOverview?league=";
-        private const string DivinationCards_URL = "http://poe.ninja/api/Data/GetDivinationCardsOverview?league=";
-        private const string Essences_URL = "http://poe.ninja/api/Data/GetEssenceOverview?league=";
-        private const string Fragments_URL = "http://poe.ninja/api/Data/GetFragmentOverview?league=";
-        private const string Prophecies_URL = "http://poe.ninja/api/Data/GetProphecyOverview?league=";
-        private const string UniqueAccessories_URL = "http://poe.ninja/api/Data/GetUniqueAccessoryOverview?league=";
-        private const string UniqueArmours_URL = "http://poe.ninja/api/Data/GetUniqueArmourOverview?league=";
-        private const string UniqueFlasks_URL = "http://poe.ninja/api/Data/GetUniqueFlaskOverview?league=";
-        private const string UniqueJewels_URL = "http://poe.ninja/api/Data/GetUniqueJewelOverview?league=";
-        private const string UniqueMaps_URL = "http://poe.ninja/api/Data/GetUniqueMapOverview?league=";
-        private const string UniqueWeapons_URL = "http://poe.ninja/api/Data/GetUniqueWeaponOverview?league=";
-        private const string WhiteMaps_URL = "http://poe.ninja/api/Data/GetMapOverview?league=";
+        private const string CurrencyURL = "https://poe.ninja/api/data/currencyoverview?type=Currency&league=";
+        private const string DivinationCards_URL = "https://poe.ninja/api/data/itemoverview?type=DivinationCard&league=";
+        private const string Essences_URL = "https://poe.ninja/api/data/itemoverview?type=Essence&league=";
+        private const string Fragments_URL = "https://poe.ninja/api/data/currencyoverview?type=Fragment&league=";
+        private const string Prophecies_URL = "https://poe.ninja/api/data/itemoverview?type=Prophecy&league=";
+        private const string UniqueAccessories_URL = "https://poe.ninja/api/data/itemoverview?type=UniqueAccessory&league=";
+        private const string UniqueArmours_URL = "https://poe.ninja/api/data/itemoverview?type=UniqueArmour&league=";
+        private const string UniqueFlasks_URL = "https://poe.ninja/api/data/itemoverview?type=UniqueFlask&league=";
+        private const string UniqueJewels_URL = "https://poe.ninja/api/data/itemoverview?type=UniqueJewel&league=";
+        private const string UniqueMaps_URL = "https://poe.ninja/api/data/itemoverview?type=UniqueMap&league=";
+        private const string UniqueWeapons_URL = "https://poe.ninja/api/data/itemoverview?type=UniqueWeapon&league=";
+        private const string WhiteMaps_URL = "https://poe.ninja/api/data/itemoverview?type=Map&league=";
+        private const string Resonators_URL = "https://poe.ninja/api/data/itemoverview?type=Resonator&league=";
+        private const string Fossils_URL = "https://poe.ninja/api/data/itemoverview?type=Fossil&league=";
 
         private void GetJsonData(string league)
         {
@@ -46,6 +48,8 @@ namespace Ninja_Price.Main
                 Api.Json.SaveSettingFile(NinjaDirectory + "UniqueMaps.json", JsonConvert.DeserializeObject<UniqueMaps.RootObject>(Api.DownloadFromUrl(UniqueMaps_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "UniqueWeapons.json", JsonConvert.DeserializeObject<UniqueWeapons.RootObject>(Api.DownloadFromUrl(UniqueWeapons_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "WhiteMaps.json", JsonConvert.DeserializeObject<WhiteMaps.RootObject>(Api.DownloadFromUrl(WhiteMaps_URL + league)));
+                Api.Json.SaveSettingFile(NinjaDirectory + "Resonators.json", JsonConvert.DeserializeObject<Resonators.RootObject>(Api.DownloadFromUrl(Resonators_URL + league)));
+                Api.Json.SaveSettingFile(NinjaDirectory + "Fossils.json", JsonConvert.DeserializeObject<Fossils.RootObject>(Api.DownloadFromUrl(Fossils_URL + league)));
                 LogMessage("Finished Gathering Data from Poe.Ninja.", 5);
                 UpdatingFromAPI = false;
                 UpdatePoeNinjaData();
@@ -151,6 +155,20 @@ namespace Ninja_Price.Main
                     {
                         var json = r.ReadToEnd();
                         newData.WhiteMaps = JsonConvert.DeserializeObject<WhiteMaps.RootObject>(json);
+                    }
+
+                if (JsonExists("Resonators.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "Resonators.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.Resonators = JsonConvert.DeserializeObject<Resonators.RootObject>(json);
+                    }
+
+                if (JsonExists("Fossils.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "Fossils.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.Fossils = JsonConvert.DeserializeObject<Fossils.RootObject>(json);
                     }
 
                 CollectedData = newData;

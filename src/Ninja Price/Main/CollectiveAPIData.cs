@@ -17,5 +17,7 @@ namespace Ninja_Price.Main
         public UniqueMaps.RootObject UniqueMaps { get; set; } = new UniqueMaps.RootObject();
         public UniqueWeapons.RootObject UniqueWeapons { get; set; } = new UniqueWeapons.RootObject();
         public WhiteMaps.RootObject WhiteMaps { get; set; } = new WhiteMaps.RootObject();
+        public Resonators.RootObject Resonators { get; set; } = new Resonators.RootObject();
+        public Fossils.RootObject Fossils { get; set; } = new Fossils.RootObject();
     }
 }
