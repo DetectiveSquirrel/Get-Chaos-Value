@@ -62,9 +62,6 @@ namespace Ninja_Price.Main
                 
                 if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}: Selected League: {Settings.LeagueList.Value}", 5, Color.White); }
 
-                // Everything is updated, lets check if we should draw
-                if (!StashPanel.IsVisible) return;
-
                 if (ShouldUpdateValues())
                 {
                     // Format stash items
@@ -76,32 +73,38 @@ namespace Ninja_Price.Main
                     InventoryItemList.Clear();
                     InventoryItemList = GetInventoryItems();
                     FortmattedInventoryItemList = FormatItems(InventoryItemList);
-                    
+
                     if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.Render() Looping if (ShouldUpdateValues())", 5, Color.LawnGreen); }
 
                     foreach (var item in FortmattedItemList)
                         GetValue(item);
                 }
 
-                // Gather all information needed before rendering as we only want to itterate through the list once
-
-                foreach (var item in FortmattedItemList)
-                {
-                    if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
-                    if (!item.Item.IsVisible && item.ItemType != ItemTypes.None) continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
-
-                    StashTabValue += item.PriceData.ChaosValue;
-                    ItemsToDrawList.Add(item);
-                }
-                foreach (var item in FortmattedInventoryItemList)
-                {
-                    if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
-                    if (!item.Item.IsVisible && item.ItemType != ItemTypes.None) continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
-
-                    InventoryItemsToDrawList.Add(item);
-                }
-
                 GetHoveredItem(); // Get information for the hovered item
+
+                // Everything is updated, lets check if we should draw
+                if (StashPanel.IsVisible)
+                {
+
+                    // Gather all information needed before rendering as we only want to itterate through the list once
+
+                    foreach (var item in FortmattedItemList)
+                    {
+                        if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
+                        if (!item.Item.IsVisible && item.ItemType != ItemTypes.None) continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
+
+                        StashTabValue += item.PriceData.ChaosValue;
+                        ItemsToDrawList.Add(item);
+                    }
+                    foreach (var item in FortmattedInventoryItemList)
+                    {
+                        if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
+                        if (!item.Item.IsVisible && item.ItemType != ItemTypes.None) continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
+
+                        InventoryItemsToDrawList.Add(item);
+                    }
+
+                }
 
                 // TODO: Graphical part from gathered data
 
@@ -174,7 +177,7 @@ namespace Ninja_Price.Main
                             PriceBoxOverItem(customItem);
                             break;
                     }
-                    HighlightJunkUniques(customItem);
+                    //HighlightJunkUniques(customItem);
                 }
                 foreach (var customItem in InventoryItemsToDrawList)
                 {
@@ -228,19 +231,19 @@ namespace Ninja_Price.Main
             if (item.Rarity != ItemRarity.Unique || hoverUi.GetClientRect().Intersects(item.Item.GetClientRect()) && hoverUi.IsVisibleLocal) return;
 
             var chaosValueSignificanDigits = Math.Round((decimal) item.PriceData.ChaosValue, Settings.HighlightSignificantDigits.Value);
+            if (chaosValueSignificanDigits >= Settings.InventoryValueCutOff.Value) return;
             var rec = item.Item.GetClientRect();
             var fontSize = Settings.HighlightFontSize.Value;
             var backgroundBox = Graphics.MeasureText($"{chaosValueSignificanDigits}", fontSize);
             var position = new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y);
 
             Graphics.DrawBox(new RectangleF(position.X - backgroundBox.Width, position.Y, backgroundBox.Width, backgroundBox.Height), Color.Black);
-            Graphics.DrawText($"{chaosValueSignificanDigits}", fontSize, position, Settings.UniTextColor, FontDrawFlags.Right);
+            Graphics.DrawText($"{item.PriceData.ToString()}", fontSize, position, Settings.UniTextColor, FontDrawFlags.Right);
 
             DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
                 new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y,
                     Settings.HighlightFontSize.Value, Settings.HighlightFontSize.Value)
             );
-            if (chaosValueSignificanDigits >= Settings.InventoryValueCutOff.Value) return;
             Graphics.DrawFrame(item.Item.GetClientRect(), 2, Settings.HighlightColor.Value);
         }
 
