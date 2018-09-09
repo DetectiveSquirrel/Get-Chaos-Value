@@ -168,14 +168,18 @@ namespace Ninja_Price.Main
             foreach (var customItem in ItemsToDrawList)
             {
                 if (customItem.ItemType == ItemTypes.None) continue;
-                switch (tabType)
+
+                if (Settings.CurrencyTabSpecifcToggle)
                 {
-                    case InventoryType.CurrencyStash:
-                        PriceBoxOverItem(customItem);
-                        break;
-                    case InventoryType.FragmentStash:
-                        PriceBoxOverItem(customItem);
-                        break;
+                    switch (tabType)
+                    {
+                        case InventoryType.CurrencyStash:
+                            PriceBoxOverItem(customItem);
+                            break;
+                        case InventoryType.FragmentStash:
+                            PriceBoxOverItem(customItem);
+                            break;
+                    }
                 }
 
                 if (Settings.HighlightUniqueJunk)
