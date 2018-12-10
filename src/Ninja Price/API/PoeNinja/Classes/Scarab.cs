@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ninja_Price.API.PoeNinja.Classes
 {
-    public class Fossils
+    public class Scarab
     {
         public enum ItemType
         {

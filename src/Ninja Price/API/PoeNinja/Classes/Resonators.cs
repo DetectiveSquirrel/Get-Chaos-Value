@@ -6,13 +6,13 @@ namespace Ninja_Price.API.PoeNinja.Classes
     {
         public class Sparkline
         {
-            public List<double> Data { get; set; }
+            public List<object> Data { get; set; }
             public double TotalChange { get; set; }
         }
 
         public class LowConfidenceSparkline
         {
-            public List<double> Data { get; set; }
+            public List<object> Data { get; set; }
             public double TotalChange { get; set; }
         }
 
@@ -48,6 +48,7 @@ namespace Ninja_Price.API.PoeNinja.Classes
             public double ChaosValue { get; set; }
             public double ExaltedValue { get; set; }
             public int Count { get; set; }
+            public string DetailsId { get; set; }
         }
 
         public class RootObject
