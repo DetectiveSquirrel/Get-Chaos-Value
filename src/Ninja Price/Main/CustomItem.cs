@@ -163,9 +163,13 @@ namespace Ninja_Price.Main
             {
                 ItemType = ItemTypes.Essence;
             }
-            else if (ClassName == "MapFragment")
+            else if (ClassName == "MapFragment" && !BaseName.Contains(" Scarab"))
             {
                 ItemType = ItemTypes.Fragment;
+            }
+            else if (ClassName == "MapFragment" && BaseName.Contains(" Scarab"))
+            {
+                ItemType = ItemTypes.Scarab;
             }
             else if (BaseName == "Prophecy")
             {

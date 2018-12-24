@@ -138,6 +138,7 @@ namespace Ninja_Price.Main
                     case ItemTypes.Currency:
                     case ItemTypes.Essence:
                     case ItemTypes.Fragment:
+                    case ItemTypes.Scarab:
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize}" +
                                 $"\n\rTotal: {Hovereditem.PriceData.ChaosValue}";
                         break;

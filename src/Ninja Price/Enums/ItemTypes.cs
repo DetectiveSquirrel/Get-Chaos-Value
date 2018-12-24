@@ -16,6 +16,7 @@
         UniqueWeapon,
         NormalMap,
         Resonator,
-        Fossil
+        Fossil,
+        Scarab
     }
 }

@@ -215,6 +215,15 @@ namespace Ninja_Price.Main
                         }
 
                         break;
+                    case ItemTypes.Scarab:
+                        var scarabSearch = CollectedData.Scarab.Lines.Find(x => x.Name == item.BaseName);
+                        if (scarabSearch != null)
+                        {
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * scarabSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = scarabSearch.Sparkline.TotalChange;
+                        }
+
+                        break;
                     case ItemTypes.Propecy:
                         var prophecySearch = CollectedData.Prophecies.Lines.Find(x => x.Name == item.Item.Item.GetComponent<Prophecy>().DatProphecy.Name);
                         if (prophecySearch != null)
