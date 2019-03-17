@@ -55,7 +55,7 @@ namespace Ninja_Price.Main
             Directory.CreateDirectory($"{PluginDirectory}//images//");
             using (var client = new WebClient())
             {
-                client.DownloadFile(new Uri("https://d1u5p3l4wpay3k.cloudfront.net/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"), fileName);
+                client.DownloadFile(new Uri("https://gamepedia.cursecdn.com/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"), fileName);
             }
         }
 
