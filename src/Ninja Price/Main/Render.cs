@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using PoeHUD.Poe.RemoteMemoryObjects;
 using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
 
@@ -200,7 +201,8 @@ namespace Ninja_Price.Main
         {
             try
             {
-                if (!Settings.VisibleStashValue.Value || !StashPanel.IsVisible) return;
+                var StashType = GameController.Game.IngameState.ServerData.StashPanel.VisibleStash.InvType;
+                if (!Settings.VisibleStashValue.Value || !StashPanel.IsVisible && StashType != InventoryType.MapStash) return;
                 {
                     var pos = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
                     var significantDigits = Math.Round((decimal) StashTabValue, Settings.StashValueSignificantDigits.Value);
