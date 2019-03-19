@@ -7,6 +7,7 @@ using SharpDX;
 using SharpDX.Direct3D9;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using PoeHUD.Poe.RemoteMemoryObjects;
@@ -39,6 +40,17 @@ namespace Ninja_Price.Main
 
         public override void Render()
         {
+            #region Reset All Data
+
+            CurrentLeague = Settings.LeagueList.Value; //  Update selected league every tick
+            StashTabValue = 0;
+            Hovereditem = null;
+
+            StashPanel = GameController.Game.IngameState.ServerData.StashPanel;
+
+            #endregion
+
+
             try // Im lazy and just want to surpress all errors produced
             {
                 // only update if the time between last update is more than AutoReloadTimer interval
@@ -47,75 +59,79 @@ namespace Ninja_Price.Main
                     LoadJsonData();
                     Settings.LastUpDateTime = DateTime.Now;
                 }
-                
-                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.Loop() is Alive", 5, Color.LawnGreen); }
 
-                #region Reset All Data
+                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.Loop() is Alive", 5, Color.LawnGreen);
 
-                CurrentLeague = Settings.LeagueList.Value; //  Update selected league every tick
-                StashTabValue = 0;
-                Hovereditem = null;
-                ItemsToDrawList.Clear();
-                InventoryItemsToDrawList.Clear();
-                StashPanel = GameController.Game.IngameState.ServerData.StashPanel;
+                if (Settings.Debug)
+                    LogMessage($"{GetCurrentMethod()}: Selected League: {Settings.LeagueList.Value}", 5, Color.White);
 
-                #endregion
-                
-                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}: Selected League: {Settings.LeagueList.Value}", 5, Color.White); }
-
-                if (ShouldUpdateValues())
-                {
-                    // Format stash items
-                    ItemList.Clear();
-                    ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
-                    FortmattedItemList = FormatItems(ItemList);
-
-                    // Format Inventory Items
-                    InventoryItemList.Clear();
-                    InventoryItemList = GetInventoryItems();
-                    FortmattedInventoryItemList = FormatItems(InventoryItemList);
-
-                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.Render() Looping if (ShouldUpdateValues())", 5, Color.LawnGreen); }
-
-                    foreach (var item in FortmattedItemList)
-                        GetValue(item);
-                    foreach (var item in FortmattedInventoryItemList)
-                        GetValue(item);
-                }
 
                 // Everything is updated, lets check if we should draw
                 if (StashPanel.IsVisible)
                 {
+                    if (ShouldUpdateValues())
+                    {
+                        // Format stash items
+                        ItemList = new List<NormalInventoryItem>();
+                        ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
+                        FortmattedItemList = new List<CustomItem>();
+                        FortmattedItemList = FormatItems(ItemList);
+
+                        // Format Inventory Items
+                        InventoryItemList = new List<NormalInventoryItem>();
+                        InventoryItemList = GetInventoryItems();
+                        FortmattedInventoryItemList = new List<CustomItem>();
+                        FortmattedInventoryItemList = FormatItems(InventoryItemList);
+
+                        if (Settings.Debug)
+                            LogMessage($"{GetCurrentMethod()}.Render() Looping if (ShouldUpdateValues())", 5,
+                                Color.LawnGreen);
+
+                        foreach (var item in FortmattedItemList)
+                            GetValue(item);
+                        foreach (var item in FortmattedInventoryItemList)
+                            GetValue(item);
+                    }
 
                     // Gather all information needed before rendering as we only want to itterate through the list once
 
+                    ItemsToDrawList = new List<CustomItem>();
                     foreach (var item in FortmattedItemList)
                     {
                         if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
-                        if (!item.Item.IsVisible && item.ItemType != ItemTypes.None) continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
+                        if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
+                            continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
 
                         StashTabValue += item.PriceData.ChaosValue;
                         ItemsToDrawList.Add(item);
                     }
+
+                    InventoryItemsToDrawList = new List<CustomItem>();
                     foreach (var item in FortmattedInventoryItemList)
                     {
+
                         if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
-                        if (!item.Item.IsVisible && item.ItemType != ItemTypes.None) continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
+                        if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
+                            continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
 
                         InventoryItemsToDrawList.Add(item);
                     }
-
                 }
 
                 // TODO: Graphical part from gathered data
-
-
+                
                 GetHoveredItem(); // Get information for the hovered item
                 DrawGraphics();
             }
-            catch
+            catch (Exception e)
             {
                 // ignored
+                if (Settings.Debug)
+                {
+
+                    LogMessage("Error in: Main Render Loop, restart PoEHUD.", 5, Color.Red);
+                    LogMessage(e.ToString(), 5, Color.Orange);
+                }
             }
 
             try
@@ -124,7 +140,11 @@ namespace Ninja_Price.Main
             }
             catch
             {
-                LogMessage("Error in: PropheccyDisplay(), restart PoEHUD.", 5);
+                if (Settings.Debug)
+                {
+
+                    LogMessage("Error in: PropheccyDisplay(), restart PoEHUD.", 5, Color.Red);
+                }
             }
         }
 
@@ -162,6 +182,9 @@ namespace Ninja_Price.Main
                 Graphics.DrawBox(new RectangleF(0, 0, textMeasure.Width, textMeasure.Height), Color.Black);
                 Graphics.DrawText(text, 15, new Vector2(0, 0), Color.White);
             }
+
+            if (!StashPanel.IsVisible)
+                return;
 
             // Stash Tab Value
             VisibleStashValue();
@@ -202,21 +225,31 @@ namespace Ninja_Price.Main
             try
             {
                 var StashType = GameController.Game.IngameState.ServerData.StashPanel.VisibleStash.InvType;
-                if (!Settings.VisibleStashValue.Value || !StashPanel.IsVisible && StashType != InventoryType.MapStash) return;
+                if (!Settings.VisibleStashValue.Value ||
+                    !StashPanel.IsVisible && StashType != InventoryType.MapStash) return;
                 {
                     var pos = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
-                    var significantDigits = Math.Round((decimal) StashTabValue, Settings.StashValueSignificantDigits.Value);
+                    var significantDigits =
+                        Math.Round((decimal) StashTabValue, Settings.StashValueSignificantDigits.Value);
                     Graphics.DrawText(
                         DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
-                            new RectangleF(Settings.StashValueX.Value - Settings.StashValueFontSize.Value, Settings.StashValueY.Value,
+                            new RectangleF(Settings.StashValueX.Value - Settings.StashValueFontSize.Value,
+                                Settings.StashValueY.Value,
                                 Settings.StashValueFontSize.Value, Settings.StashValueFontSize.Value))
                             ? $"{significantDigits}"
-                            : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos, Settings.UniTextColor);
+                            : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos,
+                        Settings.UniTextColor);
                 }
             }
-            catch
+            catch (Exception e)
             {
-                // Divination card tab ugh.
+                // ignored
+                if (Settings.Debug)
+                {
+
+                LogMessage("Error in: VisibleStashValue, restart PoEHUD.", 5, Color.Red);
+                LogMessage(e.ToString(), 5, Color.Orange);
+                }
             }
         }
 

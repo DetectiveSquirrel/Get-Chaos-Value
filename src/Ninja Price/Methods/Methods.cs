@@ -142,6 +142,7 @@ namespace Ninja_Price.Main
             catch
             {
                 // ignored
+                LogError("Error in GetHoveredItem()", 10);
             }
         }
 
