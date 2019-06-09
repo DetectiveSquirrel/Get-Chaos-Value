@@ -163,8 +163,8 @@ namespace Ninja_Price.Main
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize}" +
                                 $"\n\rTotal: {Hovereditem.PriceData.ChaosValue}";
                         break;
-                    case ItemTypes.Propecy:
-                    case ItemTypes.UniqueAccessorie:
+                    case ItemTypes.Prophecy:
+                    case ItemTypes.UniqueAccessory:
                     case ItemTypes.UniqueArmour:
                     case ItemTypes.UniqueFlask:
                     case ItemTypes.UniqueJewel:

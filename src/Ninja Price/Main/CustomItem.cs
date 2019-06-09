@@ -151,7 +151,7 @@ namespace Ninja_Price.Main
 
             // sort items into types to use correct json data later from poe.ninja
             // This might need tweaking since if this catches anything other than currency.
-            if (ClassName == "StackableCurrency" && !BaseName.Contains("Essence") && !BaseName.Contains("Remnant of") && BaseName != "Prophecy" && ClassName != "MapFragment" && !BaseName.EndsWith(" Fossil")  /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/)
+            if (ClassName == "StackableCurrency" && !BaseName.Contains("Essence") && !BaseName.Contains("Remnant of") && !BaseName.Contains("Timeless ") && BaseName != "Prophecy" && ClassName != "MapFragment" && !BaseName.EndsWith(" Fossil")  /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/)
             {
                 ItemType = ItemTypes.Currency;
             }
@@ -163,7 +163,7 @@ namespace Ninja_Price.Main
             {
                 ItemType = ItemTypes.Essence;
             }
-            else if (ClassName == "MapFragment" && !BaseName.Contains(" Scarab"))
+            else if ((ClassName == "MapFragment" || BaseName.Contains("Timeless ")) && !BaseName.Contains(" Scarab"))
             {
                 ItemType = ItemTypes.Fragment;
             }
@@ -173,7 +173,7 @@ namespace Ninja_Price.Main
             }
             else if (BaseName == "Prophecy")
             {
-                ItemType = ItemTypes.Propecy;
+                ItemType = ItemTypes.Prophecy;
             }
             else if (MapInfo.IsMap && Rarity != ItemRarity.Unique)
             {
@@ -190,7 +190,7 @@ namespace Ninja_Price.Main
             else switch (Rarity) // Unique information
             {
                 case ItemRarity.Unique when IsIdentified && IsIdentified && ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
-                    ItemType = ItemTypes.UniqueAccessorie;
+                    ItemType = ItemTypes.UniqueAccessory;
                     break;
                 case ItemRarity.Unique when IsIdentified && item.Item.HasComponent<Armour>() || ClassName == "Quiver":
                     ItemType = ItemTypes.UniqueArmour;

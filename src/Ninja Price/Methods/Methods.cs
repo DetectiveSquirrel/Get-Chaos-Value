@@ -225,7 +225,7 @@ namespace Ninja_Price.Main
                         }
 
                         break;
-                    case ItemTypes.Propecy:
+                    case ItemTypes.Prophecy:
                         var prophecySearch = CollectedData.Prophecies.Lines.Find(x => x.Name == item.Item.Item.GetComponent<Prophecy>().DatProphecy.Name);
                         if (prophecySearch != null)
                         {
@@ -235,7 +235,7 @@ namespace Ninja_Price.Main
 
                         break;
                     // TODO: add a quick function to turn known names into the correct name for poe.ninja - See old plugin code
-                    case ItemTypes.UniqueAccessorie:
+                    case ItemTypes.UniqueAccessory:
                         var uniqueAccessorieSearch = CollectedData.UniqueAccessories.Lines.Find(x => x.Name == item.UniqueName);
                         if (uniqueAccessorieSearch != null)
                         {
@@ -365,7 +365,7 @@ namespace Ninja_Price.Main
                         switch (item.MapInfo.IsShapedMap)
                         {
                             case true:
-                                var normalSharpedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Shaped {item.BaseName}" && x.Variant == "Synthesis");
+                                var normalSharpedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Shaped {item.BaseName}" && x.Variant == "Legion");
                                 if (normalSharpedMapSearch != null)
                                 {
                                     item.PriceData.ChaosValue = normalSharpedMapSearch.ChaosValue;
