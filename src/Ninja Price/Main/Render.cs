@@ -174,6 +174,7 @@ namespace Ninja_Price.Main
                     case ItemTypes.DivinationCard:
                     case ItemTypes.Resonator:
                     case ItemTypes.Fossil:
+                    case ItemTypes.Incubator:
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}";
                         break;
                 }

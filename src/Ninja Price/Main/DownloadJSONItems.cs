@@ -24,7 +24,8 @@ namespace Ninja_Price.Main
         private const string WhiteMaps_URL = "https://poe.ninja/api/data/itemoverview?type=Map&league=";
         private const string Resonators_URL = "https://poe.ninja/api/data/itemoverview?type=Resonator&league=";
         private const string Fossils_URL = "https://poe.ninja/api/data/itemoverview?type=Fossil&league=";
-        private const string Scarabs_URL = "https://poe.ninja/api/data/itemoverview?type=Scarab&league=";
+        private const string Scarabs_URL = "https://poe.ninja/api/data/itemoverview?type=Scarabs&league=";
+        private const string Incubators_URL = "https://poe.ninja/api/data/itemoverview?type=Incubator&league=";
 
         private void GetJsonData(string league)
         {
@@ -51,6 +52,7 @@ namespace Ninja_Price.Main
                 Api.Json.SaveSettingFile(NinjaDirectory + "WhiteMaps.json", JsonConvert.DeserializeObject<WhiteMaps.RootObject>(Api.DownloadFromUrl(WhiteMaps_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "Resonators.json", JsonConvert.DeserializeObject<Resonators.RootObject>(Api.DownloadFromUrl(Resonators_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "Fossils.json", JsonConvert.DeserializeObject<Fossils.RootObject>(Api.DownloadFromUrl(Fossils_URL + league)));
+                Api.Json.SaveSettingFile(NinjaDirectory + "Incubators.json", JsonConvert.DeserializeObject<Incubators.RootObject>(Api.DownloadFromUrl(Incubators_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "Scarabs.json", JsonConvert.DeserializeObject<Scarab.RootObject>(Api.DownloadFromUrl(Scarabs_URL + league)));
                 LogMessage("Finished Gathering Data from Poe.Ninja.", 5);
                 UpdatingFromAPI = false;
@@ -173,11 +175,18 @@ namespace Ninja_Price.Main
                         newData.Fossils = JsonConvert.DeserializeObject<Fossils.RootObject>(json);
                     }
 
+                if (JsonExists("Incubators.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "Incubators.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.Incubators = JsonConvert.DeserializeObject<Incubators.RootObject>(json);
+                    }
+
                 if (JsonExists("Scarabs.json"))
                     using (var r = new StreamReader(NinjaDirectory + "Scarabs.json"))
                     {
                         var json = r.ReadToEnd();
-                        newData.Scarab = JsonConvert.DeserializeObject<Scarab.RootObject>(json);
+                        newData.Scarabs = JsonConvert.DeserializeObject<Scarab.RootObject>(json);
                     }
 
                 CollectedData = newData;

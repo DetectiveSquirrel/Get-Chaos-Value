@@ -151,7 +151,7 @@ namespace Ninja_Price.Main
 
             // sort items into types to use correct json data later from poe.ninja
             // This might need tweaking since if this catches anything other than currency.
-            if (ClassName == "StackableCurrency" && !BaseName.Contains("Essence") && !BaseName.Contains("Remnant of") && !BaseName.Contains("Timeless ") && BaseName != "Prophecy" && ClassName != "MapFragment" && !BaseName.EndsWith(" Fossil")  /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/)
+            if (ClassName == "StackableCurrency" && !BaseName.Contains("Essence") && !BaseName.Contains("Remnant of") && !BaseName.Contains("Timeless ") && BaseName != "Prophecy" && ClassName != "MapFragment" && !BaseName.EndsWith(" Fossil") && ClassName != "Incubator"  /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/)
             {
                 ItemType = ItemTypes.Currency;
             }
@@ -163,11 +163,11 @@ namespace Ninja_Price.Main
             {
                 ItemType = ItemTypes.Essence;
             }
-            else if ((ClassName == "MapFragment" || BaseName.Contains("Timeless ")) && !BaseName.Contains(" Scarab"))
+            else if ((ClassName == "MapFragment" || BaseName.Contains("Timeless ")) && !BaseName.Contains(" Scarabs"))
             {
                 ItemType = ItemTypes.Fragment;
             }
-            else if (ClassName == "MapFragment" && BaseName.Contains(" Scarab"))
+            else if (ClassName == "MapFragment" && BaseName.Contains(" Scarabs"))
             {
                 ItemType = ItemTypes.Scarab;
             }
@@ -186,6 +186,10 @@ namespace Ninja_Price.Main
             else if (ClassName == "DelveSocketableCurrency")
             {
                 ItemType = ItemTypes.Resonator;
+            }
+            else if (ClassName == "Incubator")
+            {
+                ItemType = ItemTypes.Incubator;
             }
             else switch (Rarity) // Unique information
             {

@@ -8,10 +8,17 @@ namespace Ninja_Price.API.PoeNinja
     {
         public static string DownloadFromUrl(string url)
         {
-            using (var web = new WebClient())
+            try
             {
-                var json = web.DownloadString(url);
-                return json;
+                using (var web = new WebClient())
+                {
+                    var json = web.DownloadString(url);
+                    return json;
+                }
+            }
+            catch (CookieException e)
+            {
+                return "";
             }
         }
 
@@ -37,7 +44,14 @@ namespace Ninja_Price.API.PoeNinja
 
             public static void SaveSettingFile<TSettingType>(string fileName, TSettingType setting)
             {
-                File.WriteAllText(fileName, JsonConvert.SerializeObject(setting, Formatting.Indented));
+                try
+                {
+                    File.WriteAllText(fileName, JsonConvert.SerializeObject(setting, Formatting.Indented));
+                }
+                catch(CookieException e)
+                {
+                    File.WriteAllText(fileName, "");
+                }
             }
         }
     }

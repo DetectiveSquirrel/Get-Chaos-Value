@@ -19,6 +19,7 @@ namespace Ninja_Price.Main
         public WhiteMaps.RootObject WhiteMaps { get; set; } = new WhiteMaps.RootObject();
         public Resonators.RootObject Resonators { get; set; } = new Resonators.RootObject();
         public Fossils.RootObject Fossils { get; set; } = new Fossils.RootObject();
-        public Scarab.RootObject Scarab { get; set; } = new Scarab.RootObject();
+        public Scarab.RootObject Scarabs { get; set; } = new Scarab.RootObject();
+        public Incubators.RootObject Incubators { get; set; } = new Incubators.RootObject();
     }
 }

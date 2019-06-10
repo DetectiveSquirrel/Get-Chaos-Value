@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="API\PoeNinja\API.cs" />
     <Compile Include="API\PoeNinja\Classes\Fossils.cs" />
+    <Compile Include="API\PoeNinja\Classes\Incubators.cs" />
     <Compile Include="API\PoeNinja\Classes\Resonators.cs" />
     <Compile Include="API\PoeNinja\Classes\Currency.cs" />
     <Compile Include="API\PoeNinja\Classes\DivinationCards.cs" />

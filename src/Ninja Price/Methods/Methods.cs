@@ -55,7 +55,7 @@ namespace Ninja_Price.Main
             Directory.CreateDirectory($"{PluginDirectory}//images//");
             using (var client = new WebClient())
             {
-                client.DownloadFile(new Uri("https://d1u5p3l4wpay3k.cloudfront.net/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"), fileName);
+                client.DownloadFile(new Uri("https://gamepedia.cursecdn.com/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"), fileName);
             }
         }
 
@@ -216,8 +216,17 @@ namespace Ninja_Price.Main
                         }
 
                         break;
+                    case ItemTypes.Incubator:
+                        var incubatorSearch = CollectedData.Incubators.lines.Find(x => x.name == item.BaseName);
+                        if (incubatorSearch != null)
+                        {
+                            item.PriceData.ChaosValue = incubatorSearch.chaosValue;
+                            item.PriceData.ChangeInLast7Days = incubatorSearch.sparkline.totalChange;
+                        }
+
+                        break;
                     case ItemTypes.Scarab:
-                        var scarabSearch = CollectedData.Scarab.Lines.Find(x => x.Name == item.BaseName);
+                        var scarabSearch = CollectedData.Scarabs.Lines.Find(x => x.Name == item.BaseName);
                         if (scarabSearch != null)
                         {
                             item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * scarabSearch.ChaosValue;

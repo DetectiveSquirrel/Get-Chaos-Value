@@ -17,6 +17,7 @@
         NormalMap,
         Resonator,
         Fossil,
-        Scarab
+        Scarab,
+        Incubator
     }
 }
