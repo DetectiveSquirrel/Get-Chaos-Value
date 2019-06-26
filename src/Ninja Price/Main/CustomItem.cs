@@ -163,11 +163,11 @@ namespace Ninja_Price.Main
             {
                 ItemType = ItemTypes.Essence;
             }
-            else if ((ClassName == "MapFragment" || BaseName.Contains("Timeless ")) && !BaseName.Contains(" Scarabs"))
+            else if ((ClassName == "MapFragment" || BaseName.Contains("Timeless ")) && !BaseName.EndsWith(" Scarab"))
             {
                 ItemType = ItemTypes.Fragment;
             }
-            else if (ClassName == "MapFragment" && BaseName.Contains(" Scarabs"))
+            else if (ClassName == "MapFragment" && BaseName.EndsWith(" Scarab"))
             {
                 ItemType = ItemTypes.Scarab;
             }

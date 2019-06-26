@@ -226,11 +226,11 @@ namespace Ninja_Price.Main
 
                         break;
                     case ItemTypes.Scarab:
-                        var scarabSearch = CollectedData.Scarabs.Lines.Find(x => x.Name == item.BaseName);
+                        var scarabSearch = CollectedData.Scarabs.lines.Find(x => x.name == item.BaseName);
                         if (scarabSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * scarabSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = scarabSearch.Sparkline.TotalChange;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * scarabSearch.chaosValue;
+                            item.PriceData.ChangeInLast7Days = scarabSearch.sparkline.totalChange;
                         }
 
                         break;
@@ -383,7 +383,7 @@ namespace Ninja_Price.Main
 
                                 break;
                             case false:
-                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && x.Variant == "Synthesis");
+                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && x.Variant == "Legion");
                                 if (normalMapSearch != null)
                                 {
                                     item.PriceData.ChaosValue = normalMapSearch.ChaosValue;

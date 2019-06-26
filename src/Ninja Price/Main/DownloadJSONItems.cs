@@ -24,7 +24,7 @@ namespace Ninja_Price.Main
         private const string WhiteMaps_URL = "https://poe.ninja/api/data/itemoverview?type=Map&league=";
         private const string Resonators_URL = "https://poe.ninja/api/data/itemoverview?type=Resonator&league=";
         private const string Fossils_URL = "https://poe.ninja/api/data/itemoverview?type=Fossil&league=";
-        private const string Scarabs_URL = "https://poe.ninja/api/data/itemoverview?type=Scarabs&league=";
+        private const string Scarabs_URL = "https://poe.ninja/api/data/itemoverview?type=Scarab&league=";
         private const string Incubators_URL = "https://poe.ninja/api/data/itemoverview?type=Incubator&league=";
 
         private void GetJsonData(string league)
