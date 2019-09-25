@@ -20,6 +20,7 @@ namespace Ninja_Price.Main
         public Resonators.RootObject Resonators { get; set; } = new Resonators.RootObject();
         public Fossils.RootObject Fossils { get; set; } = new Fossils.RootObject();
         public Scarab.RootObject Scarabs { get; set; } = new Scarab.RootObject();
+        public Oils.RootObject Oils { get; set; } = new Oils.RootObject();
         public Incubators.RootObject Incubators { get; set; } = new Incubators.RootObject();
     }
 }

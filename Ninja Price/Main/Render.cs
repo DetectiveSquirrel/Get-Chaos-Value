@@ -1,18 +1,12 @@
-﻿using ImGuiNET;
-using Ninja_Price.Enums;
-using PoeHUD.Models.Enums;
-using PoeHUD.Poe.Components;
-using PoeHUD.Poe.Elements;
-using SharpDX;
-using SharpDX.Direct3D9;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
-using PoeHUD.Poe.RemoteMemoryObjects;
-using Color = SharpDX.Color;
-using RectangleF = SharpDX.RectangleF;
+using ExileCore.PoEMemory.Elements;
+using ExileCore.PoEMemory.Elements.InventoryElements;
+using ExileCore.Shared.Enums;
+using Ninja_Price.Enums;
+using SharpDX;
 
 namespace Ninja_Price.Main
 {
@@ -46,7 +40,7 @@ namespace Ninja_Price.Main
             StashTabValue = 0;
             Hovereditem = null;
 
-            StashPanel = GameController.Game.IngameState.ServerData.StashPanel;
+            StashPanel = GameController.Game.IngameState.IngameUi.StashElement;
 
             #endregion
 
@@ -54,7 +48,8 @@ namespace Ninja_Price.Main
             try // Im lazy and just want to surpress all errors produced
             {
                 // only update if the time between last update is more than AutoReloadTimer interval
-                if (Settings.AutoReload && Settings.LastUpDateTime.AddMinutes(Settings.AutoReloadTimer.Value) < DateTime.Now)
+                if (Settings.AutoReload &&
+                    Settings.LastUpDateTime.AddMinutes(Settings.AutoReloadTimer.Value) < DateTime.Now)
                 {
                     LoadJsonData();
                     Settings.LastUpDateTime = DateTime.Now;
@@ -109,7 +104,6 @@ namespace Ninja_Price.Main
                     InventoryItemsToDrawList = new List<CustomItem>();
                     foreach (var item in FortmattedInventoryItemList)
                     {
-
                         if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
                         if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
                             continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
@@ -119,7 +113,7 @@ namespace Ninja_Price.Main
                 }
 
                 // TODO: Graphical part from gathered data
-                
+
                 GetHoveredItem(); // Get information for the hovered item
                 DrawGraphics();
             }
@@ -128,7 +122,6 @@ namespace Ninja_Price.Main
                 // ignored
                 if (Settings.Debug)
                 {
-
                     LogMessage("Error in: Main Render Loop, restart PoEHUD.", 5, Color.Red);
                     LogMessage(e.ToString(), 5, Color.Orange);
                 }
@@ -136,15 +129,11 @@ namespace Ninja_Price.Main
 
             try
             {
-                PropheccyDisplay();
+                //PropheccyDisplay();
             }
             catch
             {
-                if (Settings.Debug)
-                {
-
-                    LogMessage("Error in: PropheccyDisplay(), restart PoEHUD.", 5, Color.Red);
-                }
+                if (Settings.Debug) LogMessage("Error in: PropheccyDisplay(), restart PoEHUD.", 5, Color.Red);
             }
         }
 
@@ -160,6 +149,9 @@ namespace Ninja_Price.Main
                     case ItemTypes.Essence:
                     case ItemTypes.Fragment:
                     case ItemTypes.Scarab:
+                    case ItemTypes.Resonator:
+                    case ItemTypes.Fossil:
+                    case ItemTypes.Oil:
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize}" +
                                 $"\n\rTotal: {Hovereditem.PriceData.ChaosValue}";
                         break;
@@ -172,16 +164,15 @@ namespace Ninja_Price.Main
                     case ItemTypes.UniqueWeapon:
                     case ItemTypes.NormalMap:
                     case ItemTypes.DivinationCard:
-                    case ItemTypes.Resonator:
-                    case ItemTypes.Fossil:
                     case ItemTypes.Incubator:
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}";
                         break;
                 }
+
                 if (Settings.Debug) text += $"\n\rItemType: {Hovereditem.ItemType}";
-                var textMeasure = Graphics.MeasureText(text, 15);
-                Graphics.DrawBox(new RectangleF(0, 0, textMeasure.Width, textMeasure.Height), Color.Black);
-                Graphics.DrawText(text, 15, new Vector2(0, 0), Color.White);
+                var textMeasure = Graphics.MeasureText(text, 13);
+                Graphics.DrawBox(new RectangleF(10, 10, textMeasure.X, textMeasure.Y), Color.Black);
+                Graphics.DrawText(text, new Vector2(10, 10), Color.White);
             }
 
             if (!StashPanel.IsVisible)
@@ -196,26 +187,28 @@ namespace Ninja_Price.Main
                 if (customItem.ItemType == ItemTypes.None) continue;
 
                 if (Settings.CurrencyTabSpecifcToggle)
-                {
                     switch (tabType)
                     {
                         case InventoryType.CurrencyStash:
-                            PriceBoxOverItem(customItem);
-                            break;
                         case InventoryType.FragmentStash:
+                        case InventoryType.DelveStash:
                             PriceBoxOverItem(customItem);
                             break;
                     }
-                }
 
                 if (Settings.HighlightUniqueJunk)
+                {
+                    if (customItem.ItemType == ItemTypes.None || customItem.ItemType == ItemTypes.Currency ||
+                        customItem.ItemType == ItemTypes.Oil || customItem.ItemType == ItemTypes.Scarab) continue;
                     HighlightJunkUniques(customItem);
+                }
             }
 
             if (Settings.HighlightUniqueJunk)
                 foreach (var customItem in InventoryItemsToDrawList)
                 {
-                    if (customItem.ItemType == ItemTypes.None) continue;
+                    if (customItem.ItemType == ItemTypes.None || customItem.ItemType == ItemTypes.Currency ||
+                        customItem.ItemType == ItemTypes.Oil || customItem.ItemType == ItemTypes.Scarab) continue;
 
                     HighlightJunkUniques(customItem);
                 }
@@ -225,21 +218,22 @@ namespace Ninja_Price.Main
         {
             try
             {
-                var StashType = GameController.Game.IngameState.ServerData.StashPanel.VisibleStash.InvType;
+                var StashType = GameController.Game.IngameState.IngameUi.StashElement.VisibleStash.InvType;
                 if (!Settings.VisibleStashValue.Value ||
                     !StashPanel.IsVisible && StashType != InventoryType.MapStash) return;
                 {
                     var pos = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
                     var significantDigits =
                         Math.Round((decimal) StashTabValue, Settings.StashValueSignificantDigits.Value);
-                    Graphics.DrawText(
-                        DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
-                            new RectangleF(Settings.StashValueX.Value - Settings.StashValueFontSize.Value,
-                                Settings.StashValueY.Value,
-                                Settings.StashValueFontSize.Value, Settings.StashValueFontSize.Value))
-                            ? $"{significantDigits}"
-                            : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos,
-                        Settings.UniTextColor);
+                    //Graphics.DrawText(
+                    //    DrawImage($"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png",
+                    //        new RectangleF(Settings.StashValueX.Value - Settings.StashValueFontSize.Value,
+                    //            Settings.StashValueY.Value,
+                    //            Settings.StashValueFontSize.Value, Settings.StashValueFontSize.Value))
+                    //        ? $"{significantDigits}"
+                    //        : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos,
+                    //    Settings.UniTextColor);
+                    Graphics.DrawText($"{significantDigits} Chaos", pos, Settings.UniTextColor, FontAlign.Center);
                 }
             }
             catch (Exception e)
@@ -247,9 +241,8 @@ namespace Ninja_Price.Main
                 // ignored
                 if (Settings.Debug)
                 {
-
-                LogMessage("Error in: VisibleStashValue, restart PoEHUD.", 5, Color.Red);
-                LogMessage(e.ToString(), 5, Color.Orange);
+                    LogMessage("Error in: VisibleStashValue, restart PoEHUD.", 5, Color.Red);
+                    LogMessage(e.ToString(), 5, Color.Orange);
                 }
             }
         }
@@ -260,9 +253,11 @@ namespace Ninja_Price.Main
             var drawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.CurrencyTabBoxHeight);
             var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.CurrencyTabFontSize.Value / 2);
 
-            Graphics.DrawText(Math.Round((decimal) item.PriceData.ChaosValue, Settings.CurrenctTabSigDigits.Value).ToString(), Settings.CurrencyTabFontSize.Value, position, Settings.CurrencyTabFontColor, FontDrawFlags.Center);
+            Graphics.DrawText(
+                Math.Round((decimal) item.PriceData.ChaosValue, Settings.CurrenctTabSigDigits.Value).ToString(),
+                position, Settings.CurrencyTabFontColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
-            Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
+            Graphics.DrawFrame(drawBox, Settings.CurrencyTabBorderColor, 1);
         }
 
         /// <summary>
@@ -272,78 +267,80 @@ namespace Ninja_Price.Main
         private void HighlightJunkUniques(CustomItem item)
         {
             var hoverUi = GameController.Game.IngameState.UIHoverTooltip.Tooltip;
-            if (item.Rarity != ItemRarity.Unique || hoverUi.GetClientRect().Intersects(item.Item.GetClientRect()) && hoverUi.IsVisibleLocal) return;
+            if (hoverUi != null && (item.Rarity != ItemRarity.Unique ||
+                                    hoverUi.GetClientRect().Intersects(item.Item.GetClientRect()) &&
+                                    hoverUi.IsVisibleLocal)) return;
 
-            var chaosValueSignificanDigits = Math.Round((decimal) item.PriceData.ChaosValue, Settings.HighlightSignificantDigits.Value);
+            var chaosValueSignificanDigits = Math.Round((decimal) item.PriceData.ChaosValue,
+                Settings.HighlightSignificantDigits.Value);
             if (chaosValueSignificanDigits >= Settings.InventoryValueCutOff.Value) return;
             var rec = item.Item.GetClientRect();
             var fontSize = Settings.HighlightFontSize.Value;
             var backgroundBox = Graphics.MeasureText($"{chaosValueSignificanDigits}", fontSize);
             var position = new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y);
 
-            Graphics.DrawBox(new RectangleF(position.X - backgroundBox.Width, position.Y, backgroundBox.Width, backgroundBox.Height), Color.Black);
-            Graphics.DrawText($"{chaosValueSignificanDigits}", fontSize, position, Settings.UniTextColor, FontDrawFlags.Right);
+            //Graphics.DrawBox(new RectangleF(position.X - backgroundBox.Width, position.Y, backgroundBox.Width, backgroundBox.Height), Color.Black);
+            Graphics.DrawText($"{chaosValueSignificanDigits}", position, Settings.UniTextColor, FontAlign.Center);
 
-            DrawImage($"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png",
-                new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y,
-                    Settings.HighlightFontSize.Value, Settings.HighlightFontSize.Value)
-            );
-            Graphics.DrawFrame(item.Item.GetClientRect(), 2, Settings.HighlightColor.Value);
+            DrawImage($"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png",
+                new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y, Settings.HighlightFontSize.Value,
+                    Settings.HighlightFontSize.Value));
+            //Graphics.DrawFrame(item.Item.GetClientRect(), 2, Settings.HighlightColor.Value);
         }
 
-        private void PropheccyDisplay()
-        {
-            if (!Settings.ProphecyPrices)
-                return;
+        //private void PropheccyDisplay()
+        //{
+        //    if (!Settings.ProphecyPrices)
+        //        return;
 
-            try
-            {
-                var UIHover = GameController.Game.IngameState.UIHover;
-                var newBox = new RectangleF(lastProphWindowPos.X, lastProphWindowPos.Y, lastProphWindowSize.X, lastProphWindowSize.Y);
+        //    try
+        //    {
+        //        var UIHover = GameController.Game.IngameState.UIHover;
+        //        var newBox = new RectangleF(lastProphWindowPos.X, lastProphWindowPos.Y, lastProphWindowSize.X, lastProphWindowSize.Y);
 
-                if (!StashPanel.IsVisible) return;
-                var refBool = true;
+        //        if (!StashPanel.IsVisible) return;
+        //        var refBool = true;
 
-                if (!UIHover.Tooltip.GetClientRect().Intersects(newBox))
-                {
-                    var menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
-                    if (Settings.ProphecyOverrideColors)
-                    {
-                        var tempColor = new SharpDX.Vector4(Settings.ProphecyBackground.Value.R / 255.0f, Settings.ProphecyBackground.Value.G / 255.0f,
-                            Settings.ProphecyBackground.Value.B / 255.0f, Settings.ProphecyBackground.Value.A / 255.0f);
-                        ImGui.PushStyleColor(ColorTarget.WindowBg, ToImVector4(tempColor));
-                        menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
-                    }
+        //        if (!UIHover.Tooltip.GetClientRect().Intersects(newBox))
+        //        {
+        //            var menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
+        //            if (Settings.ProphecyOverrideColors)
+        //            {
+        //                var tempColor = new SharpDX.Vector4(Settings.ProphecyBackground.Value.R / 255.0f, Settings.ProphecyBackground.Value.G / 255.0f,
+        //                    Settings.ProphecyBackground.Value.B / 255.0f, Settings.ProphecyBackground.Value.A / 255.0f);
+        //                ImGui.PushStyleColor(ColorTarget.WindowBg, ToImVector4(tempColor));
+        //                menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
+        //            }
 
-                    ImGui.BeginWindow("Poe.NinjaProphs", ref refBool, new System.Numerics.Vector2(200, 150), menuOpacity, Settings.ProphecyLocked ? WindowFlags.NoCollapse | WindowFlags.NoScrollbar | WindowFlags.NoMove | WindowFlags.NoResize | WindowFlags.NoInputs | WindowFlags.NoBringToFrontOnFocus | WindowFlags.NoTitleBar | WindowFlags.NoFocusOnAppearing : WindowFlags.Default | WindowFlags.NoTitleBar | WindowFlags.ResizeFromAnySide);
+        //            ImGui.BeginWindow("Poe.NinjaProphs", ref refBool, new System.Numerics.Vector2(200, 150), menuOpacity, Settings.ProphecyLocked ? WindowFlags.NoCollapse | WindowFlags.NoScrollbar | WindowFlags.NoMove | WindowFlags.NoResize | WindowFlags.NoInputs | WindowFlags.NoBringToFrontOnFocus | WindowFlags.NoTitleBar | WindowFlags.NoFocusOnAppearing : WindowFlags.Default | WindowFlags.NoTitleBar | WindowFlags.ResizeFromAnySide);
 
-                    if (Settings.ProphecyOverrideColors)
-                        ImGui.PopStyleColor();
+        //            if (Settings.ProphecyOverrideColors)
+        //                ImGui.PopStyleColor();
 
 
-                    var prophystringlist = new List<string>();
-                    var propicies = GameController.Player.GetComponent<Player>().Prophecies;
-                    foreach (var prophecyDat in propicies)
-                    {
-                        //var text = $"{GetProphecyValues(prophecyDat.Name)}c - {prophecyDat.Name}({prophecyDat.SealCost})";
-                        var text = $"{{{HexConverter(Settings.ProphecyChaosValue)}}}{GetProphecyValues(prophecyDat.Name)}c {{}}- {{{HexConverter(Settings.ProphecyProecyName)}}}{prophecyDat.Name} {{{HexConverter(Settings.ProphecyProecySealColor)}}}({prophecyDat.SealCost}){{}}";
-                        if (prophystringlist.Any(x => Equals(x, text))) continue;
-                        prophystringlist.Add(text);
-                    }
+        //            var prophystringlist = new List<string>();
+        //            var propicies = GameController.Player.GetComponent<Player>().Prophecies;
+        //            foreach (var prophecyDat in propicies)
+        //            {
+        //                //var text = $"{GetProphecyValues(prophecyDat.Name)}c - {prophecyDat.Name}({prophecyDat.SealCost})";
+        //                var text = $"{{{HexConverter(Settings.ProphecyChaosValue)}}}{GetProphecyValues(prophecyDat.Name)}c {{}}- {{{HexConverter(Settings.ProphecyProecyName)}}}{prophecyDat.Name} {{{HexConverter(Settings.ProphecyProecySealColor)}}}({prophecyDat.SealCost}){{}}";
+        //                if (prophystringlist.Any(x => Equals(x, text))) continue;
+        //                prophystringlist.Add(text);
+        //            }
 
-                    foreach (var proph in prophystringlist)
-                        //ImGui.Text(VARIABLE);
-                        Coloredtext(proph);
+        //            foreach (var proph in prophystringlist)
+        //                //ImGui.Text(VARIABLE);
+        //                Coloredtext(proph);
 
-                    lastProphWindowSize = new Vector2(ImGui.GetWindowSize().X, ImGui.GetWindowSize().Y);
-                    lastProphWindowPos = new Vector2(ImGui.GetWindowPosition().X, ImGui.GetWindowPosition().Y);
-                    ImGui.EndWindow();
-                }
-            }
-            catch
-            {
-                ImGui.EndWindow();
-            }
-        }
+        //            lastProphWindowSize = new Vector2(ImGui.GetWindowSize().X, ImGui.GetWindowSize().Y);
+        //            lastProphWindowPos = new Vector2(ImGui.GetWindowPosition().X, ImGui.GetWindowPosition().Y);
+        //            ImGui.EndWindow();
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        ImGui.EndWindow();
+        //    }
+        //}
     }
 }

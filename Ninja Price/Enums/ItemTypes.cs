@@ -18,6 +18,7 @@
         Resonator,
         Fossil,
         Scarab,
-        Incubator
+        Incubator,
+        Oil
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
-using PoeHUD.Hud.Settings;
-using PoeHUD.Plugins;
+using System.Configuration;
+using ExileCore.Shared.Attributes;
+using ExileCore.Shared.Interfaces;
+using ExileCore.Shared.Nodes;
 using SharpDX;
 
 namespace Ninja_Price.Settings
 {
-    public class Settings : SettingsBase
+    public class Settings : ISettings
     {
         public Settings()
         {
@@ -66,16 +68,16 @@ namespace Ninja_Price.Settings
 
 
         [Menu("Prophecy Prices", "This shows your proph prices whilst you have your stash tab open", 567765)]
-        public ToggleNode ProphecyPrices { get; set; } = true;
+        public ToggleNode ProphecyPrices { get; set; } = new ToggleNode(true);
 
         [Menu("Override Background Color from the default theme color", 123345, 567765)]
-        public ToggleNode ProphecyOverrideColors { get; set; } = true;
+        public ToggleNode ProphecyOverrideColors { get; set; } = new ToggleNode(true);
 
         [Menu("Prophecy Background", 234, 567765)]
         public ColorNode ProphecyBackground { get; set; }
 
         [Menu("Prophecy Locked", "This will lock the proh box so you can click through it without accidentally moving it", 652, 567765)]
-        public ToggleNode ProphecyLocked { get; set; } = false;
+        public ToggleNode ProphecyLocked { get; set; } = new ToggleNode(true);
 
         [Menu("Chaos Value", 653, 567765)]
         public ColorNode ProphecyChaosValue { get; set; }
@@ -110,7 +112,7 @@ namespace Ninja_Price.Settings
         public EmptyNode CurrencyTabSpecifc { get; set; }
 
         [Menu("Currency Tab Specifc", 75465, 23452)]
-        public ToggleNode CurrencyTabSpecifcToggle { get; set; } = true;
+        public ToggleNode CurrencyTabSpecifcToggle { get; set; } = new ToggleNode(true);
 
         [Menu("Value Font Size", 57, 23452)]
         public RangeNode<int> CurrencyTabFontSize { get; set; } = new RangeNode<int>(14, 5, 50);
@@ -151,5 +153,7 @@ namespace Ninja_Price.Settings
         public RangeNode<int> InventoryValueCutOff { get; set; }
 
         #endregion
+
+        public ToggleNode Enable { get; set; } = new ToggleNode(true);
     }
 }

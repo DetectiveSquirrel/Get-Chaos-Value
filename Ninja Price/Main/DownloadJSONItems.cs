@@ -26,6 +26,7 @@ namespace Ninja_Price.Main
         private const string Fossils_URL = "https://poe.ninja/api/data/itemoverview?type=Fossil&league=";
         private const string Scarabs_URL = "https://poe.ninja/api/data/itemoverview?type=Scarab&league=";
         private const string Incubators_URL = "https://poe.ninja/api/data/itemoverview?type=Incubator&league=";
+        private const string Oil_URL = "https://poe.ninja/api/data/itemoverview?type=Oil&league=";
 
         private void GetJsonData(string league)
         {
@@ -33,9 +34,11 @@ namespace Ninja_Price.Main
             {
                 while (UpdatingFromAPI || UpdatingFromJson)
                 {
-                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}: Waiting on UpdatePoeNinjaData() to finish", 5, Color.Orange);}
+                    if (Settings.Debug)
+                        LogMessage($"{GetCurrentMethod()}: Waiting on UpdatePoeNinjaData() to finish", 5, Color.Orange);
                     Thread.Sleep(250);
                 }
+
                 LogMessage("Gathering Data from Poe.Ninja.", 5);
                 UpdatingFromAPI = true;
                 Api.Json.SaveSettingFile(NinjaDirectory + "Currency.json", JsonConvert.DeserializeObject<Currency.RootObject>(Api.DownloadFromUrl(CurrencyURL + league)));
@@ -54,6 +57,7 @@ namespace Ninja_Price.Main
                 Api.Json.SaveSettingFile(NinjaDirectory + "Fossils.json", JsonConvert.DeserializeObject<Fossils.RootObject>(Api.DownloadFromUrl(Fossils_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "Incubators.json", JsonConvert.DeserializeObject<Incubators.RootObject>(Api.DownloadFromUrl(Incubators_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "Scarabs.json", JsonConvert.DeserializeObject<Scarab.RootObject>(Api.DownloadFromUrl(Scarabs_URL + league)));
+                Api.Json.SaveSettingFile(NinjaDirectory + "Oils.json", JsonConvert.DeserializeObject<Oils.RootObject>(Api.DownloadFromUrl(Oil_URL + league)));
                 LogMessage("Finished Gathering Data from Poe.Ninja.", 5);
                 UpdatingFromAPI = false;
                 UpdatePoeNinjaData();
@@ -71,9 +75,11 @@ namespace Ninja_Price.Main
             {
                 while (UpdatingFromAPI || UpdatingFromJson)
                 {
-                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}: Waiting on GetJsonData() to finish", 5, Color.Orange); }
+                    if (Settings.Debug)
+                        LogMessage($"{GetCurrentMethod()}: Waiting on GetJsonData() to finish", 5, Color.Orange);
                     Thread.Sleep(250);
                 }
+
                 var newData = new CollectiveApiData();
 
                 UpdatingFromJson = true;
@@ -187,6 +193,13 @@ namespace Ninja_Price.Main
                     {
                         var json = r.ReadToEnd();
                         newData.Scarabs = JsonConvert.DeserializeObject<Scarab.RootObject>(json);
+                    }
+
+                if (JsonExists("Oils.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "Oils.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.Oils = JsonConvert.DeserializeObject<Oils.RootObject>(json);
                     }
 
                 CollectedData = newData;

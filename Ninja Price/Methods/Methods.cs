@@ -1,16 +1,14 @@
-﻿using ImGuiNET;
-using Ninja_Price.Enums;
-using PoeHUD.Models.Enums;
-using PoeHUD.Poe.Components;
-using PoeHUD.Poe.Elements;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using Color = SharpDX.Color;
-using RectangleF = SharpDX.RectangleF;
+using ExileCore.PoEMemory.Components;
+using ExileCore.PoEMemory.Elements;
+using ExileCore.PoEMemory.Elements.InventoryElements;
+using ExileCore.Shared.Enums;
+using Ninja_Price.Enums;
+using SharpDX;
 using Vector4 = System.Numerics.Vector4;
 
 namespace Ninja_Price.Main
@@ -20,7 +18,9 @@ namespace Ninja_Price.Main
         public List<NormalInventoryItem> GetInventoryItems()
         {
             var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel;
-            return !inventory.IsVisible ? null : inventory[InventoryIndex.PlayerInventory].VisibleInventoryItems.ToList();
+            return !inventory.IsVisible
+                ? null
+                : inventory[InventoryIndex.PlayerInventory].VisibleInventoryItems.ToList();
         }
 
         public Vector4 ToImVector4(Vector4 vector)
@@ -50,12 +50,14 @@ namespace Ninja_Price.Main
         public void DownloadChaosIcon()
         {
             // check if image exists, if it doesn't, download it.
-            var fileName = $"{PluginDirectory}//images//Chaos_Orb_inventory_icon.png";
+            var fileName = $"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png";
             if (File.Exists(fileName)) return;
-            Directory.CreateDirectory($"{PluginDirectory}//images//");
+            Directory.CreateDirectory($"{DirectoryFullName}//images//");
             using (var client = new WebClient())
             {
-                client.DownloadFile(new Uri("https://gamepedia.cursecdn.com/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"), fileName);
+                client.DownloadFile(
+                    new Uri("https://gamepedia.cursecdn.com/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"),
+                    fileName);
             }
         }
 
@@ -106,7 +108,7 @@ namespace Ninja_Price.Main
         {
             try
             {
-                Graphics.DrawPluginImage(fileName, rec);
+                //Graphics.DrawPluginImage(fileName, rec);
             }
             catch
             {
@@ -165,30 +167,38 @@ namespace Ninja_Price.Main
                                     item.PriceData.ChaosValue = item.CurrencyInfo.StackSize / 20.0;
                                     break;
                             }
+
                             break;
                         }
+
                         switch (item.CurrencyInfo.IsShard)
                         {
                             case false:
-                                var normalCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                                var normalCurrencySearch =
+                                    CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
                                 if (normalCurrencySearch != null)
                                 {
-                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * normalCurrencySearch.ChaosEquivalent;
-                                    item.PriceData.ChangeInLast7Days = normalCurrencySearch.ReceiveSparkLine.TotalChange;
+                                    item.PriceData.ChaosValue =
+                                        item.CurrencyInfo.StackSize * normalCurrencySearch.ChaosEquivalent;
+                                    item.PriceData.ChangeInLast7Days =
+                                        normalCurrencySearch.ReceiveSparkLine.TotalChange;
                                 }
 
                                 break;
                             case true:
                                 var shardParent = GetShardPartent(item.BaseName);
-                                var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
+                                var shardCurrencySearch =
+                                    CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
                                 if (shardCurrencySearch != null)
                                 {
-                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent / 20;
+                                    item.PriceData.ChaosValue =
+                                        item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent / 20;
                                     item.PriceData.ChangeInLast7Days = shardCurrencySearch.ReceiveSparkLine.TotalChange;
                                 }
 
                                 break;
                         }
+
                         break;
                     case ItemTypes.DivinationCard:
                         var divinationSearch = CollectedData.DivinationCards.Lines.Find(x => x.Name == item.BaseName);
@@ -206,9 +216,20 @@ namespace Ninja_Price.Main
                             item.PriceData.ChaosValue = essenceSearch.ChaosValue;
                             item.PriceData.ChangeInLast7Days = essenceSearch.Sparkline.TotalChange;
                         }
+
+                        break;
+                    case ItemTypes.Oil:
+                        var oilSearch = CollectedData.Oils.lines.Find(x => x.name == item.BaseName);
+                        if (oilSearch != null)
+                        {
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * oilSearch.chaosValue;
+                            item.PriceData.ChangeInLast7Days = oilSearch.sparkline.totalChange;
+                        }
+
                         break;
                     case ItemTypes.Fragment:
-                        var fragmentSearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                        var fragmentSearch =
+                            CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
                         if (fragmentSearch != null)
                         {
                             item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * fragmentSearch.ChaosEquivalent;
@@ -235,7 +256,8 @@ namespace Ninja_Price.Main
 
                         break;
                     case ItemTypes.Prophecy:
-                        var prophecySearch = CollectedData.Prophecies.Lines.Find(x => x.Name == item.Item.Item.GetComponent<Prophecy>().DatProphecy.Name);
+                        var prophecySearch = CollectedData.Prophecies.Lines.Find(x =>
+                            x.Name == item.Item.Item.GetComponent<Prophecy>().DatProphecy.Name);
                         if (prophecySearch != null)
                         {
                             item.PriceData.ChaosValue = prophecySearch.ChaosValue;
@@ -245,12 +267,14 @@ namespace Ninja_Price.Main
                         break;
                     // TODO: add a quick function to turn known names into the correct name for poe.ninja - See old plugin code
                     case ItemTypes.UniqueAccessory:
-                        var uniqueAccessorieSearch = CollectedData.UniqueAccessories.Lines.Find(x => x.Name == item.UniqueName);
+                        var uniqueAccessorieSearch =
+                            CollectedData.UniqueAccessories.Lines.Find(x => x.Name == item.UniqueName);
                         if (uniqueAccessorieSearch != null)
                         {
                             item.PriceData.ChaosValue = uniqueAccessorieSearch.ChaosValue;
                             item.PriceData.ChangeInLast7Days = uniqueAccessorieSearch.Sparkline.TotalChange;
                         }
+
                         break;
                     case ItemTypes.UniqueArmour:
                         switch (item.LargestLink)
@@ -260,7 +284,8 @@ namespace Ninja_Price.Main
                             case 2:
                             case 3:
                             case 4:
-                                var uniqueArmourSearchLinks04 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0);
+                                var uniqueArmourSearchLinks04 = CollectedData.UniqueArmours.Lines.Find(x =>
+                                    x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0);
                                 if (uniqueArmourSearchLinks04 != null)
                                 {
                                     item.PriceData.ChaosValue = uniqueArmourSearchLinks04.ChaosValue;
@@ -269,7 +294,9 @@ namespace Ninja_Price.Main
 
                                 break;
                             case 5:
-                                var uniqueArmourSearch5 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5);
+                                var uniqueArmourSearch5 =
+                                    CollectedData.UniqueArmours.Lines.Find(x =>
+                                        x.Name == item.UniqueName && x.Links == 5);
                                 if (uniqueArmourSearch5 != null)
                                 {
                                     item.PriceData.ChaosValue = uniqueArmourSearch5.ChaosValue;
@@ -278,7 +305,9 @@ namespace Ninja_Price.Main
 
                                 break;
                             case 6:
-                                var uniqueArmourSearch6 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6);
+                                var uniqueArmourSearch6 =
+                                    CollectedData.UniqueArmours.Lines.Find(x =>
+                                        x.Name == item.UniqueName && x.Links == 6);
                                 if (uniqueArmourSearch6 != null)
                                 {
                                     item.PriceData.ChaosValue = uniqueArmourSearch6.ChaosValue;
@@ -287,6 +316,7 @@ namespace Ninja_Price.Main
 
                                 break;
                         }
+
                         break;
                     case ItemTypes.UniqueFlask:
                         var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.Find(x => x.Name == item.UniqueName);
@@ -319,7 +349,7 @@ namespace Ninja_Price.Main
                         var resonatorSearch = CollectedData.Resonators.Lines.Find(x => x.Name == item.BaseName);
                         if (resonatorSearch != null)
                         {
-                            item.PriceData.ChaosValue = resonatorSearch.ChaosValue;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * resonatorSearch.ChaosValue;
                             item.PriceData.ChangeInLast7Days = resonatorSearch.Sparkline.TotalChange;
                         }
 
@@ -328,7 +358,7 @@ namespace Ninja_Price.Main
                         var fossilSearch = CollectedData.Fossils.Lines.Find(x => x.Name == item.BaseName);
                         if (fossilSearch != null)
                         {
-                            item.PriceData.ChaosValue = fossilSearch.ChaosValue;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * fossilSearch.ChaosValue;
                             item.PriceData.ChangeInLast7Days = fossilSearch.Sparkline.TotalChange;
                         }
 
@@ -341,7 +371,8 @@ namespace Ninja_Price.Main
                             case 2:
                             case 3:
                             case 4:
-                                var uniqueWeaponSearch04 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0);
+                                var uniqueWeaponSearch04 = CollectedData.UniqueWeapons.Lines.Find(x =>
+                                    x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0);
                                 if (uniqueWeaponSearch04 != null)
                                 {
                                     item.PriceData.ChaosValue = uniqueWeaponSearch04.ChaosValue;
@@ -350,7 +381,9 @@ namespace Ninja_Price.Main
 
                                 break;
                             case 5:
-                                var uniqueWeaponSearch5 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5);
+                                var uniqueWeaponSearch5 =
+                                    CollectedData.UniqueWeapons.Lines.Find(x =>
+                                        x.Name == item.UniqueName && x.Links == 5);
                                 if (uniqueWeaponSearch5 != null)
                                 {
                                     item.PriceData.ChaosValue = uniqueWeaponSearch5.ChaosValue;
@@ -359,7 +392,9 @@ namespace Ninja_Price.Main
 
                                 break;
                             case 6:
-                                var uniqueWeaponSearch6 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6);
+                                var uniqueWeaponSearch6 =
+                                    CollectedData.UniqueWeapons.Lines.Find(x =>
+                                        x.Name == item.UniqueName && x.Links == 6);
                                 if (uniqueWeaponSearch6 != null)
                                 {
                                     item.PriceData.ChaosValue = uniqueWeaponSearch6.ChaosValue;
@@ -368,13 +403,15 @@ namespace Ninja_Price.Main
 
                                 break;
                         }
+
                         break;
                     case ItemTypes.NormalMap:
                         // TODO: Deal with old maps, this is literally the last thing i will do as it has next to no gain for having this information
                         switch (item.MapInfo.IsShapedMap)
                         {
                             case true:
-                                var normalSharpedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Shaped {item.BaseName}" && x.Variant == "Legion");
+                                var normalSharpedMapSearch = CollectedData.WhiteMaps.Lines.Find(x =>
+                                    x.BaseType == $"Shaped {item.BaseName}" && x.Variant == "Blight");
                                 if (normalSharpedMapSearch != null)
                                 {
                                     item.PriceData.ChaosValue = normalSharpedMapSearch.ChaosValue;
@@ -383,7 +420,8 @@ namespace Ninja_Price.Main
 
                                 break;
                             case false:
-                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && x.Variant == "Legion");
+                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x =>
+                                    x.BaseType == item.BaseName && x.Variant == "Blight");
                                 if (normalMapSearch != null)
                                 {
                                     item.PriceData.ChaosValue = normalMapSearch.ChaosValue;
@@ -392,12 +430,14 @@ namespace Ninja_Price.Main
 
                                 break;
                         }
+
                         break;
                 }
             }
             catch (Exception e)
             {
-                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.GetValue() Error that i dont understand", 5, Color.Red); }
+                if (Settings.Debug)
+                    LogMessage($"{GetCurrentMethod()}.GetValue() Error that i dont understand", 5, Color.Red);
             }
         }
 
@@ -406,31 +446,38 @@ namespace Ninja_Price.Main
             if (ValueUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
             {
                 ValueUpdateTimer.Restart();
-                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
+                if (Settings.Debug) LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray);
             }
             else
             {
                 return false;
             }
+
             // TODO: Get inventory items and not just stash tab items, this will be done at a later date
             try
             {
-                if (!Settings.VisibleStashValue.Value || !GameController.Game.IngameState.ServerData.StashPanel.IsVisible)
+                if (!Settings.VisibleStashValue.Value ||
+                    !GameController.Game.IngameState.IngameUi.StashElement.IsVisible)
                 {
-                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Stash is not visable", 5, Color.DarkGray); }
+                    if (Settings.Debug)
+                        LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Stash is not visable", 5,
+                            Color.DarkGray);
                     return false;
                 }
 
                 // Dont continue if the stash page isnt even open
-                if (GameController.Game.IngameState.ServerData.StashPanel.VisibleStash.VisibleInventoryItems == null)
+                if (GameController.Game.IngameState.IngameUi.StashElement.VisibleStash.VisibleInventoryItems == null)
                 {
-                    if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Items == null", 5, Color.DarkGray);
+                    if (Settings.Debug)
+                        LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Items == null", 5, Color.DarkGray);
                     return false;
                 }
             }
             catch (Exception)
             {
-                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Error that i need to fucking fix", 5, Color.DarkGray);
+                if (Settings.Debug)
+                    LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Error that i need to fucking fix", 5,
+                        Color.DarkGray);
                 return false;
             }
 
@@ -457,58 +504,58 @@ namespace Ninja_Price.Main
          * To change color of the string surround hex codes with {} Example: "Uncolored {#AARRGGBB}Colored"
          * having a blank {} will make it go back to default imgui text color, Example: "Uncolored {#AARRGGBB}Colored {}Back to orig color"
          */
-        public void Coloredtext(string TextIn)
-        {
-            try
-            {
-                var accumulatedText = "";
-                var startColor = ImGui.GetStyle().GetColor(ColorTarget.Text);
-                var hexCode = "";
-                var sameLine = false;
-                var nextColor = startColor;
-                for (var i = 0; i < TextIn.Length; i++)
-                {
-                    if (TextIn[i] == '{')
-                    {
-                        var foundBracketStart = TextIn.Substring(i + 1);
-                        for (var j = 0; j < foundBracketStart.Length; j++)
-                        {
-                            i++;
-                            if (foundBracketStart[j] == '}')
-                                break;
-                            hexCode += foundBracketStart[j];
-                        }
+        //public void Coloredtext(string TextIn)
+        //{
+        //    try
+        //    {
+        //        var accumulatedText = "";
+        //        var startColor = ImGui.GetStyle().GetColor(ColorTarget.Text);
+        //        var hexCode = "";
+        //        var sameLine = false;
+        //        var nextColor = startColor;
+        //        for (var i = 0; i < TextIn.Length; i++)
+        //        {
+        //            if (TextIn[i] == '{')
+        //            {
+        //                var foundBracketStart = TextIn.Substring(i + 1);
+        //                for (var j = 0; j < foundBracketStart.Length; j++)
+        //                {
+        //                    i++;
+        //                    if (foundBracketStart[j] == '}')
+        //                        break;
+        //                    hexCode += foundBracketStart[j];
+        //                }
 
-                        if (sameLine)
-                            ImGui.SameLine(0f, 0f);
-                        ImGui.Text(accumulatedText, nextColor);
-                        if (TextIn[i - 1] == '{')
-                            nextColor = startColor;
-                        accumulatedText = "";
-                        sameLine = true;
-                        if (hexCode != "")
-                        {
-                            var tempColor = ColorTranslator.FromHtml(hexCode);
-                            var tempColor2 = new Color(tempColor.R, tempColor.G, tempColor.B, tempColor.A).ToVector4();
-                            nextColor = new Vector4(tempColor2.X, tempColor2.Y, tempColor2.Z, tempColor2.W);
-                        }
+        //                if (sameLine)
+        //                    ImGui.SameLine(0f, 0f);
+        //                ImGui.Text(accumulatedText);
+        //                if (TextIn[i - 1] == '{')
+        //                    nextColor = startColor;
+        //                accumulatedText = "";
+        //                sameLine = true;
+        //                if (hexCode != "")
+        //                {
+        //                    var tempColor = ColorTranslator.FromHtml(hexCode);
+        //                    var tempColor2 = new Color(tempColor.R, tempColor.G, tempColor.B, tempColor.A).ToVector4();
+        //                    nextColor = new Vector4(tempColor2.X, tempColor2.Y, tempColor2.Z, tempColor2.W);
+        //                }
 
-                        i++;
-                        hexCode = "";
-                    }
+        //                i++;
+        //                hexCode = "";
+        //            }
 
-                    accumulatedText += TextIn[i];
-                }
+        //            accumulatedText += TextIn[i];
+        //        }
 
-                if (sameLine)
-                    ImGui.SameLine(0f, 0f);
-                ImGui.Text(accumulatedText, nextColor);
-            }
-            catch (Exception)
-            {
-                // This spams all the time even tho nothing seems broken so it can fuck riiiiiiiight off
-                //LogError("ColorText: Incorrect hex format \n" + e, 15);
-            }
-        }
+        //        if (sameLine)
+        //            ImGui.SameLine(0f, 0f);
+        //        ImGui.Text(accumulatedText);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        // This spams all the time even tho nothing seems broken so it can fuck riiiiiiiight off
+        //        //LogError("ColorText: Incorrect hex format \n" + e, 15);
+        //    }
+        //}
     }
 }
