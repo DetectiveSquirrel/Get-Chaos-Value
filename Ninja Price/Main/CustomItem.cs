@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ExileCore;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Enums;
@@ -7,6 +8,7 @@ using Ninja_Price.Enums;
 
 namespace Ninja_Price.Main
 {
+
     public class CustomItem
     {
         public static Main Core;
@@ -14,14 +16,13 @@ namespace Ninja_Price.Main
         public string ClassName;
         public int Height;
         public bool IsElder;
-        public bool IsHovered;
         public bool IsIdentified;
         public bool IsRgb;
         public bool IsShaper;
         public bool IsWeapon;
+        public bool IsHovered;
         public NormalInventoryItem Item;
         public int ItemLevel;
-        public ItemTypes ItemType;
         public int LargestLink;
         public string Path;
         public string ProphecyName;
@@ -30,6 +31,27 @@ namespace Ninja_Price.Main
         public int Sockets;
         public string UniqueName;
         public int Width;
+        public ItemTypes ItemType;
+        public MapData MapInfo { get; set; } =  new MapData();
+        public CurrencyData CurrencyInfo { get; set; } =  new CurrencyData();
+        public Main.ReleventPriceData PriceData { get; set; } = new Main.ReleventPriceData();
+
+        public static void InitCustomItem(Main _core)
+        {
+            Core = _core;
+        }
+
+        public class MapData
+        {
+            public bool IsMap;
+            public bool IsShapedMap;
+            public int MapTier;
+        }
+        public class CurrencyData
+        {
+            public bool IsShard;
+            public int StackSize;
+        }
 
         public CustomItem()
         {
@@ -38,7 +60,7 @@ namespace Ninja_Price.Main
         public CustomItem(NormalInventoryItem item)
         {
             if (item != null && item.Address != 0)
-                Item = item;
+            Item = item;
             Path = item.Item.Path;
             var baseItemType = Core.GameController.Files.BaseItemTypes.Translate(item.Item.Path);
             ClassName = baseItemType.ClassName;
@@ -93,6 +115,7 @@ namespace Ninja_Price.Main
             }
 
             if (item.Item.HasComponent<Sockets>())
+            {
                 try
                 {
                     var sockets = item.Item.GetComponent<Sockets>();
@@ -103,6 +126,7 @@ namespace Ninja_Price.Main
                 catch
                 {
                 }
+            }
 
             if (weaponClass.Any(ClassName.Equals))
                 IsWeapon = true;
@@ -111,12 +135,14 @@ namespace Ninja_Price.Main
             MapInfo.IsMap = MapInfo.MapTier > 0;
 
             if (Rarity != ItemRarity.Unique && MapInfo.IsMap)
+            {
                 foreach (var itemList in item.Item.GetComponent<Mods>().ItemMods)
                     if (itemList.RawName.Contains("MapShaped"))
                     {
                         MapInfo.IsShapedMap = true;
                         break;
                     }
+            }
 
             if (item.Item.HasComponent<Stack>())
             {
@@ -126,84 +152,79 @@ namespace Ninja_Price.Main
             }
 
 
-            IsHovered = Core.GameController.Game.IngameState.UIHover.AsObject<NormalInventoryItem>().Address ==
-                        item.Address;
+            IsHovered = Core.GameController.Game.IngameState.UIHover.AsObject<NormalInventoryItem>().Address == item.Address;
 
             // sort items into types to use correct json data later from poe.ninja
             // This might need tweaking since if this catches anything other than currency.
-            if (ClassName == "StackableCurrency" && !BaseName.Contains("Essence") && !BaseName.EndsWith(" Oil") &&
-                !BaseName.Contains("Remnant of") && !BaseName.Contains("Timeless ") && BaseName != "Prophecy" &&
-                ClassName != "MapFragment" && !BaseName.EndsWith(" Fossil") &&
-                ClassName !=
-                "Incubator" /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/
-            )
+            if (ClassName == "StackableCurrency" && !BaseName.Contains("Essence") && !BaseName.EndsWith(" Oil") && !BaseName.Contains("Remnant of") && !BaseName.Contains("Timeless ") && BaseName != "Prophecy" && ClassName != "MapFragment" && !BaseName.EndsWith(" Fossil") && ClassName != "Incubator" && !BaseName.EndsWith(" Catalyst")  /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/)
+            {
                 ItemType = ItemTypes.Currency;
+            }
+            else if (BaseName.EndsWith(" Catalyst"))
+            {
+                ItemType = ItemTypes.Catalyst;
+            }
             else if (BaseName.EndsWith(" Oil"))
+            {
                 ItemType = ItemTypes.Oil;
+            }
             else if (Path.Contains("Metadata/Items/DivinationCards"))
+            {
                 ItemType = ItemTypes.DivinationCard;
+            }
             else if (BaseName.Contains("Essence") || BaseName.Contains("Remnant of"))
+            {
                 ItemType = ItemTypes.Essence;
+            }
             else if ((ClassName == "MapFragment" || BaseName.Contains("Timeless ")) && !BaseName.EndsWith(" Scarab"))
+            {
                 ItemType = ItemTypes.Fragment;
+            }
             else if (ClassName == "MapFragment" && BaseName.EndsWith(" Scarab"))
+            {
                 ItemType = ItemTypes.Scarab;
+            }
             else if (BaseName == "Prophecy")
+            {
                 ItemType = ItemTypes.Prophecy;
+            }
             else if (MapInfo.IsMap && Rarity != ItemRarity.Unique)
+            {
                 ItemType = ItemTypes.NormalMap;
+            }
             else if (BaseName.EndsWith(" Fossil"))
+            {
                 ItemType = ItemTypes.Fossil;
+            }
             else if (ClassName == "DelveStackableSocketableCurrency")
+            {
                 ItemType = ItemTypes.Resonator;
+            }
             else if (ClassName == "Incubator")
+            {
                 ItemType = ItemTypes.Incubator;
-            else
-                switch (Rarity) // Unique information
-                {
-                    case ItemRarity.Unique when IsIdentified && IsIdentified && ClassName == "Amulet" ||
-                                                ClassName == "Ring" || ClassName == "Belt":
-                        ItemType = ItemTypes.UniqueAccessory;
-                        break;
-                    case ItemRarity.Unique
-                        when IsIdentified && item.Item.HasComponent<Armour>() || ClassName == "Quiver":
-                        ItemType = ItemTypes.UniqueArmour;
-                        break;
-                    case ItemRarity.Unique when IsIdentified && item.Item.HasComponent<Flask>():
-                        ItemType = ItemTypes.UniqueFlask;
-                        break;
-                    case ItemRarity.Unique when IsIdentified && ClassName.Equals("Jewel"):
-                        ItemType = ItemTypes.UniqueJewel;
-                        break;
-                    case ItemRarity.Unique when MapInfo.IsMap:
-                        ItemType = ItemTypes.UniqueMap;
-                        break;
-                    case ItemRarity.Unique when IsIdentified && item.Item.HasComponent<Weapon>():
-                        ItemType = ItemTypes.UniqueWeapon;
-                        break;
-                }
-        }
-
-        public MapData MapInfo { get; set; } = new MapData();
-        public CurrencyData CurrencyInfo { get; set; } = new CurrencyData();
-        public Main.ReleventPriceData PriceData { get; set; } = new Main.ReleventPriceData();
-
-        public static void InitCustomItem(Main _core)
-        {
-            Core = _core;
-        }
-
-        public class MapData
-        {
-            public bool IsMap;
-            public bool IsShapedMap;
-            public int MapTier;
-        }
-
-        public class CurrencyData
-        {
-            public bool IsShard;
-            public int StackSize;
+            }
+            else switch (Rarity) // Unique information
+            {
+                case ItemRarity.Unique when IsIdentified && IsIdentified && ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
+                    ItemType = ItemTypes.UniqueAccessory;
+                    break;
+                case ItemRarity.Unique when IsIdentified && item.Item.HasComponent<Armour>() || ClassName == "Quiver":
+                    ItemType = ItemTypes.UniqueArmour;
+                    break;
+                case ItemRarity.Unique when IsIdentified && item.Item.HasComponent<Flask>():
+                    ItemType = ItemTypes.UniqueFlask;
+                    break;
+                case ItemRarity.Unique when IsIdentified && ClassName.Equals("Jewel"):
+                    ItemType = ItemTypes.UniqueJewel;
+                    break;
+                case ItemRarity.Unique when MapInfo.IsMap:
+                    ItemType = ItemTypes.UniqueMap;
+                    break;
+                case ItemRarity.Unique when IsIdentified && item.Item.HasComponent<Weapon>():
+                    ItemType = ItemTypes.UniqueWeapon;
+                    break;
+            }
         }
     }
 }

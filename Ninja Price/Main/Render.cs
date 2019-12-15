@@ -1,12 +1,18 @@
-﻿using System;
+﻿using ImGuiNET;
+using Ninja_Price.Enums;
+using SharpDX;
+using SharpDX.Direct3D9;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Enums;
-using Ninja_Price.Enums;
-using SharpDX;
+using Color = SharpDX.Color;
+using RectangleF = SharpDX.RectangleF;
 
 namespace Ninja_Price.Main
 {
@@ -48,8 +54,7 @@ namespace Ninja_Price.Main
             try // Im lazy and just want to surpress all errors produced
             {
                 // only update if the time between last update is more than AutoReloadTimer interval
-                if (Settings.AutoReload &&
-                    Settings.LastUpDateTime.AddMinutes(Settings.AutoReloadTimer.Value) < DateTime.Now)
+                if (Settings.AutoReload && Settings.LastUpDateTime.AddMinutes(Settings.AutoReloadTimer.Value) < DateTime.Now)
                 {
                     LoadJsonData();
                     Settings.LastUpDateTime = DateTime.Now;
@@ -104,6 +109,7 @@ namespace Ninja_Price.Main
                     InventoryItemsToDrawList = new List<CustomItem>();
                     foreach (var item in FortmattedInventoryItemList)
                     {
+
                         if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
                         if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
                             continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
@@ -113,7 +119,7 @@ namespace Ninja_Price.Main
                 }
 
                 // TODO: Graphical part from gathered data
-
+                
                 GetHoveredItem(); // Get information for the hovered item
                 DrawGraphics();
             }
@@ -122,6 +128,7 @@ namespace Ninja_Price.Main
                 // ignored
                 if (Settings.Debug)
                 {
+
                     LogMessage("Error in: Main Render Loop, restart PoEHUD.", 5, Color.Red);
                     LogMessage(e.ToString(), 5, Color.Orange);
                 }
@@ -133,7 +140,11 @@ namespace Ninja_Price.Main
             }
             catch
             {
-                if (Settings.Debug) LogMessage("Error in: PropheccyDisplay(), restart PoEHUD.", 5, Color.Red);
+                if (Settings.Debug)
+                {
+
+                    LogMessage("Error in: PropheccyDisplay(), restart PoEHUD.", 5, Color.Red);
+                }
             }
         }
 
@@ -168,11 +179,10 @@ namespace Ninja_Price.Main
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}";
                         break;
                 }
-
                 if (Settings.Debug) text += $"\n\rItemType: {Hovereditem.ItemType}";
-                var textMeasure = Graphics.MeasureText(text, 13);
-                Graphics.DrawBox(new RectangleF(10, 10, textMeasure.X, textMeasure.Y), Color.Black);
-                Graphics.DrawText(text, new Vector2(10, 10), Color.White);
+                var textMeasure = Graphics.MeasureText(text, 15);
+                //Graphics.DrawBox(new RectangleF(0, 0, textMeasure.Width, textMeasure.Height), Color.Black);
+                Graphics.DrawText(text, new Vector2(50, 50), Color.White);
             }
 
             if (!StashPanel.IsVisible)
@@ -187,6 +197,7 @@ namespace Ninja_Price.Main
                 if (customItem.ItemType == ItemTypes.None) continue;
 
                 if (Settings.CurrencyTabSpecifcToggle)
+                {
                     switch (tabType)
                     {
                         case InventoryType.CurrencyStash:
@@ -195,11 +206,11 @@ namespace Ninja_Price.Main
                             PriceBoxOverItem(customItem);
                             break;
                     }
+                }
 
                 if (Settings.HighlightUniqueJunk)
                 {
-                    if (customItem.ItemType == ItemTypes.None || customItem.ItemType == ItemTypes.Currency ||
-                        customItem.ItemType == ItemTypes.Oil || customItem.ItemType == ItemTypes.Scarab) continue;
+                    if (customItem.ItemType == ItemTypes.None || customItem.ItemType == ItemTypes.Currency) continue;
                     HighlightJunkUniques(customItem);
                 }
             }
@@ -207,8 +218,7 @@ namespace Ninja_Price.Main
             if (Settings.HighlightUniqueJunk)
                 foreach (var customItem in InventoryItemsToDrawList)
                 {
-                    if (customItem.ItemType == ItemTypes.None || customItem.ItemType == ItemTypes.Currency ||
-                        customItem.ItemType == ItemTypes.Oil || customItem.ItemType == ItemTypes.Scarab) continue;
+                    if (customItem.ItemType == ItemTypes.None || customItem.ItemType == ItemTypes.Currency) continue;
 
                     HighlightJunkUniques(customItem);
                 }
@@ -233,6 +243,7 @@ namespace Ninja_Price.Main
                     //        ? $"{significantDigits}"
                     //        : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos,
                     //    Settings.UniTextColor);
+
                     Graphics.DrawText($"{significantDigits} Chaos", pos, Settings.UniTextColor, FontAlign.Center);
                 }
             }
@@ -241,8 +252,9 @@ namespace Ninja_Price.Main
                 // ignored
                 if (Settings.Debug)
                 {
-                    LogMessage("Error in: VisibleStashValue, restart PoEHUD.", 5, Color.Red);
-                    LogMessage(e.ToString(), 5, Color.Orange);
+
+                LogMessage("Error in: VisibleStashValue, restart PoEHUD.", 5, Color.Red);
+                LogMessage(e.ToString(), 5, Color.Orange);
                 }
             }
         }
@@ -253,11 +265,9 @@ namespace Ninja_Price.Main
             var drawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.CurrencyTabBoxHeight);
             var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.CurrencyTabFontSize.Value / 2);
 
-            Graphics.DrawText(
-                Math.Round((decimal) item.PriceData.ChaosValue, Settings.CurrenctTabSigDigits.Value).ToString(),
-                position, Settings.CurrencyTabFontColor, FontAlign.Center);
+            Graphics.DrawText(Math.Round((decimal) item.PriceData.ChaosValue, Settings.CurrenctTabSigDigits.Value).ToString(), position, Settings.CurrencyTabFontColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
-            Graphics.DrawFrame(drawBox, Settings.CurrencyTabBorderColor, 1);
+            //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
         }
 
         /// <summary>
@@ -266,13 +276,12 @@ namespace Ninja_Price.Main
         /// <param name="item"></param>
         private void HighlightJunkUniques(CustomItem item)
         {
-            var hoverUi = GameController.Game.IngameState.UIHoverTooltip.Tooltip;
-            if (hoverUi != null && (item.Rarity != ItemRarity.Unique ||
-                                    hoverUi.GetClientRect().Intersects(item.Item.GetClientRect()) &&
-                                    hoverUi.IsVisibleLocal)) return;
+                
 
-            var chaosValueSignificanDigits = Math.Round((decimal) item.PriceData.ChaosValue,
-                Settings.HighlightSignificantDigits.Value);
+            var hoverUi = GameController.Game.IngameState.UIHoverTooltip.Tooltip;
+            if (hoverUi != null && (item.Rarity != ItemRarity.Unique || hoverUi.GetClientRect().Intersects(item.Item.GetClientRect()) && hoverUi.IsVisibleLocal)) return;
+
+            var chaosValueSignificanDigits = Math.Round((decimal) item.PriceData.ChaosValue, Settings.HighlightSignificantDigits.Value);
             if (chaosValueSignificanDigits >= Settings.InventoryValueCutOff.Value) return;
             var rec = item.Item.GetClientRect();
             var fontSize = Settings.HighlightFontSize.Value;
@@ -283,8 +292,9 @@ namespace Ninja_Price.Main
             Graphics.DrawText($"{chaosValueSignificanDigits}", position, Settings.UniTextColor, FontAlign.Center);
 
             DrawImage($"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png",
-                new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y, Settings.HighlightFontSize.Value,
-                    Settings.HighlightFontSize.Value));
+                new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y,
+                    Settings.HighlightFontSize.Value, Settings.HighlightFontSize.Value)
+            );
             //Graphics.DrawFrame(item.Item.GetClientRect(), 2, Settings.HighlightColor.Value);
         }
 

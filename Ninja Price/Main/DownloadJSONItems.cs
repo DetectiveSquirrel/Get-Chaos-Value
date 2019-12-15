@@ -34,11 +34,9 @@ namespace Ninja_Price.Main
             {
                 while (UpdatingFromAPI || UpdatingFromJson)
                 {
-                    if (Settings.Debug)
-                        LogMessage($"{GetCurrentMethod()}: Waiting on UpdatePoeNinjaData() to finish", 5, Color.Orange);
+                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}: Waiting on UpdatePoeNinjaData() to finish", 5, Color.Orange);}
                     Thread.Sleep(250);
                 }
-
                 LogMessage("Gathering Data from Poe.Ninja.", 5);
                 UpdatingFromAPI = true;
                 Api.Json.SaveSettingFile(NinjaDirectory + "Currency.json", JsonConvert.DeserializeObject<Currency.RootObject>(Api.DownloadFromUrl(CurrencyURL + league)));
@@ -75,11 +73,9 @@ namespace Ninja_Price.Main
             {
                 while (UpdatingFromAPI || UpdatingFromJson)
                 {
-                    if (Settings.Debug)
-                        LogMessage($"{GetCurrentMethod()}: Waiting on GetJsonData() to finish", 5, Color.Orange);
+                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}: Waiting on GetJsonData() to finish", 5, Color.Orange); }
                     Thread.Sleep(250);
                 }
-
                 var newData = new CollectiveApiData();
 
                 UpdatingFromJson = true;
