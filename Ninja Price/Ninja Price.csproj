@@ -38,11 +38,9 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\..\PoeHelper\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\..\..\PoeHelper\SharpDX.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="SharpDX.Desktop">
       <HintPath>..\..\..\PoeHelper\SharpDX.Desktop.dll</HintPath>
@@ -54,7 +52,6 @@
     </Reference>
     <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\..\..\PoeHelper\SharpDX.Mathematics.dll</HintPath>
-      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

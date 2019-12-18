@@ -19,6 +19,7 @@
         Fossil,
         Scarab,
         Incubator,
-        Oil
+        Oil,
+        Catalyst
     }
 }

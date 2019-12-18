@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using ExileCore;
 using Newtonsoft.Json;
@@ -14,19 +15,19 @@ namespace Ninja_Price.Main
     public partial class Main : BaseSettingsPlugin<Settings.Settings>
     {
         public const int NotFound = -1;
+        public string NinjaDirectory;
+        public Stopwatch ReloadStopWatch = Stopwatch.StartNew();
         public DateTime BuildDate;
         public CollectiveApiData CollectedData = new CollectiveApiData();
         public bool DownloadDone;
         public bool InitJsonDone;
-        public string NinjaDirectory;
         public string PluginVersion;
         public string PoeLeagueApiList = "http://api.pathofexile.com/leagues?type=main&compact=1";
-        public Stopwatch ReloadStopWatch = Stopwatch.StartNew();
+        public bool UpdatingFromJson { get; set; } = false;
+        public bool UpdatingFromAPI { get; set; } = false;
 
         //https://stackoverflow.com/questions/826777/how-to-have-an-auto-incrementing-version-number-visual-studio
         public Version Version = Assembly.GetExecutingAssembly().GetName().Version;
-        public bool UpdatingFromJson { get; set; } = false;
-        public bool UpdatingFromAPI { get; set; } = false;
 
 
         public string CurrentLeague { get; set; }
