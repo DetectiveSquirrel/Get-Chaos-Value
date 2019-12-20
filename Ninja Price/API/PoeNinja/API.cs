@@ -42,16 +42,21 @@ namespace Ninja_Price.API.PoeNinja
                 return !File.Exists(fileName) ? default(TSettingType) : JsonConvert.DeserializeObject<TSettingType>(File.ReadAllText(fileName));
             }
 
-            public static void SaveSettingFile<TSettingType>(string fileName, TSettingType setting)
+            public static bool SaveSettingFile<TSettingType>(string fileName, TSettingType setting)
             {
                 try
                 {
                     File.WriteAllText(fileName, JsonConvert.SerializeObject(setting, Formatting.Indented));
+                    //Main.Main.Controller.LogMessage($"{fileName} - Downloaded", 25, SharpDX.Color.Yellow);
+                    return true;
                 }
                 catch(CookieException e)
                 {
-                    File.WriteAllText(fileName, "");
+                    File.WriteAllText(fileName, e.StackTrace);
+                    //Main.Main.Controller.LogError($"{fileName} - {e.StackTrace} Failed", 25);
+
                 }
+                return false;
             }
         }
     }

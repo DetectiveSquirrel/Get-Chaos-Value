@@ -29,12 +29,15 @@ namespace Ninja_Price.Main
         //https://stackoverflow.com/questions/826777/how-to-have-an-auto-incrementing-version-number-visual-studio
         public Version Version = Assembly.GetExecutingAssembly().GetName().Version;
 
+        public static Main Controller { get; set; }
+
 
         public string CurrentLeague { get; set; }
 
         public override bool Initialise()
         {
             //base.InitializeSettingsMenu();
+            Controller = this;
             BuildDate = new DateTime(2000, 1, 1).AddDays(Version.Build).AddSeconds(Version.Revision * 2);
             PluginVersion = $"{Version}";
             NinjaDirectory = DirectoryFullName + "\\NinjaData\\";
