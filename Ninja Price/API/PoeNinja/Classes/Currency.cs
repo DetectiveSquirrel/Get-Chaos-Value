@@ -54,7 +54,7 @@ namespace Ninja_Price.API.PoeNinja.Classes
             public SparkLine LowConfidencePaySparkLine { get; set; }
 
             [JsonProperty("lowConfidenceReceiveSparkLine", NullValueHandling = NullValueHandling.Ignore)]
-            public LowConfidenceReceiveSparkLine LowConfidenceReceiveSparkLine { get; set; }
+            public SparkLine LowConfidenceReceiveSparkLine { get; set; }
 
             [JsonProperty("detailsId", NullValueHandling = NullValueHandling.Ignore)]
             public string DetailsId { get; set; }
@@ -64,15 +64,6 @@ namespace Ninja_Price.API.PoeNinja.Classes
         {
             [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
             public List<double?> Data { get; set; }
-
-            [JsonProperty("totalChange", NullValueHandling = NullValueHandling.Ignore)]
-            public double? TotalChange { get; set; }
-        }
-
-        public partial class LowConfidenceReceiveSparkLine
-        {
-            [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
-            public List<double> Data { get; set; }
 
             [JsonProperty("totalChange", NullValueHandling = NullValueHandling.Ignore)]
             public double? TotalChange { get; set; }

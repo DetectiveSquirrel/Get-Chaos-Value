@@ -191,6 +191,15 @@ namespace Ninja_Price.Main
                                 break;
                         }
                         break;
+                    case ItemTypes.Catalyst:
+                        var catalystSearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                        if (catalystSearch != null)
+                        {
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)catalystSearch.ChaosEquivalent;
+                            item.PriceData.ChangeInLast7Days = (double)catalystSearch.ReceiveSparkLine.TotalChange;
+                        }
+
+                        break;
                     case ItemTypes.DivinationCard:
                         var divinationSearch = CollectedData.DivinationCards.Lines.Find(x => x.Name == item.BaseName);
                         if (divinationSearch != null)
