@@ -1,7 +1,5 @@
-﻿using ImGuiNET;
-using Ninja_Price.Enums;
+﻿using Ninja_Price.Enums;
 using SharpDX;
-using SharpDX.Direct3D9;
 using System;
 using System.Collections.Generic;
 using System.Configuration;

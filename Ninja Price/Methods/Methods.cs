@@ -1,5 +1,4 @@
-﻿using ImGuiNET;
-using Ninja_Price.Enums;
+﻿using Ninja_Price.Enums;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
