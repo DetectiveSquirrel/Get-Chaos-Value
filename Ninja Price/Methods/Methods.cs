@@ -1,5 +1,4 @@
-﻿using ImGuiNET;
-using Ninja_Price.Enums;
+﻿using Ninja_Price.Enums;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -174,8 +173,8 @@ namespace Ninja_Price.Main
                                 var normalCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
                                 if (normalCurrencySearch != null)
                                 {
-                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * normalCurrencySearch.ChaosEquivalent;
-                                    item.PriceData.ChangeInLast7Days = normalCurrencySearch.ReceiveSparkLine.TotalChange;
+                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)normalCurrencySearch.ChaosEquivalent;
+                                    item.PriceData.ChangeInLast7Days = (double)normalCurrencySearch.ReceiveSparkLine.TotalChange;
                                 }
 
                                 break;
@@ -184,19 +183,28 @@ namespace Ninja_Price.Main
                                 var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
                                 if (shardCurrencySearch != null)
                                 {
-                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent / 20;
-                                    item.PriceData.ChangeInLast7Days = shardCurrencySearch.ReceiveSparkLine.TotalChange;
+                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)shardCurrencySearch.ChaosEquivalent / 20;
+                                    item.PriceData.ChangeInLast7Days = (double)shardCurrencySearch.ReceiveSparkLine.TotalChange;
                                 }
 
                                 break;
                         }
                         break;
+                    case ItemTypes.Catalyst:
+                        var catalystSearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                        if (catalystSearch != null)
+                        {
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)catalystSearch.ChaosEquivalent;
+                            item.PriceData.ChangeInLast7Days = (double)catalystSearch.ReceiveSparkLine.TotalChange;
+                        }
+
+                        break;
                     case ItemTypes.DivinationCard:
                         var divinationSearch = CollectedData.DivinationCards.Lines.Find(x => x.Name == item.BaseName);
                         if (divinationSearch != null)
                         {
-                            item.PriceData.ChaosValue = divinationSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = divinationSearch.Sparkline.TotalChange;
+                            item.PriceData.ChaosValue = (double)divinationSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)divinationSearch.Sparkline.TotalChange;
                         }
 
                         break;
@@ -204,42 +212,42 @@ namespace Ninja_Price.Main
                         var essenceSearch = CollectedData.Essences.Lines.Find(x => x.Name == item.BaseName);
                         if (essenceSearch != null)
                         {
-                            item.PriceData.ChaosValue = essenceSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = essenceSearch.Sparkline.TotalChange;
+                            item.PriceData.ChaosValue = (double)essenceSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)essenceSearch.Sparkline.TotalChange;
                         }
                         break;
                     case ItemTypes.Oil:
-                        var oilSearch = CollectedData.Oils.lines.Find(x => x.name == item.BaseName);
+                        var oilSearch = CollectedData.Oils.Lines.Find(x => x.Name == item.BaseName);
                         if (oilSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * oilSearch.chaosValue;
-                            item.PriceData.ChangeInLast7Days = oilSearch.sparkline.totalChange;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)oilSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)oilSearch.Sparkline.TotalChange;
                         }
                         break;
                     case ItemTypes.Fragment:
                         var fragmentSearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
                         if (fragmentSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * fragmentSearch.ChaosEquivalent;
-                            item.PriceData.ChangeInLast7Days = fragmentSearch.ReceiveSparkLine.TotalChange;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)fragmentSearch.ChaosEquivalent;
+                            item.PriceData.ChangeInLast7Days = (double)fragmentSearch.ReceiveSparkLine.TotalChange;
                         }
 
                         break;
                     case ItemTypes.Incubator:
-                        var incubatorSearch = CollectedData.Incubators.lines.Find(x => x.name == item.BaseName);
+                        var incubatorSearch = CollectedData.Incubators.Lines.Find(x => x.Name == item.BaseName);
                         if (incubatorSearch != null)
                         {
-                            item.PriceData.ChaosValue = incubatorSearch.chaosValue;
-                            item.PriceData.ChangeInLast7Days = incubatorSearch.sparkline.totalChange;
+                            item.PriceData.ChaosValue = (double)incubatorSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)incubatorSearch.Sparkline.TotalChange;
                         }
 
                         break;
                     case ItemTypes.Scarab:
-                        var scarabSearch = CollectedData.Scarabs.lines.Find(x => x.name == item.BaseName);
+                        var scarabSearch = CollectedData.Scarabs.Lines.Find(x => x.Name == item.BaseName);
                         if (scarabSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * scarabSearch.chaosValue;
-                            item.PriceData.ChangeInLast7Days = scarabSearch.sparkline.totalChange;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)scarabSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)scarabSearch.Sparkline.TotalChange;
                         }
 
                         break;
@@ -247,8 +255,8 @@ namespace Ninja_Price.Main
                         var prophecySearch = CollectedData.Prophecies.Lines.Find(x => x.Name == item.Item.Item.GetComponent<Prophecy>().DatProphecy.Name);
                         if (prophecySearch != null)
                         {
-                            item.PriceData.ChaosValue = prophecySearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = prophecySearch.Sparkline.TotalChange;
+                            item.PriceData.ChaosValue = (double)prophecySearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)prophecySearch.Sparkline.TotalChange;
                         }
 
                         break;
@@ -257,8 +265,8 @@ namespace Ninja_Price.Main
                         var uniqueAccessorieSearch = CollectedData.UniqueAccessories.Lines.Find(x => x.Name == item.UniqueName);
                         if (uniqueAccessorieSearch != null)
                         {
-                            item.PriceData.ChaosValue = uniqueAccessorieSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = uniqueAccessorieSearch.Sparkline.TotalChange;
+                            item.PriceData.ChaosValue = (double)uniqueAccessorieSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)uniqueAccessorieSearch.Sparkline.TotalChange;
                         }
                         break;
                     case ItemTypes.UniqueArmour:
@@ -272,8 +280,8 @@ namespace Ninja_Price.Main
                                 var uniqueArmourSearchLinks04 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0);
                                 if (uniqueArmourSearchLinks04 != null)
                                 {
-                                    item.PriceData.ChaosValue = uniqueArmourSearchLinks04.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = uniqueArmourSearchLinks04.Sparkline.TotalChange;
+                                    item.PriceData.ChaosValue = (double)uniqueArmourSearchLinks04.ChaosValue;
+                                    item.PriceData.ChangeInLast7Days = (double)uniqueArmourSearchLinks04.Sparkline.TotalChange;
                                 }
 
                                 break;
@@ -281,8 +289,8 @@ namespace Ninja_Price.Main
                                 var uniqueArmourSearch5 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5);
                                 if (uniqueArmourSearch5 != null)
                                 {
-                                    item.PriceData.ChaosValue = uniqueArmourSearch5.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = uniqueArmourSearch5.Sparkline.TotalChange;
+                                    item.PriceData.ChaosValue = (double)uniqueArmourSearch5.ChaosValue;
+                                    item.PriceData.ChangeInLast7Days = (double)uniqueArmourSearch5.Sparkline.TotalChange;
                                 }
 
                                 break;
@@ -290,8 +298,8 @@ namespace Ninja_Price.Main
                                 var uniqueArmourSearch6 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6);
                                 if (uniqueArmourSearch6 != null)
                                 {
-                                    item.PriceData.ChaosValue = uniqueArmourSearch6.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = uniqueArmourSearch6.Sparkline.TotalChange;
+                                    item.PriceData.ChaosValue = (double)uniqueArmourSearch6.ChaosValue;
+                                    item.PriceData.ChangeInLast7Days = (double)uniqueArmourSearch6.Sparkline.TotalChange;
                                 }
 
                                 break;
@@ -301,8 +309,8 @@ namespace Ninja_Price.Main
                         var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.Find(x => x.Name == item.UniqueName);
                         if (uniqueFlaskSearch != null)
                         {
-                            item.PriceData.ChaosValue = uniqueFlaskSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = uniqueFlaskSearch.Sparkline.TotalChange;
+                            item.PriceData.ChaosValue = (double)uniqueFlaskSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)uniqueFlaskSearch.Sparkline.TotalChange;
                         }
 
                         break;
@@ -310,8 +318,8 @@ namespace Ninja_Price.Main
                         var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.Find(x => x.Name == item.UniqueName);
                         if (uniqueJewelSearch != null)
                         {
-                            item.PriceData.ChaosValue = uniqueJewelSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = uniqueJewelSearch.Sparkline.TotalChange;
+                            item.PriceData.ChaosValue = (double)uniqueJewelSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)uniqueJewelSearch.Sparkline.TotalChange;
                         }
 
                         break;
@@ -319,8 +327,8 @@ namespace Ninja_Price.Main
                         var uniqueMapSearch = CollectedData.UniqueMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier);
                         if (uniqueMapSearch != null)
                         {
-                            item.PriceData.ChaosValue = uniqueMapSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = uniqueMapSearch.Sparkline.TotalChange;
+                            item.PriceData.ChaosValue = (double)uniqueMapSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)uniqueMapSearch.Sparkline.TotalChange;
                         }
 
                         break;
@@ -328,8 +336,8 @@ namespace Ninja_Price.Main
                         var resonatorSearch = CollectedData.Resonators.Lines.Find(x => x.Name == item.BaseName);
                         if (resonatorSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * resonatorSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = resonatorSearch.Sparkline.TotalChange;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)resonatorSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)resonatorSearch.Sparkline.TotalChange;
                         }
 
                         break;
@@ -337,8 +345,8 @@ namespace Ninja_Price.Main
                         var fossilSearch = CollectedData.Fossils.Lines.Find(x => x.Name == item.BaseName);
                         if (fossilSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * fossilSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = fossilSearch.Sparkline.TotalChange;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)fossilSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)fossilSearch.Sparkline.TotalChange;
                         }
 
                         break;
@@ -353,8 +361,8 @@ namespace Ninja_Price.Main
                                 var uniqueWeaponSearch04 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0);
                                 if (uniqueWeaponSearch04 != null)
                                 {
-                                    item.PriceData.ChaosValue = uniqueWeaponSearch04.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = uniqueWeaponSearch04.Sparkline.TotalChange;
+                                    item.PriceData.ChaosValue = (double)uniqueWeaponSearch04.ChaosValue;
+                                    item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch04.Sparkline.TotalChange;
                                 }
 
                                 break;
@@ -362,8 +370,8 @@ namespace Ninja_Price.Main
                                 var uniqueWeaponSearch5 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5);
                                 if (uniqueWeaponSearch5 != null)
                                 {
-                                    item.PriceData.ChaosValue = uniqueWeaponSearch5.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = uniqueWeaponSearch5.Sparkline.TotalChange;
+                                    item.PriceData.ChaosValue = (double)uniqueWeaponSearch5.ChaosValue;
+                                    item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch5.Sparkline.TotalChange;
                                 }
 
                                 break;
@@ -371,8 +379,8 @@ namespace Ninja_Price.Main
                                 var uniqueWeaponSearch6 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6);
                                 if (uniqueWeaponSearch6 != null)
                                 {
-                                    item.PriceData.ChaosValue = uniqueWeaponSearch6.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = uniqueWeaponSearch6.Sparkline.TotalChange;
+                                    item.PriceData.ChaosValue = (double)uniqueWeaponSearch6.ChaosValue;
+                                    item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch6.Sparkline.TotalChange;
                                 }
 
                                 break;
@@ -386,8 +394,8 @@ namespace Ninja_Price.Main
                                 var normalSharpedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Shaped {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == "Metamorph");
                                 if (normalSharpedMapSearch != null)
                                 {
-                                    item.PriceData.ChaosValue = normalSharpedMapSearch.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = normalSharpedMapSearch.Sparkline.TotalChange;
+                                    item.PriceData.ChaosValue = (double)normalSharpedMapSearch.ChaosValue;
+                                    item.PriceData.ChangeInLast7Days = (double)normalSharpedMapSearch.Sparkline.TotalChange;
                                 }
 
                                 break;
@@ -395,8 +403,8 @@ namespace Ninja_Price.Main
                                 var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == "Metamorph");
                                 if (normalMapSearch != null)
                                 {
-                                    item.PriceData.ChaosValue = normalMapSearch.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = normalMapSearch.Sparkline.TotalChange;
+                                    item.PriceData.ChaosValue = (double)normalMapSearch.ChaosValue;
+                                    item.PriceData.ChangeInLast7Days = (double)normalMapSearch.Sparkline.TotalChange;
                                 }
 
                                 break;
@@ -448,7 +456,7 @@ namespace Ninja_Price.Main
         }
 
 
-        private double GetProphecyValues(string ProphName)
+        private double? GetProphecyValues(string ProphName)
         {
             var item = CollectedData.Prophecies.Lines.Find(x => x.Name == ProphName);
             if (item == null) return NotFound;

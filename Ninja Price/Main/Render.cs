@@ -1,5 +1,4 @@
-﻿using ImGuiNET;
-using Ninja_Price.Enums;
+﻿using Ninja_Price.Enums;
 using SharpDX;
 using System;
 using System.Collections.Generic;
@@ -162,6 +161,7 @@ namespace Ninja_Price.Main
                     case ItemTypes.Resonator:
                     case ItemTypes.Fossil:
                     case ItemTypes.Oil:
+                    case ItemTypes.Catalyst:
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize}" +
                                 $"\n\rTotal: {Hovereditem.PriceData.ChaosValue}";
                         break;

@@ -1,59 +1,107 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 
 namespace Ninja_Price.API.PoeNinja.Classes
 {
     public class Resonators
     {
-        public class Sparkline
+        public partial class RootObject
         {
-            public List<object> Data { get; set; }
-            public double TotalChange { get; set; }
+            [JsonProperty("lines", NullValueHandling = NullValueHandling.Ignore)]
+            public List<Line> Lines { get; set; }
         }
 
-        public class LowConfidenceSparkline
+        public partial class Line
         {
-            public List<object> Data { get; set; }
-            public double TotalChange { get; set; }
-        }
+            [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+            public long? Id { get; set; }
 
-        public class ExplicitModifier
-        {
-            public string Text { get; set; }
-            public bool Optional { get; set; }
-        }
-
-        public class Line
-        {
-            public int Id { get; set; }
+            [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
             public string Name { get; set; }
-            public string Icon { get; set; }
-            public int MapTier { get; set; }
-            public int LevelRequired { get; set; }
+
+            [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
+            public Uri Icon { get; set; }
+
+            [JsonProperty("mapTier", NullValueHandling = NullValueHandling.Ignore)]
+            public long? MapTier { get; set; }
+
+            [JsonProperty("levelRequired", NullValueHandling = NullValueHandling.Ignore)]
+            public long? LevelRequired { get; set; }
+
+            [JsonProperty("baseType")]
             public object BaseType { get; set; }
-            public int StackSize { get; set; }
+
+            [JsonProperty("stackSize", NullValueHandling = NullValueHandling.Ignore)]
+            public long? StackSize { get; set; }
+
+            [JsonProperty("variant")]
             public object Variant { get; set; }
+
+            [JsonProperty("prophecyText")]
             public object ProphecyText { get; set; }
+
+            [JsonProperty("artFilename")]
             public object ArtFilename { get; set; }
-            public int Links { get; set; }
-            public int ItemClass { get; set; }
+
+            [JsonProperty("links", NullValueHandling = NullValueHandling.Ignore)]
+            public long? Links { get; set; }
+
+            [JsonProperty("itemClass", NullValueHandling = NullValueHandling.Ignore)]
+            public long? ItemClass { get; set; }
+
+            [JsonProperty("sparkline", NullValueHandling = NullValueHandling.Ignore)]
             public Sparkline Sparkline { get; set; }
-            public LowConfidenceSparkline LowConfidenceSparkline { get; set; }
+
+            [JsonProperty("lowConfidenceSparkline", NullValueHandling = NullValueHandling.Ignore)]
+            public Sparkline LowConfidenceSparkline { get; set; }
+
+            [JsonProperty("implicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
             public List<object> ImplicitModifiers { get; set; }
+
+            [JsonProperty("explicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
             public List<ExplicitModifier> ExplicitModifiers { get; set; }
+
+            [JsonProperty("flavourText", NullValueHandling = NullValueHandling.Ignore)]
             public string FlavourText { get; set; }
-            public bool Corrupted { get; set; }
-            public int GemLevel { get; set; }
-            public int GemQuality { get; set; }
-            public string ItemType { get; set; }
-            public double ChaosValue { get; set; }
-            public double ExaltedValue { get; set; }
-            public int Count { get; set; }
+
+            [JsonProperty("corrupted", NullValueHandling = NullValueHandling.Ignore)]
+            public bool? Corrupted { get; set; }
+
+            [JsonProperty("gemLevel", NullValueHandling = NullValueHandling.Ignore)]
+            public long? GemLevel { get; set; }
+
+            [JsonProperty("gemQuality", NullValueHandling = NullValueHandling.Ignore)]
+            public long? GemQuality { get; set; }
+
+
+            [JsonProperty("chaosValue", NullValueHandling = NullValueHandling.Ignore)]
+            public double? ChaosValue { get; set; }
+
+            [JsonProperty("exaltedValue", NullValueHandling = NullValueHandling.Ignore)]
+            public double? ExaltedValue { get; set; }
+
+            [JsonProperty("count", NullValueHandling = NullValueHandling.Ignore)]
+            public long? Count { get; set; }
+
+            [JsonProperty("detailsId", NullValueHandling = NullValueHandling.Ignore)]
             public string DetailsId { get; set; }
         }
 
-        public class RootObject
+        public partial class ExplicitModifier
         {
-            public List<Line> Lines { get; set; }
+
+            [JsonProperty("optional", NullValueHandling = NullValueHandling.Ignore)]
+            public bool? Optional { get; set; }
+        }
+
+        public partial class Sparkline
+        {
+            [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
+            public List<double> Data { get; set; }
+
+            [JsonProperty("totalChange", NullValueHandling = NullValueHandling.Ignore)]
+            public double? TotalChange { get; set; }
         }
     }
 }

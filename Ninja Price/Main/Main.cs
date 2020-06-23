@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -16,7 +15,6 @@ namespace Ninja_Price.Main
     {
         public const int NotFound = -1;
         public string NinjaDirectory;
-        public Stopwatch ReloadStopWatch = Stopwatch.StartNew();
         public DateTime BuildDate;
         public CollectiveApiData CollectedData = new CollectiveApiData();
         public bool DownloadDone;
@@ -29,6 +27,8 @@ namespace Ninja_Price.Main
         //https://stackoverflow.com/questions/826777/how-to-have-an-auto-incrementing-version-number-visual-studio
         public Version Version = Assembly.GetExecutingAssembly().GetName().Version;
 
+        public static Main Controller { get; set; }
+
 
         public string CurrentLeague { get; set; }
 
@@ -36,6 +36,7 @@ namespace Ninja_Price.Main
         {
             Name = "Ninja Price";
             //base.InitializeSettingsMenu();
+            Controller = this;
             BuildDate = new DateTime(2000, 1, 1).AddDays(Version.Build).AddSeconds(Version.Revision * 2);
             PluginVersion = $"{Version}";
             NinjaDirectory = DirectoryFullName + "\\NinjaData\\";
