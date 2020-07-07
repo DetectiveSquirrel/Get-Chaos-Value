@@ -34,6 +34,7 @@ namespace Ninja_Price.Main
 
         public override bool Initialise()
         {
+            Name = "Ninja Price";
             //base.InitializeSettingsMenu();
             Controller = this;
             BuildDate = new DateTime(2000, 1, 1).AddDays(Version.Build).AddSeconds(Version.Revision * 2);
