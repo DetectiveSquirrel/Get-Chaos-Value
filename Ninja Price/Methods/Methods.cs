@@ -388,10 +388,21 @@ namespace Ninja_Price.Main
                         break;
                     case ItemTypes.NormalMap:
                         // TODO: Deal with old maps, this is literally the last thing i will do as it has next to no gain for having this information
-                        switch (item.MapInfo.IsShapedMap)
+                        switch (item.MapInfo.MapType)
                         {
-                            case true:
-                                var normalSharpedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Shaped {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == "Metamorph");
+                            case MapTypes.Blighted:
+                                var normalBlightedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Blighted {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == "Harvest");
+                                if (normalBlightedMapSearch != null)
+                                {
+                                    item.PriceData.ChaosValue = (double)normalBlightedMapSearch.ChaosValue;
+                                    item.PriceData.ChangeInLast7Days = (double)normalBlightedMapSearch.Sparkline.TotalChange;
+                                }
+
+                                break;
+                        // TODO: Poe.Ninja can not recognized Shaped and Elder maps, so i think no price - is better than count price equal no influence map.
+                                /*
+                            case MapTypes.Shaped:
+                                var normalSharpedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Shaped {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == "Harvest");
                                 if (normalSharpedMapSearch != null)
                                 {
                                     item.PriceData.ChaosValue = (double)normalSharpedMapSearch.ChaosValue;
@@ -399,8 +410,9 @@ namespace Ninja_Price.Main
                                 }
 
                                 break;
-                            case false:
-                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == "Metamorph");
+                                */
+                            case MapTypes.None:
+                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == "Harvest");
                                 if (normalMapSearch != null)
                                 {
                                     item.PriceData.ChaosValue = (double)normalMapSearch.ChaosValue;

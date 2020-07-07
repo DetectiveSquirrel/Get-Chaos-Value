@@ -87,6 +87,9 @@ namespace Ninja_Price.API.PoeNinja.Classes
 
             [JsonProperty("variant", NullValueHandling = NullValueHandling.Ignore)]
             public string Variant { get; set; }
+
+            [JsonProperty("mapRegion", NullValueHandling = NullValueHandling.Ignore)]
+            public string MapRegion { get; set; }
         }
 
         public partial class Sparkline

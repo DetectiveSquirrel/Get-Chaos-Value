@@ -44,7 +44,7 @@ namespace Ninja_Price.Main
         public class MapData
         {
             public bool IsMap;
-            public bool IsShapedMap;
+            public MapTypes MapType;
             public int MapTier;
         }
         public class CurrencyData
@@ -136,12 +136,26 @@ namespace Ninja_Price.Main
 
             if (Rarity != ItemRarity.Unique && MapInfo.IsMap)
             {
+                MapInfo.MapType = MapTypes.None;
+
                 foreach (var itemList in item.Item.GetComponent<Mods>().ItemMods)
+                {
                     if (itemList.RawName.Contains("MapShaped"))
                     {
-                        MapInfo.IsShapedMap = true;
+                        MapInfo.MapType = MapTypes.Shaped;
                         break;
                     }
+                    else if (itemList.RawName.Contains("MapElder"))
+                    {
+                        MapInfo.MapType = MapTypes.Elder;
+                        break;
+                    }
+                    else if (itemList.RawName.Contains("InfectedMap"))
+                    {
+                        MapInfo.MapType = MapTypes.Blighted;
+                        break;
+                    }
+                }
             }
 
             if (item.Item.HasComponent<Stack>())

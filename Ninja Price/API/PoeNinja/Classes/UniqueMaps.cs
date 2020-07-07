@@ -74,7 +74,6 @@ namespace Ninja_Price.API.PoeNinja.Classes
             [JsonProperty("gemQuality", NullValueHandling = NullValueHandling.Ignore)]
             public long? GemQuality { get; set; }
 
-
             [JsonProperty("chaosValue", NullValueHandling = NullValueHandling.Ignore)]
             public double? ChaosValue { get; set; }
 
@@ -86,6 +85,9 @@ namespace Ninja_Price.API.PoeNinja.Classes
 
             [JsonProperty("detailsId", NullValueHandling = NullValueHandling.Ignore)]
             public string DetailsId { get; set; }
+
+            [JsonProperty("mapRegion", NullValueHandling = NullValueHandling.Ignore)]
+            public string MapRegion { get; set; }
         }
 
         public partial class ExplicitModifier

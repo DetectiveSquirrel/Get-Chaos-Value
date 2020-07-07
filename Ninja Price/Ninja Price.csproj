@@ -87,6 +87,7 @@
     <Compile Include="API\PoeNinja\Classes\UniqueMaps.cs" />
     <Compile Include="API\PoeNinja\Classes\UniqueWeapons.cs" />
     <Compile Include="API\PoeNinja\Classes\WhiteMaps.cs" />
+    <Compile Include="Enums\MapTypes.cs" />
     <Compile Include="Main\CollectiveAPIData.cs" />
     <Compile Include="Main\CustomItem.cs" />
     <Compile Include="Main\DownloadJSONItems.cs" />
