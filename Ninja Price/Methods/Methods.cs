@@ -150,6 +150,8 @@ namespace Ninja_Price.Main
         {
             try
             {
+
+                item.PriceData.ExaltedValue = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
                 switch (item.ItemType) // easier to get data for each item type and handle logic based on that
                 {
                     // TODO: Complete

@@ -165,8 +165,8 @@ namespace Ninja_Price.Main
                     case ItemTypes.Oil:
                     case ItemTypes.Catalyst:
                     case ItemTypes.DeliriumOrbs:
-                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize}" +
-                                $"\n\rTotal: {Hovereditem.PriceData.ChaosValue}";
+                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize} ({Hovereditem.PriceData.ChaosValue})" +
+                                $"\n\rExalt: {Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedValue:0.##}";
                         break;
                     case ItemTypes.Prophecy:
                     case ItemTypes.UniqueAccessory:
@@ -178,7 +178,8 @@ namespace Ninja_Price.Main
                     case ItemTypes.NormalMap:
                     case ItemTypes.DivinationCard:
                     case ItemTypes.Incubator:
-                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}";
+                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}"+
+                                $"\n\rExalt: {Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedValue:0.##}";
                         break;
                 }
                 if (Settings.Debug)
