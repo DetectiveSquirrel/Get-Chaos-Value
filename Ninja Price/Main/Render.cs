@@ -11,6 +11,8 @@ using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Enums;
 using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
+using ExileCore.RenderQ;
+using ImGuiNET;
 
 namespace Ninja_Price.Main
 {
@@ -162,6 +164,7 @@ namespace Ninja_Price.Main
                     case ItemTypes.Fossil:
                     case ItemTypes.Oil:
                     case ItemTypes.Catalyst:
+                    case ItemTypes.DeliriumOrbs:
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize}" +
                                 $"\n\rTotal: {Hovereditem.PriceData.ChaosValue}";
                         break;
@@ -178,10 +181,19 @@ namespace Ninja_Price.Main
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}";
                         break;
                 }
-                if (Settings.Debug) text += $"\n\rItemType: {Hovereditem.ItemType}";
+                if (Settings.Debug)
+                {
+                    text += $"\n\rItemType: {Hovereditem.ItemType}";
+                    text += $"\n\rBaseName: {Hovereditem.BaseName}";
+                }
+
                 var textMeasure = Graphics.MeasureText(text, 15);
                 //Graphics.DrawBox(new RectangleF(0, 0, textMeasure.Width, textMeasure.Height), Color.Black);
-                Graphics.DrawText(text, new Vector2(50, 50), Color.White);
+                //Graphics.DrawText(text, new Vector2(50, 50), Color.White);
+
+                ImGui.BeginTooltip();
+                ImGui.SetTooltip(text);
+                ImGui.EndTooltip();
             }
 
             if (!StashPanel.IsVisible)
@@ -202,6 +214,9 @@ namespace Ninja_Price.Main
                         case InventoryType.CurrencyStash:
                         case InventoryType.FragmentStash:
                         case InventoryType.DelveStash:
+                        case InventoryType.DeliriumStash:
+                        case InventoryType.MetamorphStash:
+                        case InventoryType.BlightStash:
                             PriceBoxOverItem(customItem);
                             break;
                     }

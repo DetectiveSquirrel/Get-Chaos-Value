@@ -233,6 +233,15 @@ namespace Ninja_Price.Main
                         }
 
                         break;
+                    case ItemTypes.DeliriumOrbs:
+                        var deliriumOrbsSearch = CollectedData.DeliriumOrb.Lines.Find(x => x.Name == item.BaseName);
+                        if (deliriumOrbsSearch != null)
+                        {
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)deliriumOrbsSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)deliriumOrbsSearch.Sparkline.TotalChange;
+                        }
+
+                        break;
                     case ItemTypes.Incubator:
                         var incubatorSearch = CollectedData.Incubators.Lines.Find(x => x.Name == item.BaseName);
                         if (incubatorSearch != null)
@@ -411,7 +420,7 @@ namespace Ninja_Price.Main
 
                                 break;
                                 */
-                            case MapTypes.None:
+                            case  MapTypes.None:
                                 var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == "Harvest");
                                 if (normalMapSearch != null)
                                 {

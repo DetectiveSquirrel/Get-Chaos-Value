@@ -22,5 +22,6 @@ namespace Ninja_Price.Main
         public Scarab.RootObject Scarabs { get; set; } = new Scarab.RootObject();
         public Oils.RootObject Oils { get; set; } = new Oils.RootObject();
         public Incubators.RootObject Incubators { get; set; } = new Incubators.RootObject();
+        public DeliriumOrb.RootObject DeliriumOrb { get; set; } = new DeliriumOrb.RootObject();
     }
 }

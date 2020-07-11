@@ -20,6 +20,7 @@
         Scarab,
         Incubator,
         Oil,
-        Catalyst
+        Catalyst,
+        DeliriumOrbs,
     }
 }

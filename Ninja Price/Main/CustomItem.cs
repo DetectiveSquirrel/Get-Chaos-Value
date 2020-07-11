@@ -170,7 +170,7 @@ namespace Ninja_Price.Main
 
             // sort items into types to use correct json data later from poe.ninja
             // This might need tweaking since if this catches anything other than currency.
-            if (ClassName == "StackableCurrency" && !BaseName.Contains("Essence") && !BaseName.EndsWith(" Oil") && !BaseName.Contains("Remnant of") && !BaseName.Contains("Timeless ") && BaseName != "Prophecy" && ClassName != "MapFragment" && !BaseName.EndsWith(" Fossil") && ClassName != "Incubator" && !BaseName.EndsWith(" Catalyst")  /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/)
+            if (ClassName == "StackableCurrency" && !BaseName.StartsWith("Simulacrum") && !BaseName.EndsWith("Delirium Orb") && !BaseName.Contains("Essence") && !BaseName.EndsWith(" Oil") && !BaseName.Contains("Remnant of") && !BaseName.Contains("Timeless ") && BaseName != "Prophecy" && ClassName != "MapFragment" && !BaseName.EndsWith(" Fossil") && ClassName != "Incubator" && !BaseName.EndsWith(" Catalyst")  /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/)
             {
                 ItemType = ItemTypes.Currency;
             }
@@ -190,7 +190,7 @@ namespace Ninja_Price.Main
             {
                 ItemType = ItemTypes.Essence;
             }
-            else if ((ClassName == "MapFragment" || BaseName.Contains("Timeless ")) && !BaseName.EndsWith(" Scarab"))
+            else if ((ClassName == "MapFragment" || BaseName.Contains("Timeless ") || BaseName.StartsWith("Simulacrum")) && !BaseName.EndsWith(" Scarab"))
             {
                 ItemType = ItemTypes.Fragment;
             }
@@ -217,6 +217,10 @@ namespace Ninja_Price.Main
             else if (ClassName == "Incubator")
             {
                 ItemType = ItemTypes.Incubator;
+            }
+            else if (BaseName.EndsWith("Delirium Orb"))
+            {
+                ItemType = ItemTypes.DeliriumOrbs;
             }
             else switch (Rarity) // Unique information
             {

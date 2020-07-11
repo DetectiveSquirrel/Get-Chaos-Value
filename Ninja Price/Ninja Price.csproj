@@ -35,6 +35,10 @@
       <HintPath>..\..\..\..\ExileCore.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="ImGui.NET">
+      <HintPath>..\..\..\..\ImGui.NET.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
@@ -79,6 +83,7 @@
     <Compile Include="API\PoeNinja\Classes\UniqueFlasks.cs" />
     <Compile Include="API\PoeNinja\Classes\UniqueJewels.cs" />
     <Compile Include="API\PoeNinja\Classes\UniqueMaps.cs" />
+    <Compile Include="API\PoeNinja\Classes\DeliriumOrb.cs" />
     <Compile Include="API\PoeNinja\Classes\UniqueWeapons.cs" />
     <Compile Include="API\PoeNinja\Classes\WhiteMaps.cs" />
     <Compile Include="Enums\MapTypes.cs" />

@@ -27,6 +27,7 @@ namespace Ninja_Price.Main
         private const string Scarabs_URL = "https://poe.ninja/api/data/itemoverview?type=Scarab&league=";
         private const string Incubators_URL = "https://poe.ninja/api/data/itemoverview?type=Incubator&league=";
         private const string Oil_URL = "https://poe.ninja/api/data/itemoverview?type=Oil&league=";
+        private const string DeliriumOrb_URL = "https://poe.ninja/api/data/itemoverview?type=DeliriumOrb&league=";
 
         private void GetJsonData(string league)
         {
@@ -56,6 +57,7 @@ namespace Ninja_Price.Main
                 Api.Json.SaveSettingFile(NinjaDirectory + "Incubators.json", JsonConvert.DeserializeObject<Incubators.RootObject>(Api.DownloadFromUrl(Incubators_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "Scarabs.json", JsonConvert.DeserializeObject<Scarab.RootObject>(Api.DownloadFromUrl(Scarabs_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "Oils.json", JsonConvert.DeserializeObject<Oils.RootObject>(Api.DownloadFromUrl(Oil_URL + league)));
+                Api.Json.SaveSettingFile(NinjaDirectory + "DeliriumOrbs.json", JsonConvert.DeserializeObject<DeliriumOrb.RootObject>(Api.DownloadFromUrl(DeliriumOrb_URL + league)));
                 LogMessage("Finished Gathering Data from Poe.Ninja.", 5);
                 UpdatingFromAPI = false;
                 UpdatePoeNinjaData();
@@ -196,6 +198,13 @@ namespace Ninja_Price.Main
                     {
                         var json = r.ReadToEnd();
                         newData.Oils = JsonConvert.DeserializeObject<Oils.RootObject>(json);
+                    }
+
+                if (JsonExists("DeliriumOrbs.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "DeliriumOrbs.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.DeliriumOrb = JsonConvert.DeserializeObject<DeliriumOrb.RootObject>(json);
                     }
 
                 CollectedData = newData;
