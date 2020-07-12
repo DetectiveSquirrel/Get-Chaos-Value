@@ -150,11 +150,11 @@ namespace Ninja_Price.Main
                         MapInfo.MapType = MapTypes.Elder;
                         break;
                     }
-                }
-
-                if (item.Item.GetComponent<Base>().isSynthesized)
-                {
-                    MapInfo.MapType = MapTypes.Blighted;
+                    else if (itemList.RawName.Contains("InfectedMap"))
+                    {
+                        MapInfo.MapType = MapTypes.Blighted;
+                        break;
+                    }
                 }
             }
 
