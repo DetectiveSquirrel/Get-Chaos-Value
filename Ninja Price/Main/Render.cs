@@ -153,7 +153,10 @@ namespace Ninja_Price.Main
             // Hovered Item
             if (Hovereditem != null && Hovereditem.ItemType != ItemTypes.None)
             {
-                var text = $"Change in last 7 Days: {Hovereditem.PriceData.ChangeInLast7Days}%";
+                var text = $"Change in last 7 Days: {Hovereditem.PriceData.ChangeInLast7Days}%%";
+                var changeTextLength = text.Length-1;
+                    text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
+
                 switch (Hovereditem.ItemType)
                 {
                     case ItemTypes.Currency:
@@ -165,8 +168,13 @@ namespace Ninja_Price.Main
                     case ItemTypes.Oil:
                     case ItemTypes.Catalyst:
                     case ItemTypes.DeliriumOrbs:
-                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize} ({Hovereditem.PriceData.ChaosValue})" +
-                                $"\n\rExalt: {Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedValue:0.##}";
+                        if (Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
+                        {
+                            text += $"\n\rExalt: {Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice:0.##}ex";
+                            text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
+                        }
+                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize}c";
+                        text += $"\n\rTotal: {Hovereditem.PriceData.ChaosValue}c";
                         break;
                     case ItemTypes.Prophecy:
                     case ItemTypes.UniqueAccessory:
@@ -178,8 +186,12 @@ namespace Ninja_Price.Main
                     case ItemTypes.NormalMap:
                     case ItemTypes.DivinationCard:
                     case ItemTypes.Incubator:
-                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}"+
-                                $"\n\rExalt: {Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedValue:0.##}";
+                        if (Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
+                        {
+                            text += $"\n\rExalt: {Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice:0.##}ex";
+                            text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
+                        }
+                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}c";
                         break;
                 }
                 if (Settings.Debug)
