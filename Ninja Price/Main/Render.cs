@@ -165,7 +165,7 @@ namespace Ninja_Price.Main
                     case ItemTypes.Oil:
                     case ItemTypes.Catalyst:
                     case ItemTypes.DeliriumOrbs:
-                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize} ({Hovereditem.PriceData.ChaosValue})" +
+                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue * Hovereditem.CurrencyInfo.StackSize} ({Hovereditem.PriceData.ChaosValue})" +
                                 $"\n\rExalt: {Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedValue:0.##}";
                         break;
                     case ItemTypes.Prophecy:
