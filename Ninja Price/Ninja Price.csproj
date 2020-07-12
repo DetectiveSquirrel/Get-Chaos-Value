@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\PoeNinja\API.cs" />
+    <Compile Include="API\PoeNinja\Classes\DeliriumOrb.cs" />
     <Compile Include="API\PoeNinja\Classes\Fossils.cs" />
     <Compile Include="API\PoeNinja\Classes\Incubators.cs" />
     <Compile Include="API\PoeNinja\Classes\Resonators.cs" />
