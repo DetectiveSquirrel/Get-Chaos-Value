@@ -214,7 +214,7 @@ namespace Ninja_Price.Main
                         var essenceSearch = CollectedData.Essences.Lines.Find(x => x.Name == item.BaseName);
                         if (essenceSearch != null)
                         {
-                            item.PriceData.ChaosValue = (double)essenceSearch.ChaosValue;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)essenceSearch.ChaosValue;
                             item.PriceData.ChangeInLast7Days = (double)essenceSearch.Sparkline.TotalChange;
                         }
                         break;
