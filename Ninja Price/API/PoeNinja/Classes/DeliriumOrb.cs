@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Ninja_Price.API.PoeNinja.Classes
 {
@@ -91,7 +93,7 @@ namespace Ninja_Price.API.PoeNinja.Classes
             public long? GemQuality { get; set; }
 
             [JsonProperty("itemType", NullValueHandling = NullValueHandling.Ignore)]
-            public long? ItemType { get; set; }
+            public ItemType? ItemType { get; set; }
 
             [JsonProperty("chaosValue", NullValueHandling = NullValueHandling.Ignore)]
             public double? ChaosValue { get; set; }
@@ -128,6 +130,56 @@ namespace Ninja_Price.API.PoeNinja.Classes
 
             [JsonProperty("totalChange", NullValueHandling = NullValueHandling.Ignore)]
             public double? TotalChange { get; set; }
+        }
+
+        public enum ItemType { Unknown };
+
+        internal static class Converter
+        {
+            public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+            {
+                MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
+                DateParseHandling = DateParseHandling.None,
+                Converters =
+            {
+                ItemTypeConverter.Singleton,
+                new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
+            },
+            };
+        }
+
+        internal class ItemTypeConverter : JsonConverter
+        {
+            public override bool CanConvert(Type t) => t == typeof(ItemType) || t == typeof(ItemType?);
+
+            public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
+            {
+                if (reader.TokenType == JsonToken.Null) return null;
+                var value = serializer.Deserialize<string>(reader);
+                if (value == "Unknown")
+                {
+                    return ItemType.Unknown;
+                }
+                throw new Exception("Cannot unmarshal type ItemType");
+            }
+
+            public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
+            {
+                if (untypedValue == null)
+                {
+                    serializer.Serialize(writer, null);
+                    return;
+                }
+                var value = (ItemType)untypedValue;
+                if (value == ItemType.Unknown)
+                {
+                    serializer.Serialize(writer, "Unknown");
+                    return;
+                }
+                throw new Exception("Cannot marshal type ItemType");
+            }
+
+            public static readonly ItemTypeConverter Singleton = new ItemTypeConverter();
         }
     }
 }
