@@ -205,7 +205,7 @@ namespace Ninja_Price.Main
                         var divinationSearch = CollectedData.DivinationCards.Lines.Find(x => x.Name == item.BaseName);
                         if (divinationSearch != null)
                         {
-                            item.PriceData.ChaosValue = (double)divinationSearch.ChaosValue;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)divinationSearch.ChaosValue;
                             item.PriceData.ChangeInLast7Days = (double)divinationSearch.Sparkline.TotalChange;
                         }
 

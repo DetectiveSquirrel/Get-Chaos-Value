@@ -65,6 +65,7 @@ namespace Ninja_Price.Main
                 if (Settings.Debug)
                     LogMessage($"{GetCurrentMethod()}: Selected League: {Settings.LeagueList.Value}", 5, Color.White);
 
+                var tabType = StashPanel.VisibleStash.InvType;
 
                 // Everything is updated, lets check if we should draw
                 if (StashPanel.IsVisible)
@@ -73,7 +74,21 @@ namespace Ninja_Price.Main
                     {
                         // Format stash items
                         ItemList = new List<NormalInventoryItem>();
-                        ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
+                        switch (tabType)
+                        {
+                            case InventoryType.BlightStash:
+                                ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
+                                ItemList.RemoveAt(0);
+                                ItemList.RemoveAt(ItemList.Count()-1);
+                                break;
+                            case InventoryType.MetamorphStash:
+                                ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
+                                ItemList.RemoveAt(0);
+                                break;
+                            default:
+                                ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
+                                break;
+                        }
                         FortmattedItemList = new List<CustomItem>();
                         FortmattedItemList = FormatItems(ItemList);
 
@@ -119,7 +134,7 @@ namespace Ninja_Price.Main
                 }
 
                 // TODO: Graphical part from gathered data
-                
+
                 GetHoveredItem(); // Get information for the hovered item
                 DrawGraphics();
             }
@@ -168,6 +183,7 @@ namespace Ninja_Price.Main
                     case ItemTypes.Oil:
                     case ItemTypes.Catalyst:
                     case ItemTypes.DeliriumOrbs:
+                    case ItemTypes.DivinationCard:
                         if (Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
                         {
                             text += $"\n\rExalt: {Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice:0.##}ex";
@@ -184,7 +200,6 @@ namespace Ninja_Price.Main
                     case ItemTypes.UniqueMap:
                     case ItemTypes.UniqueWeapon:
                     case ItemTypes.NormalMap:
-                    case ItemTypes.DivinationCard:
                     case ItemTypes.Incubator:
                         if (Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
                         {
@@ -209,13 +224,13 @@ namespace Ninja_Price.Main
                 ImGui.EndTooltip();
             }
 
+            var tabType = StashPanel.VisibleStash.InvType;
+
             if (!StashPanel.IsVisible)
                 return;
 
             // Stash Tab Value
             VisibleStashValue();
-
-            var tabType = StashPanel.VisibleStash.InvType;
             foreach (var customItem in ItemsToDrawList)
             {
                 if (customItem.ItemType == ItemTypes.None) continue;
@@ -256,8 +271,7 @@ namespace Ninja_Price.Main
             try
             {
                 var StashType = GameController.Game.IngameState.IngameUi.StashElement.VisibleStash.InvType;
-                if (!Settings.VisibleStashValue.Value ||
-                    !StashPanel.IsVisible && StashType != InventoryType.MapStash) return;
+                if (!Settings.VisibleStashValue.Value || !StashPanel.IsVisible) return;
                 {
                     var pos = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
                     var significantDigits =
