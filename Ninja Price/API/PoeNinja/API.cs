@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using Newtonsoft.Json;
 
@@ -50,7 +51,7 @@ namespace Ninja_Price.API.PoeNinja
                     //Main.Main.Controller.LogMessage($"{fileName} - Downloaded", 25, SharpDX.Color.Yellow);
                     return true;
                 }
-                catch(CookieException e)
+                catch(Exception e)
                 {
                     File.WriteAllText(fileName, e.StackTrace);
                     //Main.Main.Controller.LogError($"{fileName} - {e.StackTrace} Failed", 25);

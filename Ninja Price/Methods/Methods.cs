@@ -150,6 +150,8 @@ namespace Ninja_Price.Main
         {
             try
             {
+
+                item.PriceData.ExaltedPrice = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
                 switch (item.ItemType) // easier to get data for each item type and handle logic based on that
                 {
                     // TODO: Complete
@@ -203,7 +205,7 @@ namespace Ninja_Price.Main
                         var divinationSearch = CollectedData.DivinationCards.Lines.Find(x => x.Name == item.BaseName);
                         if (divinationSearch != null)
                         {
-                            item.PriceData.ChaosValue = (double)divinationSearch.ChaosValue;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)divinationSearch.ChaosValue;
                             item.PriceData.ChangeInLast7Days = (double)divinationSearch.Sparkline.TotalChange;
                         }
 
@@ -212,7 +214,7 @@ namespace Ninja_Price.Main
                         var essenceSearch = CollectedData.Essences.Lines.Find(x => x.Name == item.BaseName);
                         if (essenceSearch != null)
                         {
-                            item.PriceData.ChaosValue = (double)essenceSearch.ChaosValue;
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)essenceSearch.ChaosValue;
                             item.PriceData.ChangeInLast7Days = (double)essenceSearch.Sparkline.TotalChange;
                         }
                         break;
@@ -230,6 +232,15 @@ namespace Ninja_Price.Main
                         {
                             item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)fragmentSearch.ChaosEquivalent;
                             item.PriceData.ChangeInLast7Days = (double)fragmentSearch.ReceiveSparkLine.TotalChange;
+                        }
+
+                        break;
+                    case ItemTypes.DeliriumOrbs:
+                        var deliriumOrbsSearch = CollectedData.DeliriumOrb.Lines.Find(x => x.Name == item.BaseName);
+                        if (deliriumOrbsSearch != null)
+                        {
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)deliriumOrbsSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)deliriumOrbsSearch.Sparkline.TotalChange;
                         }
 
                         break;
@@ -411,7 +422,7 @@ namespace Ninja_Price.Main
 
                                 break;
                                 */
-                            case MapTypes.None:
+                            case  MapTypes.None:
                                 var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == "Harvest");
                                 if (normalMapSearch != null)
                                 {
