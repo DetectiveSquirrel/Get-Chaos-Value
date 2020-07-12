@@ -65,7 +65,7 @@ namespace Ninja_Price.Main
                 if (Settings.Debug)
                     LogMessage($"{GetCurrentMethod()}: Selected League: {Settings.LeagueList.Value}", 5, Color.White);
 
-                var tabType = StashPanel.VisibleStash.InvType;
+                var tabType = StashPanel.VisibleStash?.InvType;
 
                 // Everything is updated, lets check if we should draw
                 if (StashPanel.IsVisible)
@@ -224,13 +224,13 @@ namespace Ninja_Price.Main
                 ImGui.EndTooltip();
             }
 
-            var tabType = StashPanel.VisibleStash.InvType;
-
             if (!StashPanel.IsVisible)
                 return;
 
             // Stash Tab Value
             VisibleStashValue();
+
+            var tabType = StashPanel.VisibleStash.InvType;
             foreach (var customItem in ItemsToDrawList)
             {
                 if (customItem.ItemType == ItemTypes.None) continue;
