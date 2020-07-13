@@ -22,5 +22,6 @@
         Oil,
         Catalyst,
         DeliriumOrbs,
+        HarvestSeeds,
     }
 }
