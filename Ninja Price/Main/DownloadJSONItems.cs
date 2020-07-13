@@ -28,6 +28,7 @@ namespace Ninja_Price.Main
         private const string Incubators_URL = "https://poe.ninja/api/data/itemoverview?type=Incubator&league=";
         private const string Oil_URL = "https://poe.ninja/api/data/itemoverview?type=Oil&league=";
         private const string DeliriumOrb_URL = "https://poe.ninja/api/data/itemoverview?type=DeliriumOrb&league=";
+        private const string Seed_URL = "https://poe.ninja/api/data/itemoverview?type=Seed&league=";
 
         private void GetJsonData(string league)
         {
@@ -58,6 +59,7 @@ namespace Ninja_Price.Main
                 Api.Json.SaveSettingFile(NinjaDirectory + "Scarabs.json", JsonConvert.DeserializeObject<Scarab.RootObject>(Api.DownloadFromUrl(Scarabs_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "Oils.json", JsonConvert.DeserializeObject<Oils.RootObject>(Api.DownloadFromUrl(Oil_URL + league)));
                 Api.Json.SaveSettingFile(NinjaDirectory + "DeliriumOrbs.json", JsonConvert.DeserializeObject<DeliriumOrb.RootObject>(Api.DownloadFromUrl(DeliriumOrb_URL + league)));
+                Api.Json.SaveSettingFile(NinjaDirectory + "Seeds.json", JsonConvert.DeserializeObject<Seeds.RootObject>(Api.DownloadFromUrl(Seed_URL + league)));
                 LogMessage("Finished Gathering Data from Poe.Ninja.", 5);
                 UpdatingFromAPI = false;
                 UpdatePoeNinjaData();
@@ -205,6 +207,13 @@ namespace Ninja_Price.Main
                     {
                         var json = r.ReadToEnd();
                         newData.DeliriumOrb = JsonConvert.DeserializeObject<DeliriumOrb.RootObject>(json);
+                    }
+
+                if (JsonExists("Seeds.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "Seeds.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.Seeds = JsonConvert.DeserializeObject<Seeds.RootObject>(json);
                     }
 
                 CollectedData = newData;

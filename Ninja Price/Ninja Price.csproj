@@ -69,6 +69,7 @@
     <Compile Include="API\PoeNinja\Classes\Leagues.cs" />
     <Compile Include="API\PoeNinja\Classes\Prophecies.cs" />
     <Compile Include="API\PoeNinja\Classes\Scarab.cs" />
+    <Compile Include="API\PoeNinja\Classes\Seeds.cs" />
     <Compile Include="API\PoeNinja\Classes\SkillGems.cs" />
     <Compile Include="API\PoeNinja\Classes\UniqueAccessories.cs" />
     <Compile Include="API\PoeNinja\Classes\Oils.cs" />
