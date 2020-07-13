@@ -352,6 +352,15 @@ namespace Ninja_Price.Main
                         }
 
                         break;
+                    case ItemTypes.HarvestSeeds:
+                        var seedLevel = 76; // TODO Diffrentiate between ilvl 1+ and 76+ seeds.
+                        var seedSearch = CollectedData.Seeds.Lines.Find(x => x.Name == item.BaseName && x.LevelRequired == seedLevel);
+                        if (seedSearch != null)
+                        {
+                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)seedSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)seedSearch.Sparkline.TotalChange;
+                        }
+                        break;
                     case ItemTypes.Fossil:
                         var fossilSearch = CollectedData.Fossils.Lines.Find(x => x.Name == item.BaseName);
                         if (fossilSearch != null)
