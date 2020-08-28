@@ -19,9 +19,6 @@ namespace Ninja_Price.Main
     public partial class Main
     {
         // TODO: Clean this shit up later
-        private static Vector2 lastProphWindowPos = new Vector2(0, 0);
-
-        private static Vector2 lastProphWindowSize = new Vector2(0, 0);
         public Stopwatch ValueUpdateTimer = Stopwatch.StartNew();
         public double StashTabValue { get; set; }
         public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
@@ -220,7 +217,7 @@ namespace Ninja_Price.Main
                     text += $"\n\rBaseName: {Hovereditem.BaseName}";
                 }
 
-                var textMeasure = Graphics.MeasureText(text, 15);
+                // var textMeasure = Graphics.MeasureText(text, 15);
                 //Graphics.DrawBox(new RectangleF(0, 0, textMeasure.Width, textMeasure.Height), Color.Black);
                 //Graphics.DrawText(text, new Vector2(50, 50), Color.White);
 
@@ -331,16 +328,11 @@ namespace Ninja_Price.Main
             if (chaosValueSignificanDigits >= Settings.InventoryValueCutOff.Value) return;
             var rec = item.Item.GetClientRect();
             var fontSize = Settings.HighlightFontSize.Value;
-            var backgroundBox = Graphics.MeasureText($"{chaosValueSignificanDigits}", fontSize);
+            // var backgroundBox = Graphics.MeasureText($"{chaosValueSignificanDigits}", fontSize);
             var position = new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y);
 
             //Graphics.DrawBox(new RectangleF(position.X - backgroundBox.Width, position.Y, backgroundBox.Width, backgroundBox.Height), Color.Black);
             Graphics.DrawText($"{chaosValueSignificanDigits}", position, Settings.UniTextColor, FontAlign.Center);
-
-            DrawImage($"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png",
-                new RectangleF(rec.TopRight.X - fontSize, rec.TopRight.Y,
-                    Settings.HighlightFontSize.Value, Settings.HighlightFontSize.Value)
-            );
             //Graphics.DrawFrame(item.Item.GetClientRect(), 2, Settings.HighlightColor.Value);
         }
 

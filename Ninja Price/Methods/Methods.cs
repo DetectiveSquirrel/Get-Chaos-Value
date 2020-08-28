@@ -96,6 +96,7 @@ namespace Ninja_Price.Main
             return name;
         }
 
+        /*
         /// <summary>
         ///     Draws a plugin image to screen.
         /// </summary>
@@ -115,6 +116,7 @@ namespace Ninja_Price.Main
 
             return true;
         }
+        */
 
         public void GetHoveredItem()
         {
@@ -444,7 +446,7 @@ namespace Ninja_Price.Main
                         break;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.GetValue() Error that i dont understand", 5, Color.Red); }
             }
@@ -487,7 +489,7 @@ namespace Ninja_Price.Main
             return true;
         }
 
-
+        /*
         private double? GetProphecyValues(string ProphName)
         {
             var item = CollectedData.Prophecies.Lines.Find(x => x.Name == ProphName);
@@ -501,7 +503,6 @@ namespace Ninja_Price.Main
             return new Vector4(vector.X, vector.Y, vector.Z, vector.W);
         }
 
-        /*
          * format is as follows
          * To change color of the string surround hex codes with {} Example: "Uncolored {#AARRGGBB}Colored"
          * having a blank {} will make it go back to default imgui text color, Example: "Uncolored {#AARRGGBB}Colored {}Back to orig color"
