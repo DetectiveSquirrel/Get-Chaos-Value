@@ -411,7 +411,7 @@ namespace Ninja_Price.Main
                         switch (item.MapInfo.MapType)
                         {
                             case MapTypes.Blighted:
-                                var normalBlightedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Blighted {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == "Harvest");
+                                var normalBlightedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Blighted {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value);
                                 if (normalBlightedMapSearch != null)
                                 {
                                     item.PriceData.ChaosValue = (double)normalBlightedMapSearch.ChaosValue;
@@ -432,7 +432,7 @@ namespace Ninja_Price.Main
                                 break;
                                 */
                             case  MapTypes.None:
-                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == "Harvest");
+                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value);
                                 if (normalMapSearch != null)
                                 {
                                     item.PriceData.ChaosValue = (double)normalMapSearch.ChaosValue;
