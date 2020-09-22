@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using Newtonsoft.Json;
+using SharpDX;
 
 namespace Ninja_Price.API.PoeNinja
 {
@@ -48,13 +49,13 @@ namespace Ninja_Price.API.PoeNinja
                 try
                 {
                     File.WriteAllText(fileName, JsonConvert.SerializeObject(setting, Formatting.Indented));
-                    //Main.Main.Controller.LogMessage($"{fileName} - Downloaded", 25, SharpDX.Color.Yellow);
+                    if (Main.Main.Controller.Settings.Debug) { Main.Main.Controller.LogMessage($"{fileName} - Downloaded", 25, SharpDX.Color.Yellow); }
                     return true;
                 }
                 catch(Exception e)
                 {
                     File.WriteAllText(fileName, e.StackTrace);
-                    //Main.Main.Controller.LogError($"{fileName} - {e.StackTrace} Failed", 25);
+                    if (Main.Main.Controller.Settings.Debug) { Main.Main.Controller.LogError($"{fileName} - {e.StackTrace} Failed", 25); }
 
                 }
                 return false;
