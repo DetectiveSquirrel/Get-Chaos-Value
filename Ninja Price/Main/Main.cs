@@ -40,7 +40,7 @@ namespace Ninja_Price.Main
             BuildDate = new DateTime(2000, 1, 1).AddDays(Version.Build).AddSeconds(Version.Revision * 2);
             PluginVersion = $"{Version}";
             NinjaDirectory = DirectoryFullName + "\\NinjaData\\";
-            LogMessage(DirectoryFullName, 50);
+            //LogMessage(DirectoryFullName, 50); // ????? i dont even understand why this is here.
             // Make folder if it doesnt exist
             var file = new FileInfo(NinjaDirectory);
             file.Directory?.Create(); // If the directory already exists, this method does nothing.
