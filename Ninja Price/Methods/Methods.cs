@@ -487,6 +487,43 @@ namespace Ninja_Price.Main
             return true;
         }
 
+        public bool ShouldUpdateValuesInventory()
+        {
+            if (ValueUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
+            {
+                ValueUpdateTimer.Restart();
+                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
+            }
+            else
+            {
+                return false;
+            }
+            // TODO: Get inventory items and not just stash tab items, this will be done at a later date
+            try
+            {
+                if (!Settings.VisibleInventoryValue.Value || !GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
+                {
+                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Inventory is not visable", 5, Color.DarkGray); }
+                    return false;
+                }
+
+                // Dont continue if the stash page isnt even open
+                if (GameController.Game.IngameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory].VisibleInventoryItems == null)
+                {
+                    if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Items == null", 5, Color.DarkGray);
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Error that i need to fucking fix", 5, Color.DarkGray);
+                return false;
+            }
+
+            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
+            return true;
+        }
+
 
         private double? GetProphecyValues(string ProphName)
         {
