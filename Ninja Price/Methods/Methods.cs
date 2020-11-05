@@ -96,7 +96,6 @@ namespace Ninja_Price.Main
             return name;
         }
 
-        /*
         /// <summary>
         ///     Draws a plugin image to screen.
         /// </summary>
@@ -116,7 +115,6 @@ namespace Ninja_Price.Main
 
             return true;
         }
-        */
 
         public void GetHoveredItem()
         {
@@ -446,7 +444,7 @@ namespace Ninja_Price.Main
                         break;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.GetValue() Error that i dont understand", 5, Color.Red); }
             }
@@ -489,7 +487,43 @@ namespace Ninja_Price.Main
             return true;
         }
 
-        /*
+        public bool ShouldUpdateValuesInventory()
+        {
+            if (ValueUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
+            {
+                ValueUpdateTimer.Restart();
+                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
+            }
+            else
+            {
+                return false;
+            }
+            // TODO: Get inventory items and not just stash tab items, this will be done at a later date
+            try
+            {
+                if (!Settings.VisibleInventoryValue.Value || !GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
+                {
+                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Inventory is not visable", 5, Color.DarkGray); }
+                    return false;
+                }
+
+                // Dont continue if the stash page isnt even open
+                if (GameController.Game.IngameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory].VisibleInventoryItems == null)
+                {
+                    if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Items == null", 5, Color.DarkGray);
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Error that i need to fucking fix", 5, Color.DarkGray);
+                return false;
+            }
+
+            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
+            return true;
+        }
+
         private double? GetProphecyValues(string ProphName)
         {
             var item = CollectedData.Prophecies.Lines.Find(x => x.Name == ProphName);
@@ -503,6 +537,7 @@ namespace Ninja_Price.Main
             return new Vector4(vector.X, vector.Y, vector.Z, vector.W);
         }
 
+        /*
          * format is as follows
          * To change color of the string surround hex codes with {} Example: "Uncolored {#AARRGGBB}Colored"
          * having a blank {} will make it go back to default imgui text color, Example: "Uncolored {#AARRGGBB}Colored {}Back to orig color"

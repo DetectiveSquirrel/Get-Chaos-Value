@@ -20,13 +20,19 @@ namespace Ninja_Price.Settings
 
             // Visible stash tab
             VisibleStashValue = new ToggleNode(true);
-            StashValueX = new RangeNode<int>(100, 0, 1920);
-            StashValueY = new RangeNode<int>(800, 0, 1080);
+            StashValueX = new RangeNode<int>(100, 0, 5000);
+            StashValueY = new RangeNode<int>(800, 0, 5000);
             StashValueColorNode = new ColorNode(Color.AliceBlue);
             StashValueFontSize = new RangeNode<int>(20, 0, 200);
             StashValueSignificantDigits = new RangeNode<int>(5, 0, 10);
 
             // Inventory Value
+            VisibleInventoryValue = new ToggleNode(true);
+            InventoryValueX = new RangeNode<int>(100, 0, 5000);
+            InventoryValueY = new RangeNode<int>(800, 0, 5000);
+            InventoryValueColorNode = new ColorNode(Color.AliceBlue);
+            InventoryValueSignificantDigits = new RangeNode<int>(5, 0, 10);
+
             HighlightUniqueJunk = new ToggleNode(true);
             HighlightColor = new ColorNode(Color.AliceBlue);
             HighlightFontSize = new RangeNode<int>(20, 0, 200);
@@ -76,7 +82,7 @@ namespace Ninja_Price.Settings
         [Menu("Prophecy Background", 234, 567765)]
         public ColorNode ProphecyBackground { get; set; }
 
-        [Menu("Prophecy Locked", "This will lock the proh box so you can click through it without accidentally moving it", 652, 567765)]
+        [Menu("Prophecy Locked", "This will lock the proph box so you can click through it without accidentally moving it", 652, 567765)]
         public ToggleNode ProphecyLocked { get; set; } = new ToggleNode(true);
 
         [Menu("Chaos Value", 653, 567765)]
@@ -149,8 +155,23 @@ namespace Ninja_Price.Settings
         [Menu("Significant Digits", "The number of wanted decimals", 55, 5)]
         public RangeNode<int> HighlightSignificantDigits { get; set; }
 
-        [Menu("Cut off Value", "Draws a border arround unique items if it's under X value in chaos", 56, 5)]
+        [Menu("Cut off Value", "Draws a border around unique items if it's under X value in chaos", 56, 5)]
         public RangeNode<int> InventoryValueCutOff { get; set; }
+
+        [Menu("Visible Inventory Value", "Calculate value (in chaos) for the current visible Inventory tab.", 57, 5)]
+        public ToggleNode VisibleInventoryValue { get; set; }
+
+        [Menu("Visible Inventory X", "Horizontal position of where the value in chaos should be drawn.", 58, 5)]
+        public RangeNode<int> InventoryValueX { get; set; }
+
+        [Menu("Visible Inventory Y", "Horizontal position of where the value in chaos should be drawn.", 59, 5)]
+        public RangeNode<int> InventoryValueY { get; set; }
+
+        [Menu("Visible Inventory Color", 61, 5)]
+        public ColorNode InventoryValueColorNode { get; set; }
+
+        [Menu("Visible Inventory Significant Digits", 62, 5)]
+        public RangeNode<int> InventoryValueSignificantDigits { get; set; }
 
         #endregion
 

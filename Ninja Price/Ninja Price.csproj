@@ -63,7 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\PoeNinja\API.cs" />
-    <Compile Include="API\PoeNinja\Classes\DeliriumOrb.cs" />
     <Compile Include="API\PoeNinja\Classes\Fossils.cs" />
     <Compile Include="API\PoeNinja\Classes\Incubators.cs" />
     <Compile Include="API\PoeNinja\Classes\Resonators.cs" />
@@ -83,6 +82,7 @@
     <Compile Include="API\PoeNinja\Classes\UniqueFlasks.cs" />
     <Compile Include="API\PoeNinja\Classes\UniqueJewels.cs" />
     <Compile Include="API\PoeNinja\Classes\UniqueMaps.cs" />
+    <Compile Include="API\PoeNinja\Classes\DeliriumOrb.cs" />
     <Compile Include="API\PoeNinja\Classes\UniqueWeapons.cs" />
     <Compile Include="API\PoeNinja\Classes\WhiteMaps.cs" />
     <Compile Include="Enums\MapTypes.cs" />

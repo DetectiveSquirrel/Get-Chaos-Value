@@ -21,6 +21,7 @@ namespace Ninja_Price.Main
         // TODO: Clean this shit up later
         public Stopwatch ValueUpdateTimer = Stopwatch.StartNew();
         public double StashTabValue { get; set; }
+        public double InventoryTabValue { get; set; }
         public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
         public List<CustomItem> FortmattedItemList { get; set; } = new List<CustomItem>();
 
@@ -30,6 +31,7 @@ namespace Ninja_Price.Main
         public List<CustomItem> ItemsToDrawList { get; set; } = new List<CustomItem>();
         public List<CustomItem> InventoryItemsToDrawList { get; set; } = new List<CustomItem>();
         public StashElement StashPanel { get; set; }
+        public InventoryElement InventoryPanel { get; set; }
 
         public CustomItem Hovereditem { get; set; }
 
@@ -41,9 +43,11 @@ namespace Ninja_Price.Main
 
             CurrentLeague = Settings.LeagueList.Value; //  Update selected league every tick
             StashTabValue = 0;
+            InventoryTabValue = 0;
             Hovereditem = null;
 
             StashPanel = GameController.Game.IngameState.IngameUi.StashElement;
+            InventoryPanel = GameController.Game.IngameState.IngameUi.InventoryPanel;
 
             #endregion
 
@@ -126,6 +130,38 @@ namespace Ninja_Price.Main
                         if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
                             continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
 
+                        InventoryTabValue += item.PriceData.ChaosValue;
+                        InventoryItemsToDrawList.Add(item);
+                    }
+                }
+                else if (InventoryPanel.IsVisible)
+                {
+                    if (ShouldUpdateValuesInventory())
+                    {
+                        // Format Inventory Items
+                        InventoryItemList = new List<NormalInventoryItem>();
+                        InventoryItemList = GetInventoryItems();
+                        FortmattedInventoryItemList = new List<CustomItem>();
+                        FortmattedInventoryItemList = FormatItems(InventoryItemList);
+
+                        if (Settings.Debug)
+                            LogMessage($"{GetCurrentMethod()}.Render() Looping if (ShouldUpdateValues())", 5,
+                                Color.LawnGreen);
+
+                        foreach (var item in FortmattedInventoryItemList)
+                            GetValue(item);
+                    }
+
+                    // Gather all information needed before rendering as we only want to itterate through the list once
+                    InventoryItemsToDrawList = new List<CustomItem>();
+                    foreach (var item in FortmattedInventoryItemList)
+                    {
+
+                        if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
+                        if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
+                            continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
+
+                        InventoryTabValue += item.PriceData.ChaosValue;
                         InventoryItemsToDrawList.Add(item);
                     }
                 }
@@ -226,6 +262,9 @@ namespace Ninja_Price.Main
                 ImGui.EndTooltip();
             }
 
+            // Inventory Value
+            VisibleInventoryValue();
+
             if (!StashPanel.IsVisible)
                 return;
 
@@ -277,7 +316,7 @@ namespace Ninja_Price.Main
                 {
                     var pos = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
                     var significantDigits =
-                        Math.Round((decimal) StashTabValue, Settings.StashValueSignificantDigits.Value);
+                        Math.Round((decimal)StashTabValue, Settings.StashValueSignificantDigits.Value);
                     //Graphics.DrawText(
                     //    DrawImage($"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png",
                     //        new RectangleF(Settings.StashValueX.Value - Settings.StashValueFontSize.Value,
@@ -296,8 +335,33 @@ namespace Ninja_Price.Main
                 if (Settings.Debug)
                 {
 
-                LogMessage("Error in: VisibleStashValue, restart PoEHUD.", 5, Color.Red);
-                LogMessage(e.ToString(), 5, Color.Orange);
+                    LogMessage("Error in: VisibleStashValue, restart PoEHUD.", 5, Color.Red);
+                    LogMessage(e.ToString(), 5, Color.Orange);
+                }
+            }
+        }
+
+        private void VisibleInventoryValue()
+        {
+            try
+            {
+                var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel;
+                if (!Settings.VisibleInventoryValue.Value || !inventory.IsVisible) return;
+                {
+                    var pos = new Vector2(Settings.InventoryValueX.Value, Settings.InventoryValueY.Value);
+                    var significantDigits =
+                        Math.Round((decimal)InventoryTabValue, Settings.InventoryValueSignificantDigits.Value);
+                    Graphics.DrawText($"{significantDigits} Chaos", pos, Settings.UniTextColor, FontAlign.Center);
+                }
+            }
+            catch (Exception e)
+            {
+                // ignored
+                if (Settings.Debug)
+                {
+
+                    LogMessage("Error in: VisibleInventoryValue, restart PoEHUD.", 5, Color.Red);
+                    LogMessage(e.ToString(), 5, Color.Orange);
                 }
             }
         }
