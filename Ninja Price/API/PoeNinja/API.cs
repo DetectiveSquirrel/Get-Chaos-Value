@@ -41,7 +41,7 @@ namespace Ninja_Price.API.PoeNinja
 
             public static TSettingType LoadSettingFile<TSettingType>(string fileName)
             {
-                return !File.Exists(fileName) ? default : JsonConvert.DeserializeObject<TSettingType>(File.ReadAllText(fileName));
+                return !File.Exists(fileName) ? default(TSettingType) : JsonConvert.DeserializeObject<TSettingType>(File.ReadAllText(fileName));
             }
 
             public static bool SaveSettingFile<TSettingType>(string fileName, TSettingType setting)
