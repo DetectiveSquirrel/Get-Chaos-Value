@@ -30,27 +30,23 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ExileCore">
-      <HintPath>..\..\..\..\..\PoeHelper\ExileCore.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\Desktop\Path of Exile\New Stuff\Project\Compiled\ExileCore.dll</HintPath>
     </Reference>
     <Reference Include="ImGui.NET">
-      <HintPath>..\..\..\..\deps\ImGui.NET.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\..\..\Desktop\Path of Exile\New Stuff\Project\Compiled\ImGui.NET.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\Desktop\Path of Exile\New Stuff\Project\Compiled\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="SharpDX">
+      <HintPath>..\..\..\..\Desktop\Path of Exile\New Stuff\Project\Compiled\SharpDX.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\SharpDX.Mathematics.4.2.0\lib\net45\SharpDX.Mathematics.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="SharpDX.Mathematics">
+      <HintPath>..\..\..\..\Desktop\Path of Exile\New Stuff\Project\Compiled\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -74,7 +70,6 @@
     <Compile Include="API\PoeNinja\Classes\Leagues.cs" />
     <Compile Include="API\PoeNinja\Classes\Prophecies.cs" />
     <Compile Include="API\PoeNinja\Classes\Scarab.cs" />
-    <Compile Include="API\PoeNinja\Classes\Seeds.cs" />
     <Compile Include="API\PoeNinja\Classes\SkillGems.cs" />
     <Compile Include="API\PoeNinja\Classes\UniqueAccessories.cs" />
     <Compile Include="API\PoeNinja\Classes\Oils.cs" />

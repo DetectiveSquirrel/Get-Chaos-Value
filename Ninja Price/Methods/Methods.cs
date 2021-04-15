@@ -352,15 +352,6 @@ namespace Ninja_Price.Main
                         }
 
                         break;
-                    case ItemTypes.HarvestSeeds:
-                        var seedLevel = 76; // TODO Diffrentiate between ilvl 1+ and 76+ seeds.
-                        var seedSearch = CollectedData.Seeds.Lines.Find(x => x.Name == item.BaseName && x.LevelRequired == seedLevel);
-                        if (seedSearch != null)
-                        {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)seedSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)seedSearch.Sparkline.TotalChange;
-                        }
-                        break;
                     case ItemTypes.Fossil:
                         var fossilSearch = CollectedData.Fossils.Lines.Find(x => x.Name == item.BaseName);
                         if (fossilSearch != null)
@@ -523,77 +514,5 @@ namespace Ninja_Price.Main
             if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
             return true;
         }
-
-        private double? GetProphecyValues(string ProphName)
-        {
-            var item = CollectedData.Prophecies.Lines.Find(x => x.Name == ProphName);
-            if (item == null) return NotFound;
-            var value = item.ChaosValue;
-            return value;
-        }
-
-        private Vector4 ToImVector4(SharpDX.Vector4 vector)
-        {
-            return new Vector4(vector.X, vector.Y, vector.Z, vector.W);
-        }
-
-        /*
-         * format is as follows
-         * To change color of the string surround hex codes with {} Example: "Uncolored {#AARRGGBB}Colored"
-         * having a blank {} will make it go back to default imgui text color, Example: "Uncolored {#AARRGGBB}Colored {}Back to orig color"
-         */
-        //public void Coloredtext(string TextIn)
-        //{
-        //    try
-        //    {
-        //        var accumulatedText = "";
-        //        var startColor = ImGui.GetStyle().GetColor(ColorTarget.Text);
-        //        var hexCode = "";
-        //        var sameLine = false;
-        //        var nextColor = startColor;
-        //        for (var i = 0; i < TextIn.Length; i++)
-        //        {
-        //            if (TextIn[i] == '{')
-        //            {
-        //                var foundBracketStart = TextIn.Substring(i + 1);
-        //                for (var j = 0; j < foundBracketStart.Length; j++)
-        //                {
-        //                    i++;
-        //                    if (foundBracketStart[j] == '}')
-        //                        break;
-        //                    hexCode += foundBracketStart[j];
-        //                }
-
-        //                if (sameLine)
-        //                    ImGui.SameLine(0f, 0f);
-        //                ImGui.Text(accumulatedText);
-        //                if (TextIn[i - 1] == '{')
-        //                    nextColor = startColor;
-        //                accumulatedText = "";
-        //                sameLine = true;
-        //                if (hexCode != "")
-        //                {
-        //                    var tempColor = ColorTranslator.FromHtml(hexCode);
-        //                    var tempColor2 = new Color(tempColor.R, tempColor.G, tempColor.B, tempColor.A).ToVector4();
-        //                    nextColor = new Vector4(tempColor2.X, tempColor2.Y, tempColor2.Z, tempColor2.W);
-        //                }
-
-        //                i++;
-        //                hexCode = "";
-        //            }
-
-        //            accumulatedText += TextIn[i];
-        //        }
-
-        //        if (sameLine)
-        //            ImGui.SameLine(0f, 0f);
-        //        ImGui.Text(accumulatedText);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // This spams all the time even tho nothing seems broken so it can fuck riiiiiiiight off
-        //        //LogError("ColorText: Incorrect hex format \n" + e, 15);
-        //    }
-        //}
     }
 }

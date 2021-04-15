@@ -203,10 +203,6 @@ namespace Ninja_Price.Main
             {
                 var text = $"Change in last 7 Days: {Hovereditem.PriceData.ChangeInLast7Days}%%";
                 var changeTextLength = text.Length-1;
-                if (Hovereditem.ItemType == ItemTypes.HarvestSeeds)
-                {
-                    text += "\n\rPrice for ilvl 76+ seeds"; // TODO Remove once seed level diffrentiation is implemented 
-                }
                 text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
 
                 switch (Hovereditem.ItemType)
@@ -219,8 +215,7 @@ namespace Ninja_Price.Main
                     case ItemTypes.Fossil:
                     case ItemTypes.Oil:
                     case ItemTypes.Catalyst:
-                    case ItemTypes.DeliriumOrbs:
-                    case ItemTypes.HarvestSeeds:    
+                    case ItemTypes.DeliriumOrbs:  
                     case ItemTypes.DivinationCard:
                         if (Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
                         {

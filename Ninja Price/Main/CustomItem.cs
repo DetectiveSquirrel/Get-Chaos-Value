@@ -222,10 +222,6 @@ namespace Ninja_Price.Main
             {
                 ItemType = ItemTypes.DeliriumOrbs;
             }
-            else if (ClassName == "HarvestSeed")
-            {
-                ItemType = ItemTypes.HarvestSeeds;
-            }
             else switch (Rarity) // Unique information
             {
                 case ItemRarity.Unique when IsIdentified && IsIdentified && ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
