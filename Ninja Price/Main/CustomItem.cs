@@ -140,17 +140,17 @@ namespace Ninja_Price.Main
 
                 foreach (var itemList in item.Item.GetComponent<Mods>().ItemMods)
                 {
-                    if (itemList.RawName.Contains("MapShaped"))
+                    if (itemList.RawName.Contains("Shaped "))
                     {
                         MapInfo.MapType = MapTypes.Shaped;
                         break;
                     }
-                    else if (itemList.RawName.Contains("MapElder"))
+                    else if (itemList.RawName.Contains("Elder "))
                     {
                         MapInfo.MapType = MapTypes.Elder;
                         break;
                     }
-                    else if (itemList.RawName.Contains("InfectedMap"))
+                    else if (itemList.RawName.Contains("Blighted "))
                     {
                         MapInfo.MapType = MapTypes.Blighted;
                         break;
@@ -204,7 +204,7 @@ namespace Ninja_Price.Main
             }
             else if (MapInfo.IsMap && Rarity != ItemRarity.Unique)
             {
-                ItemType = ItemTypes.NormalMap;
+                ItemType = ItemTypes.Map;
             }
             else if (BaseName.EndsWith(" Fossil"))
             {
@@ -221,6 +221,10 @@ namespace Ninja_Price.Main
             else if (BaseName.EndsWith("Delirium Orb"))
             {
                 ItemType = ItemTypes.DeliriumOrbs;
+            }
+            else if (BaseName.StartsWith("Vial "))
+            {
+                ItemType = ItemTypes.Vials;
             }
             else switch (Rarity) // Unique information
             {

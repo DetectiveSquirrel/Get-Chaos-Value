@@ -14,7 +14,7 @@
         UniqueJewel,
         UniqueMap,
         UniqueWeapon,
-        NormalMap,
+        Map,
         Resonator,
         Fossil,
         Scarab,
@@ -22,5 +22,6 @@
         Oil,
         Catalyst,
         DeliriumOrbs,
+        Vials,
     }
 }

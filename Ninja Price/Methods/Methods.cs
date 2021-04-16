@@ -82,7 +82,9 @@ namespace Ninja_Price.Main
                 {"Harbinger's Shard", "Harbinger's Orb"},
                 {"Horizon Shard", "Orb of Horizons"},
                 {"Binding Shard", "Orb of Binding"},
-                {"Scroll Fragment", "Scroll of Wisdom"}
+                {"Scroll Fragment", "Scroll of Wisdom"},
+                {"Ritual Splinter", "Ritual Vessel"},
+                {"Crescent Splinter", "The Maven's Writ" }
             };
             try
             {
@@ -133,6 +135,7 @@ namespace Ninja_Price.Main
                         if (baseItemType != null)
                         {
                             Hovereditem = new CustomItem(inventoryItemIcon);
+                            //LogMessage("ItemType:" + Hovereditem.ItemType);
                             if (Hovereditem.ItemType != ItemTypes.None)
                                 GetValue(Hovereditem);
                         }
@@ -166,6 +169,47 @@ namespace Ninja_Price.Main
                                 case true:
                                     item.PriceData.ChaosValue = item.CurrencyInfo.StackSize / 20.0;
                                     break;
+                            }
+                            break;
+                        }
+                        if (item.BaseName.Contains("Ritual Splinter"))
+                        {
+                            var shardParent = GetShardPartent(item.BaseName);
+                            var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
+                            if (shardCurrencySearch != null)
+                            {
+                                item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)shardCurrencySearch.ChaosEquivalent / 100;
+                                item.PriceData.ChangeInLast7Days = (double)shardCurrencySearch.ReceiveSparkLine.TotalChange;
+                            }
+                            break;
+                        }
+                        if (item.BaseName.Contains("Crescent Splinter"))
+                        {
+                            var shardCurrencySearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == "Crescent Splinter");
+                            if (shardCurrencySearch != null)
+                            {
+                                item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)shardCurrencySearch.ChaosEquivalent;
+                                item.PriceData.ChangeInLast7Days = (double)shardCurrencySearch.ReceiveSparkLine.TotalChange;
+                            }
+                            else
+                            {
+                                var shardParent = GetShardPartent(item.BaseName);
+                                shardCurrencySearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == shardParent);
+                                if (shardCurrencySearch != null)
+                                {
+                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)shardCurrencySearch.ChaosEquivalent / 10;
+                                    item.PriceData.ChangeInLast7Days = (double)shardCurrencySearch.ReceiveSparkLine.TotalChange;
+                                }
+                            }
+                            break;
+                        }
+                        if (item.BaseName.StartsWith("Vial "))
+                        {
+                            var vialCurrencySearch = CollectedData.Vials.Lines.Find(x => x.Name == item.BaseName);
+                            if (vialCurrencySearch != null)
+                            {
+                                item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)vialCurrencySearch.ChaosValue;
+                                item.PriceData.ChangeInLast7Days = (double)vialCurrencySearch.Sparkline.TotalChange;
                             }
                             break;
                         }
@@ -273,7 +317,7 @@ namespace Ninja_Price.Main
                         break;
                     // TODO: add a quick function to turn known names into the correct name for poe.ninja - See old plugin code
                     case ItemTypes.UniqueAccessory:
-                        var uniqueAccessorieSearch = CollectedData.UniqueAccessories.Lines.Find(x => x.Name == item.UniqueName);
+                        var uniqueAccessorieSearch = CollectedData.UniqueAccessories.Lines.Find(x => x.Name == item.UniqueName && !x.DetailsId.Contains("-relic"));
                         if (uniqueAccessorieSearch != null)
                         {
                             item.PriceData.ChaosValue = (double)uniqueAccessorieSearch.ChaosValue;
@@ -288,7 +332,7 @@ namespace Ninja_Price.Main
                             case 2:
                             case 3:
                             case 4:
-                                var uniqueArmourSearchLinks04 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0);
+                                var uniqueArmourSearchLinks04 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0 && !x.DetailsId.Contains("-relic"));
                                 if (uniqueArmourSearchLinks04 != null)
                                 {
                                     item.PriceData.ChaosValue = (double)uniqueArmourSearchLinks04.ChaosValue;
@@ -297,7 +341,7 @@ namespace Ninja_Price.Main
 
                                 break;
                             case 5:
-                                var uniqueArmourSearch5 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5);
+                                var uniqueArmourSearch5 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5 && !x.DetailsId.Contains("-relic"));
                                 if (uniqueArmourSearch5 != null)
                                 {
                                     item.PriceData.ChaosValue = (double)uniqueArmourSearch5.ChaosValue;
@@ -306,7 +350,7 @@ namespace Ninja_Price.Main
 
                                 break;
                             case 6:
-                                var uniqueArmourSearch6 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6);
+                                var uniqueArmourSearch6 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6 && !x.DetailsId.Contains("-relic"));
                                 if (uniqueArmourSearch6 != null)
                                 {
                                     item.PriceData.ChaosValue = (double)uniqueArmourSearch6.ChaosValue;
@@ -317,7 +361,7 @@ namespace Ninja_Price.Main
                         }
                         break;
                     case ItemTypes.UniqueFlask:
-                        var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.Find(x => x.Name == item.UniqueName);
+                        var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.Find(x => x.Name == item.UniqueName && !x.DetailsId.Contains("-relic"));
                         if (uniqueFlaskSearch != null)
                         {
                             item.PriceData.ChaosValue = (double)uniqueFlaskSearch.ChaosValue;
@@ -326,7 +370,7 @@ namespace Ninja_Price.Main
 
                         break;
                     case ItemTypes.UniqueJewel:
-                        var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.Find(x => x.Name == item.UniqueName);
+                        var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.Find(x => x.Name == item.UniqueName && !x.DetailsId.Contains("-relic"));
                         if (uniqueJewelSearch != null)
                         {
                             item.PriceData.ChaosValue = (double)uniqueJewelSearch.ChaosValue;
@@ -369,7 +413,7 @@ namespace Ninja_Price.Main
                             case 2:
                             case 3:
                             case 4:
-                                var uniqueWeaponSearch04 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0);
+                                var uniqueWeaponSearch04 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0 && !x.DetailsId.Contains("-relic"));
                                 if (uniqueWeaponSearch04 != null)
                                 {
                                     item.PriceData.ChaosValue = (double)uniqueWeaponSearch04.ChaosValue;
@@ -378,7 +422,7 @@ namespace Ninja_Price.Main
 
                                 break;
                             case 5:
-                                var uniqueWeaponSearch5 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5);
+                                var uniqueWeaponSearch5 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5 && !x.DetailsId.Contains("-relic"));
                                 if (uniqueWeaponSearch5 != null)
                                 {
                                     item.PriceData.ChaosValue = (double)uniqueWeaponSearch5.ChaosValue;
@@ -387,7 +431,7 @@ namespace Ninja_Price.Main
 
                                 break;
                             case 6:
-                                var uniqueWeaponSearch6 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6);
+                                var uniqueWeaponSearch6 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6 && !x.DetailsId.Contains("-relic"));
                                 if (uniqueWeaponSearch6 != null)
                                 {
                                     item.PriceData.ChaosValue = (double)uniqueWeaponSearch6.ChaosValue;
@@ -397,12 +441,12 @@ namespace Ninja_Price.Main
                                 break;
                         }
                         break;
-                    case ItemTypes.NormalMap:
+                    case ItemTypes.Map:
                         // TODO: Deal with old maps, this is literally the last thing i will do as it has next to no gain for having this information
                         switch (item.MapInfo.MapType)
                         {
                             case MapTypes.Blighted:
-                                var normalBlightedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Blighted {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value);
+                                var normalBlightedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.Name == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value);
                                 if (normalBlightedMapSearch != null)
                                 {
                                     item.PriceData.ChaosValue = (double)normalBlightedMapSearch.ChaosValue;
@@ -410,20 +454,8 @@ namespace Ninja_Price.Main
                                 }
 
                                 break;
-                        // TODO: Poe.Ninja can not recognized Shaped and Elder maps, so i think no price - is better than count price equal no influence map.
-                                /*
-                            case MapTypes.Shaped:
-                                var normalSharpedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Shaped {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == "Harvest");
-                                if (normalSharpedMapSearch != null)
-                                {
-                                    item.PriceData.ChaosValue = (double)normalSharpedMapSearch.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = (double)normalSharpedMapSearch.Sparkline.TotalChange;
-                                }
-
-                                break;
-                                */
                             case  MapTypes.None:
-                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value);
+                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.Name == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value);
                                 if (normalMapSearch != null)
                                 {
                                     item.PriceData.ChaosValue = (double)normalMapSearch.ChaosValue;
@@ -435,7 +467,7 @@ namespace Ninja_Price.Main
                         break;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.GetValue() Error that i dont understand", 5, Color.Red); }
             }

@@ -79,6 +79,7 @@
     <Compile Include="API\PoeNinja\Classes\UniqueMaps.cs" />
     <Compile Include="API\PoeNinja\Classes\DeliriumOrb.cs" />
     <Compile Include="API\PoeNinja\Classes\UniqueWeapons.cs" />
+    <Compile Include="API\PoeNinja\Classes\Vials.cs" />
     <Compile Include="API\PoeNinja\Classes\WhiteMaps.cs" />
     <Compile Include="Enums\MapTypes.cs" />
     <Compile Include="Main\CollectiveAPIData.cs" />

@@ -215,7 +215,8 @@ namespace Ninja_Price.Main
                     case ItemTypes.Fossil:
                     case ItemTypes.Oil:
                     case ItemTypes.Catalyst:
-                    case ItemTypes.DeliriumOrbs:  
+                    case ItemTypes.DeliriumOrbs:
+                    case ItemTypes.Vials:
                     case ItemTypes.DivinationCard:
                         if (Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
                         {
@@ -232,7 +233,7 @@ namespace Ninja_Price.Main
                     case ItemTypes.UniqueJewel:
                     case ItemTypes.UniqueMap:
                     case ItemTypes.UniqueWeapon:
-                    case ItemTypes.NormalMap:
+                    case ItemTypes.Map:
                     case ItemTypes.Incubator:
                         if (Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
                         {
@@ -394,60 +395,5 @@ namespace Ninja_Price.Main
             Graphics.DrawText($"{chaosValueSignificanDigits}", position, Settings.UniTextColor, FontAlign.Center);
             //Graphics.DrawFrame(item.Item.GetClientRect(), 2, Settings.HighlightColor.Value);
         }
-
-        //private void PropheccyDisplay()
-        //{
-        //    if (!Settings.ProphecyPrices)
-        //        return;
-
-        //    try
-        //    {
-        //        var UIHover = GameController.Game.IngameState.UIHover;
-        //        var newBox = new RectangleF(lastProphWindowPos.X, lastProphWindowPos.Y, lastProphWindowSize.X, lastProphWindowSize.Y);
-
-        //        if (!StashPanel.IsVisible) return;
-        //        var refBool = true;
-
-        //        if (!UIHover.Tooltip.GetClientRect().Intersects(newBox))
-        //        {
-        //            var menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
-        //            if (Settings.ProphecyOverrideColors)
-        //            {
-        //                var tempColor = new SharpDX.Vector4(Settings.ProphecyBackground.Value.R / 255.0f, Settings.ProphecyBackground.Value.G / 255.0f,
-        //                    Settings.ProphecyBackground.Value.B / 255.0f, Settings.ProphecyBackground.Value.A / 255.0f);
-        //                ImGui.PushStyleColor(ColorTarget.WindowBg, ToImVector4(tempColor));
-        //                menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
-        //            }
-
-        //            ImGui.BeginWindow("Poe.NinjaProphs", ref refBool, new System.Numerics.Vector2(200, 150), menuOpacity, Settings.ProphecyLocked ? WindowFlags.NoCollapse | WindowFlags.NoScrollbar | WindowFlags.NoMove | WindowFlags.NoResize | WindowFlags.NoInputs | WindowFlags.NoBringToFrontOnFocus | WindowFlags.NoTitleBar | WindowFlags.NoFocusOnAppearing : WindowFlags.Default | WindowFlags.NoTitleBar | WindowFlags.ResizeFromAnySide);
-
-        //            if (Settings.ProphecyOverrideColors)
-        //                ImGui.PopStyleColor();
-
-
-        //            var prophystringlist = new List<string>();
-        //            var propicies = GameController.Player.GetComponent<Player>().Prophecies;
-        //            foreach (var prophecyDat in propicies)
-        //            {
-        //                //var text = $"{GetProphecyValues(prophecyDat.Name)}c - {prophecyDat.Name}({prophecyDat.SealCost})";
-        //                var text = $"{{{HexConverter(Settings.ProphecyChaosValue)}}}{GetProphecyValues(prophecyDat.Name)}c {{}}- {{{HexConverter(Settings.ProphecyProecyName)}}}{prophecyDat.Name} {{{HexConverter(Settings.ProphecyProecySealColor)}}}({prophecyDat.SealCost}){{}}";
-        //                if (prophystringlist.Any(x => Equals(x, text))) continue;
-        //                prophystringlist.Add(text);
-        //            }
-
-        //            foreach (var proph in prophystringlist)
-        //                //ImGui.Text(VARIABLE);
-        //                Coloredtext(proph);
-
-        //            lastProphWindowSize = new Vector2(ImGui.GetWindowSize().X, ImGui.GetWindowSize().Y);
-        //            lastProphWindowPos = new Vector2(ImGui.GetWindowPosition().X, ImGui.GetWindowPosition().Y);
-        //            ImGui.EndWindow();
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        ImGui.EndWindow();
-        //    }
-        //}
     }
 }
