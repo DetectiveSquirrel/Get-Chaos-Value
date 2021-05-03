@@ -252,12 +252,14 @@ namespace Ninja_Price.Main
                 }
                 if (Settings.Debug)
                 {
-                    text += $"\n\rItemType: {Hovereditem.ItemType}";
+                    text += $"\n\rUniqueName: {Hovereditem.UniqueName}";
                     text += $"\n\rBaseName: {Hovereditem.BaseName}";
+                    text += $"\n\rItemType: {Hovereditem.ItemType}";
                     text += $"\n\rMapType: {Hovereditem.MapInfo.MapType}";
                 }
+                
 
-                var textMeasure = Graphics.MeasureText(text, 15);
+               var textMeasure = Graphics.MeasureText(text, 15);
                 //Graphics.DrawBox(new RectangleF(0, 0, textMeasure.Width, textMeasure.Height), Color.Black);
                 //Graphics.DrawText(text, new Vector2(50, 50), Color.White);
 
