@@ -6,7 +6,8 @@ namespace Ninja_Price.Main
     {
         public class ReleventPriceData // store data that was got from checking the item against the poe.ninja data
         {
-            public double ChaosValue { get; set; }
+            public double MinChaosValue { get; set; }
+            public double MaxChaosValue { get; set; }
             public double ExaltedPrice { get; set; }
             public double ChangeInLast7Days { get; set; }
             public ItemTypes ItemType { get; set; }
