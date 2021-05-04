@@ -98,26 +98,6 @@ namespace Ninja_Price.Main
             return name;
         }
 
-        /// <summary>
-        ///     Draws a plugin image to screen.
-        /// </summary>
-        /// <param name="rec"></param>
-        /// <param name="fileName">The full path including file, fx. C:\\image\\Carl.png</param>
-        /// <returns></returns>
-        private bool DrawImage(string fileName, RectangleF rec)
-        {
-            try
-            {
-                //Graphics.DrawPluginImage(fileName, rec);
-            }
-            catch
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         public void GetHoveredItem()
         {
             try
@@ -197,7 +177,10 @@ namespace Ninja_Price.Main
                                         item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)normalCurrencySearch.ChaosEquivalent;
                                         item.PriceData.ChangeInLast7Days = (double)normalCurrencySearch.ReceiveSparkLine.TotalChange;
                                     }
-
+                                    if (item.BaseName.StartsWith("Ancient ")) // Issue from Poe.Ninja side, this is just a temp fix.
+                                    {
+                                        item.PriceData.ChaosValue = item.PriceData.ChaosValue * 3;
+                                    }
                                     break;
                                 case true:
                                     var shardParent = GetShardPartent(item.BaseName);
@@ -207,7 +190,10 @@ namespace Ninja_Price.Main
                                         item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)shardCurrencySearch.ChaosEquivalent / 20;
                                         item.PriceData.ChangeInLast7Days = (double)shardCurrencySearch.ReceiveSparkLine.TotalChange;
                                     }
-
+                                    if (item.BaseName.StartsWith("Ancient ")) // Issue from Poe.Ninja side, this is just a temp fix.
+                                    {
+                                        item.PriceData.ChaosValue = item.PriceData.ChaosValue * 3;
+                                    }
                                     break;
                             }
                             break;
