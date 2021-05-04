@@ -1,4 +1,4 @@
-﻿using Ninja_Price.Enums;
+using Ninja_Price.Enums;
 using SharpDX;
 using System;
 using System.Collections.Generic;
@@ -118,7 +118,7 @@ namespace Ninja_Price.Main
                         if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
                             continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
 
-                        StashTabValue += item.PriceData.ChaosValue;
+                        StashTabValue += item.PriceData.MinChaosValue;
                         ItemsToDrawList.Add(item);
                     }
 
@@ -130,7 +130,7 @@ namespace Ninja_Price.Main
                         if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
                             continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
 
-                        InventoryTabValue += item.PriceData.ChaosValue;
+                        InventoryTabValue += item.PriceData.MinChaosValue;
                         InventoryItemsToDrawList.Add(item);
                     }
                 }
@@ -161,7 +161,7 @@ namespace Ninja_Price.Main
                         if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
                             continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
 
-                        InventoryTabValue += item.PriceData.ChaosValue;
+                        InventoryTabValue += item.PriceData.MinChaosValue;
                         InventoryItemsToDrawList.Add(item);
                     }
                 }
@@ -218,29 +218,36 @@ namespace Ninja_Price.Main
                     case ItemTypes.DeliriumOrbs:
                     case ItemTypes.Vials:
                     case ItemTypes.DivinationCard:
-                        if (Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
+                        if (Hovereditem.PriceData.MinChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
                         {
-                            text += $"\n\rExalt: {Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice:0.##}ex";
+                            text += $"\n\rExalt: {Hovereditem.PriceData.MinChaosValue / Hovereditem.PriceData.ExaltedPrice:0.##}ex";
                             text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
                         }
-                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue / Hovereditem.CurrencyInfo.StackSize}c";
-                        text += $"\n\rTotal: {Hovereditem.PriceData.ChaosValue}c";
+                        text += $"\n\rChaos: {Hovereditem.PriceData.MinChaosValue / Hovereditem.CurrencyInfo.StackSize}c";
+                        text += $"\n\rTotal: {Hovereditem.PriceData.MinChaosValue}c";
                         break;
-                    case ItemTypes.Prophecy:
                     case ItemTypes.UniqueAccessory:
                     case ItemTypes.UniqueArmour:
                     case ItemTypes.UniqueFlask:
                     case ItemTypes.UniqueJewel:
                     case ItemTypes.UniqueMap:
                     case ItemTypes.UniqueWeapon:
-                    case ItemTypes.Map:
-                    case ItemTypes.Incubator:
-                        if (Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
+                        if (Hovereditem.PriceData.MinChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
                         {
-                            text += $"\n\rExalt: {Hovereditem.PriceData.ChaosValue / Hovereditem.PriceData.ExaltedPrice:0.##}ex";
+                            text += $"\n\rExalt: {Hovereditem.PriceData.MinChaosValue / Hovereditem.PriceData.ExaltedPrice:0.##}ex - {Hovereditem.PriceData.MaxChaosValue / Hovereditem.PriceData.ExaltedPrice:0.##}ex";
                             text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
                         }
-                        text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}c";
+                        text += $"\n\rChaos: {Hovereditem.PriceData.MinChaosValue}c - {Hovereditem.PriceData.MaxChaosValue}c";
+                        break;
+                    case ItemTypes.Prophecy:
+                    case ItemTypes.Map:
+                    case ItemTypes.Incubator:
+                        if (Hovereditem.PriceData.MinChaosValue / Hovereditem.PriceData.ExaltedPrice >= 0.1)
+                        {
+                            text += $"\n\rExalt: {Hovereditem.PriceData.MinChaosValue / Hovereditem.PriceData.ExaltedPrice:0.##}ex";
+                            text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
+                        }
+                        text += $"\n\rChaos: {Hovereditem.PriceData.MinChaosValue}c";
                         break;
                 }
                 if (Settings.Debug)
@@ -368,7 +375,7 @@ namespace Ninja_Price.Main
             var drawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.CurrencyTabBoxHeight);
             var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.CurrencyTabFontSize.Value / 2);
            
-            Graphics.DrawText(Math.Round((decimal) item.PriceData.ChaosValue, Settings.CurrenctTabSigDigits.Value).ToString(), position, Settings.CurrencyTabFontColor, FontAlign.Center);
+            Graphics.DrawText(Math.Round((decimal) item.PriceData.MinChaosValue, Settings.CurrenctTabSigDigits.Value).ToString(), position, Settings.CurrencyTabFontColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
             //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
         }
@@ -384,7 +391,7 @@ namespace Ninja_Price.Main
             var hoverUi = GameController.Game.IngameState.UIHoverTooltip.Tooltip;
             if (hoverUi != null && (item.Rarity != ItemRarity.Unique || hoverUi.GetClientRect().Intersects(item.Item.GetClientRect()) && hoverUi.IsVisibleLocal)) return;
 
-            var chaosValueSignificanDigits = Math.Round((decimal) item.PriceData.ChaosValue, Settings.HighlightSignificantDigits.Value);
+            var chaosValueSignificanDigits = Math.Round((decimal) item.PriceData.MinChaosValue, Settings.HighlightSignificantDigits.Value);
             if (chaosValueSignificanDigits >= Settings.InventoryValueCutOff.Value) return;
             var rec = item.Item.GetClientRect();
             var fontSize = Settings.HighlightFontSize.Value;
