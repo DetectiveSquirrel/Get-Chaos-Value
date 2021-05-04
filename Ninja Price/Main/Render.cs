@@ -25,6 +25,7 @@ namespace Ninja_Price.Main
         public Stopwatch ValueUpdateTimer = Stopwatch.StartNew();
         public double StashTabValue { get; set; }
         public double InventoryTabValue { get; set; }
+        public double ExaltedValue { get; set; } = 0;
         public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
         public List<CustomItem> FortmattedItemList { get; set; } = new List<CustomItem>();
 
@@ -76,6 +77,7 @@ namespace Ninja_Price.Main
                 {
                     if (ShouldUpdateValues())
                     {
+                        ExaltedValue = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
                         // Format stash items
                         ItemList = new List<NormalInventoryItem>();
                         switch (tabType)
@@ -321,8 +323,7 @@ namespace Ninja_Price.Main
                 if (!Settings.VisibleStashValue.Value || !StashPanel.IsVisible) return;
                 {
                     var pos = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
-                    var significantDigits =
-                        Math.Round((decimal)StashTabValue, Settings.StashValueSignificantDigits.Value);
+                    var significantDigits = Math.Round((decimal)StashTabValue, Settings.StashValueSignificantDigits.Value);
                     //Graphics.DrawText(
                     //    DrawImage($"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png",
                     //        new RectangleF(Settings.StashValueX.Value - Settings.StashValueFontSize.Value,
@@ -332,7 +333,7 @@ namespace Ninja_Price.Main
                     //        : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos,
                     //    Settings.UniTextColor);
 
-                    Graphics.DrawText($"{significantDigits} Chaos", pos, Settings.UniTextColor, FontAlign.Center);
+                    Graphics.DrawText($"{$"{significantDigits:#,###.################}"} Chaos\n\r{Math.Round((decimal)(StashTabValue / ExaltedValue), Settings.StashValueSignificantDigits.Value):#,###.################} Exalt", pos, Settings.UniTextColor, FontAlign.Left);
                 }
             }
             catch (Exception e)
@@ -357,7 +358,7 @@ namespace Ninja_Price.Main
                     var pos = new Vector2(Settings.InventoryValueX.Value, Settings.InventoryValueY.Value);
                     var significantDigits =
                         Math.Round((decimal)InventoryTabValue, Settings.InventoryValueSignificantDigits.Value);
-                    Graphics.DrawText($"{significantDigits} Chaos", pos, Settings.UniTextColor, FontAlign.Center);
+                    Graphics.DrawText($"{significantDigits:#,###.################} Chaos", pos, Settings.UniTextColor, FontAlign.Left);
                 }
             }
             catch (Exception e)
