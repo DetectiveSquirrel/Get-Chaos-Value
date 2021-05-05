@@ -177,10 +177,7 @@ namespace Ninja_Price.Main
                                         item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)normalCurrencySearch.ChaosEquivalent;
                                         item.PriceData.ChangeInLast7Days = (double)normalCurrencySearch.ReceiveSparkLine.TotalChange;
                                     }
-                                    if(item.BaseName.StartsWith("Ancient ")) // Issue from Poe.Ninja side, this is just a temp fix.
-                                    {
-                                        item.PriceData.MinChaosValue = item.PriceData.MinChaosValue * 3;
-                                    }
+
                                     break;
                                 case true:
                                     var shardParent = GetShardPartent(item.BaseName);
@@ -190,10 +187,7 @@ namespace Ninja_Price.Main
                                         item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)shardCurrencySearch.ChaosEquivalent / 20;
                                         item.PriceData.ChangeInLast7Days = (double)shardCurrencySearch.ReceiveSparkLine.TotalChange;
                                     }
-                                    if (item.BaseName.StartsWith("Ancient ")) // Issue from Poe.Ninja side, this is just a temp fix.
-                                    {
-                                        item.PriceData.MinChaosValue = item.PriceData.MinChaosValue * 3;
-                                    }
+
                                     break;
                             }
                             break;
