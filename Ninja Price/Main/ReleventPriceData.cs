@@ -14,7 +14,7 @@ namespace Ninja_Price.Main
 
             public override string ToString()
             {
-                return $"ChaosValue: {ChaosValue}, ChangeInLast7Days: {ChangeInLast7Days}, ItemType: {ItemType}";
+                return $"MinChaosValue: {MinChaosValue}, MaxChaosValue: {MaxChaosValue}, ChangeInLast7Days: {ChangeInLast7Days}, ItemType: {ItemType}";
             }
         }
     }
