@@ -285,16 +285,13 @@ namespace Ninja_Price.Main
                                 item.PriceData.MinChaosValue = (double)uniqueAccessorieSearch[0].ChaosValue;
                                 item.PriceData.ChangeInLast7Days = (double)uniqueAccessorieSearch[0].Sparkline.TotalChange;
                             }
-                            else if (uniqueAccessorieSearch.Count() > 1) // More than one version of the unique (not relic) (Example : Doryani's Invitation)
+                            else if (uniqueAccessorieSearch.Count() > 1)
                             {
-                                // It's a bit too much work for me to handle all cases separately, I'm just gonna show the lowest and highest price.
-                                LogMessage(uniqueAccessorieSearch.OrderBy(x => x.ChaosValue).First().ChaosValue.ToString());
-                                LogMessage(uniqueAccessorieSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue.ToString());
                                 item.PriceData.MinChaosValue = (double)uniqueAccessorieSearch.OrderBy(x => x.ChaosValue).First().ChaosValue;
                                 item.PriceData.MaxChaosValue = (double)uniqueAccessorieSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue;
                                 item.PriceData.ChangeInLast7Days = 0;
                             }
-                            else // Not handled by Poe.Ninja or error somewhere
+                            else
                             {
                                 item.PriceData.MinChaosValue = 0;
                                 item.PriceData.ChangeInLast7Days = 0;
@@ -316,14 +313,11 @@ namespace Ninja_Price.Main
                                     }
                                     else if (uniqueArmourSearchLinks04.Count() > 1)
                                     {
-                                        // It's a bit too much work for me to handle all cases separately, I'm just gonna show the lowest and highest price.
-                                        LogMessage(uniqueArmourSearchLinks04.OrderBy(x => x.ChaosValue).First().ChaosValue.ToString());
-                                        LogMessage(uniqueArmourSearchLinks04.OrderBy(x => x.ChaosValue).Last().ChaosValue.ToString());
                                         item.PriceData.MinChaosValue = (double)uniqueArmourSearchLinks04.OrderBy(x => x.ChaosValue).First().ChaosValue;
                                         item.PriceData.MaxChaosValue = (double)uniqueArmourSearchLinks04.OrderBy(x => x.ChaosValue).Last().ChaosValue;
                                         item.PriceData.ChangeInLast7Days = 0;
                                     }
-                                    else // Not handled by Poe.Ninja or error somewhere
+                                    else
                                     {
                                         item.PriceData.MinChaosValue = 0;
                                         item.PriceData.ChangeInLast7Days = 0;
@@ -339,14 +333,11 @@ namespace Ninja_Price.Main
                                     }
                                     else if (uniqueArmourSearchLinks05.Count() > 1)
                                     {
-                                        // It's a bit too much work for me to handle all cases separately, I'm just gonna show the lowest and highest price.
-                                        LogMessage(uniqueArmourSearchLinks05.OrderBy(x => x.ChaosValue).First().ChaosValue.ToString());
-                                        LogMessage(uniqueArmourSearchLinks05.OrderBy(x => x.ChaosValue).Last().ChaosValue.ToString());
                                         item.PriceData.MinChaosValue = (double)uniqueArmourSearchLinks05.OrderBy(x => x.ChaosValue).First().ChaosValue;
                                         item.PriceData.MaxChaosValue = (double)uniqueArmourSearchLinks05.OrderBy(x => x.ChaosValue).Last().ChaosValue;
                                         item.PriceData.ChangeInLast7Days = 0;
                                     }
-                                    else // Not handled by Poe.Ninja or error somewhere
+                                    else
                                     {
                                         item.PriceData.MinChaosValue = 0;
                                         item.PriceData.ChangeInLast7Days = 0;
@@ -362,14 +353,11 @@ namespace Ninja_Price.Main
                                     }
                                     else if (uniqueArmourSearchLinks06.Count() > 1)
                                     {
-                                        // It's a bit too much work for me to handle all cases separately, I'm just gonna show the lowest and highest price.
-                                        LogMessage(uniqueArmourSearchLinks06.OrderBy(x => x.ChaosValue).First().ChaosValue.ToString());
-                                        LogMessage(uniqueArmourSearchLinks06.OrderBy(x => x.ChaosValue).Last().ChaosValue.ToString());
                                         item.PriceData.MinChaosValue = (double)uniqueArmourSearchLinks06.OrderBy(x => x.ChaosValue).First().ChaosValue;
                                         item.PriceData.MaxChaosValue = (double)uniqueArmourSearchLinks06.OrderBy(x => x.ChaosValue).Last().ChaosValue;
                                         item.PriceData.ChangeInLast7Days = 0;
                                     }
-                                    else // Not handled by Poe.Ninja or error somewhere
+                                    else
                                     {
                                         item.PriceData.MinChaosValue = 0;
                                         item.PriceData.ChangeInLast7Days = 0;
@@ -386,16 +374,13 @@ namespace Ninja_Price.Main
                                 item.PriceData.MinChaosValue = (double)uniqueFlaskSearch[0].ChaosValue;
                                 item.PriceData.ChangeInLast7Days = (double)uniqueFlaskSearch[0].Sparkline.TotalChange;
                             }
-                            else if (uniqueFlaskSearch.Count() > 1) // More than one version of the unique (not relic) (Example : Vinktar)
+                            else if (uniqueFlaskSearch.Count() > 1)
                             {
-                                // It's a bit too much work for me to handle all cases separately, I'm just gonna show the lowest and highest price.
-                                LogMessage(uniqueFlaskSearch.OrderBy(x => x.ChaosValue).First().ChaosValue.ToString());
-                                LogMessage(uniqueFlaskSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue.ToString());
                                 item.PriceData.MinChaosValue = (double)uniqueFlaskSearch.OrderBy(x => x.ChaosValue).First().ChaosValue;
                                 item.PriceData.MaxChaosValue = (double)uniqueFlaskSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue;
                                 item.PriceData.ChangeInLast7Days = 0;
                             }
-                            else // Not handled by Poe.Ninja or error somewhere
+                            else
                             {
                                 item.PriceData.MinChaosValue = 0;
                                 item.PriceData.ChangeInLast7Days = 0;
@@ -409,16 +394,13 @@ namespace Ninja_Price.Main
                                 item.PriceData.MinChaosValue = (double)uniqueJewelSearch[0].ChaosValue;
                                 item.PriceData.ChangeInLast7Days = (double)uniqueJewelSearch[0].Sparkline.TotalChange;
                             }
-                            else if (uniqueJewelSearch.Count() > 1) // More than one version of the unique (not relic) (Example : Vinktar)
+                            else if (uniqueJewelSearch.Count() > 1)
                             {
-                                // It's a bit too much work for me to handle all cases separately, I'm just gonna show the lowest and highest price.
-                                LogMessage(uniqueJewelSearch.OrderBy(x => x.ChaosValue).First().ChaosValue.ToString());
-                                LogMessage(uniqueJewelSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue.ToString());
                                 item.PriceData.MinChaosValue = (double)uniqueJewelSearch.OrderBy(x => x.ChaosValue).First().ChaosValue;
                                 item.PriceData.MaxChaosValue = (double)uniqueJewelSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue;
                                 item.PriceData.ChangeInLast7Days = 0;
                             }
-                            else // Not handled by Poe.Ninja or error somewhere
+                            else
                             {
                                 item.PriceData.MinChaosValue = 0;
                                 item.PriceData.ChangeInLast7Days = 0;
@@ -432,16 +414,13 @@ namespace Ninja_Price.Main
                                 item.PriceData.MinChaosValue = (double)uniqueMapSearch[0].ChaosValue;
                                 item.PriceData.ChangeInLast7Days = (double)uniqueMapSearch[0].Sparkline.TotalChange;
                             }
-                            else if (uniqueMapSearch.Count() > 1) // More than one version of the unique (not relic) (Example : Vinktar)
+                            else if (uniqueMapSearch.Count() > 1)
                             {
-                                // It's a bit too much work for me to handle all cases separately, I'm just gonna show the lowest and highest price.
-                                LogMessage(uniqueMapSearch.OrderBy(x => x.ChaosValue).First().ChaosValue.ToString());
-                                LogMessage(uniqueMapSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue.ToString());
                                 item.PriceData.MinChaosValue = (double)uniqueMapSearch.OrderBy(x => x.ChaosValue).First().ChaosValue;
                                 item.PriceData.MaxChaosValue = (double)uniqueMapSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue;
                                 item.PriceData.ChangeInLast7Days = 0;
                             }
-                            else // Not handled by Poe.Ninja or error somewhere
+                            else
                             {
                                 item.PriceData.MinChaosValue = 0;
                                 item.PriceData.ChangeInLast7Days = 0;
@@ -474,29 +453,62 @@ namespace Ninja_Price.Main
                                 case 2:
                                 case 3:
                                 case 4:
-                                    var uniqueWeaponSearch04 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0 && !x.DetailsId.Contains("-relic"));
-                                    if (uniqueWeaponSearch04 != null)
+                                    var uniqueWeaponSearch04 = CollectedData.UniqueWeapons.Lines.FindAll(x => x.Name == item.UniqueName && x.Links <= 4 && x.Links >= 0 && !x.DetailsId.Contains("-relic"));
+                                    if (uniqueWeaponSearch04.Count() == 1)
                                     {
-                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch04.ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch04.Sparkline.TotalChange;
+                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch04[0].ChaosValue;
+                                        item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch04[0].Sparkline.TotalChange;
+                                    }
+                                    else if (uniqueWeaponSearch04.Count() > 1)
+                                    {
+                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch04.OrderBy(x => x.ChaosValue).First().ChaosValue;
+                                        item.PriceData.MaxChaosValue = (double)uniqueWeaponSearch04.OrderBy(x => x.ChaosValue).Last().ChaosValue;
+                                        item.PriceData.ChangeInLast7Days = 0;
+                                    }
+                                    else
+                                    {
+                                        item.PriceData.MinChaosValue = 0;
+                                        item.PriceData.ChangeInLast7Days = 0;
                                     }
 
                                     break;
                                 case 5:
                                     var uniqueWeaponSearch5 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5 && !x.DetailsId.Contains("-relic"));
-                                    if (uniqueWeaponSearch5 != null)
+                                    if (uniqueWeaponSearch5.Count() == 1)
                                     {
-                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch5.ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch5.Sparkline.TotalChange;
+                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch5[0].ChaosValue;
+                                        item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch5[0].Sparkline.TotalChange;
+                                    }
+                                    else if (uniqueWeaponSearch5.Count() > 1)
+                                    {
+                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch5.OrderBy(x => x.ChaosValue).First().ChaosValue;
+                                        item.PriceData.MaxChaosValue = (double)uniqueWeaponSearch5.OrderBy(x => x.ChaosValue).Last().ChaosValue;
+                                        item.PriceData.ChangeInLast7Days = 0;
+                                    }
+                                    else
+                                    {
+                                        item.PriceData.MinChaosValue = 0;
+                                        item.PriceData.ChangeInLast7Days = 0;
                                     }
 
                                     break;
                                 case 6:
                                     var uniqueWeaponSearch6 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6 && !x.DetailsId.Contains("-relic"));
-                                    if (uniqueWeaponSearch6 != null)
+                                    if (uniqueWeaponSearch6.Count() == 1)
                                     {
-                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch6.ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch6.Sparkline.TotalChange;
+                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch6[0].ChaosValue;
+                                        item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch6[0].Sparkline.TotalChange;
+                                    }
+                                    else if (uniqueWeaponSearch6.Count() > 1)
+                                    {
+                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch6.OrderBy(x => x.ChaosValue).First().ChaosValue;
+                                        item.PriceData.MaxChaosValue = (double)uniqueWeaponSearch6.OrderBy(x => x.ChaosValue).Last().ChaosValue;
+                                        item.PriceData.ChangeInLast7Days = 0;
+                                    }
+                                    else
+                                    {
+                                        item.PriceData.MinChaosValue = 0;
+                                        item.PriceData.ChangeInLast7Days = 0;
                                     }
 
                                     break;
