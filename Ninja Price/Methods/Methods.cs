@@ -473,7 +473,7 @@ namespace Ninja_Price.Main
 
                                     break;
                                 case 5:
-                                    var uniqueWeaponSearch5 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5 && !x.DetailsId.Contains("-relic"));
+                                    var uniqueWeaponSearch5 = CollectedData.UniqueWeapons.Lines.FindAll(x => x.Name == item.UniqueName && x.Links == 5 && !x.DetailsId.Contains("-relic"));
                                     if (uniqueWeaponSearch5.Count() == 1)
                                     {
                                         item.PriceData.MinChaosValue = (double)uniqueWeaponSearch5[0].ChaosValue;
@@ -493,7 +493,7 @@ namespace Ninja_Price.Main
 
                                     break;
                                 case 6:
-                                    var uniqueWeaponSearch6 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6 && !x.DetailsId.Contains("-relic"));
+                                    var uniqueWeaponSearch6 = CollectedData.UniqueWeapons.Lines.FindAll(x => x.Name == item.UniqueName && x.Links == 6 && !x.DetailsId.Contains("-relic"));
                                     if (uniqueWeaponSearch6.Count() == 1)
                                     {
                                         item.PriceData.MinChaosValue = (double)uniqueWeaponSearch6[0].ChaosValue;
