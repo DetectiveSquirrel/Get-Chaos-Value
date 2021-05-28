@@ -240,6 +240,10 @@ namespace Ninja_Price.Main
                 {
                     ItemType = ItemTypes.HarvestSeeds;
                 }
+                else if (BaseName.StartsWith("Maven's Invitation: "))
+                {
+                    ItemType = ItemTypes.MavenInvitation;
+                }
                 else
                     switch (Rarity) // Unique information
                     {
