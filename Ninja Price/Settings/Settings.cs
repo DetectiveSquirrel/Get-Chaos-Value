@@ -33,6 +33,7 @@ namespace Ninja_Price.Settings
             InventoryValueSignificantDigits = new RangeNode<int>(5, 0, 10);
 
             HighlightUniqueJunk = new ToggleNode(true);
+            HelmetEnchantPrices = new ToggleNode(true);
             HighlightColor = new ColorNode(Color.AliceBlue);
             HighlightFontSize = new RangeNode<int>(20, 0, 200);
             HighlightSignificantDigits = new RangeNode<int>(5, 0, 10);
@@ -47,6 +48,9 @@ namespace Ninja_Price.Settings
 
         [Menu("League", 1)]
         public ListNode LeagueList { get; set; }
+
+        [Menu("Map Variant Check ?", "Toggle Map Variant Checking", 1)]
+        public ToggleNode MapVariant { get; set; } = new ToggleNode(true);
 
         [Menu("Reload", 2)]
         public ButtonNode ReloadButton { get; set; }
@@ -114,6 +118,9 @@ namespace Ninja_Price.Settings
 
         [Menu("Highlight Unique Junk", "Highlight unique items under X value (useful for quick-selling to vendor).", 5)]
         public ToggleNode HighlightUniqueJunk { get; set; }
+
+        [Menu("Helmet Enchant Prices", "Display helmet enchant prices while in the laboratory.).", 6)]
+        public ToggleNode HelmetEnchantPrices { get; set; }
 
         [Menu("Size", "Size of the font used to draw the chaos value of the visible inventory.", 53, 5)]
         public RangeNode<int> HighlightFontSize { get; set; }
