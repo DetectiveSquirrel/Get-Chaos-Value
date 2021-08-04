@@ -76,9 +76,11 @@ namespace Ninja_Price.Settings
         [Menu("Debug", "Display debug strings", 6)]
         public ToggleNode Debug { get; set; }
 
-
         [Menu("Prophecy Prices", "This shows your proph prices whilst you have your stash tab open", 567765)]
         public ToggleNode ProphecyPrices { get; set; } = new ToggleNode(true);
+
+        [Menu("Hovered Item", "This shows your prices oon items you hover over.", 567766)]
+        public ToggleNode HoveredItem { get; set; } = new ToggleNode(true);
 
         [Menu("Override Background Color from the default theme color", 123345, 567765)]
         public ToggleNode ProphecyOverrideColors { get; set; } = new ToggleNode(true);
