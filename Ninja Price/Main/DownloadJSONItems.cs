@@ -30,6 +30,7 @@ namespace Ninja_Price.Main
         private const string DeliriumOrb_URL = "https://poe.ninja/api/data/itemoverview?type=DeliriumOrb&league=";
         private const string Seed_URL = "https://poe.ninja/api/data/itemoverview?type=Seed&league=";
         private const string Invitation_URL = "https://poe.ninja/api/data/ItemOverview?type=Invitation&league=";
+        private const string HelmetEnchants_URL = "https://poe.ninja/api/data/ItemOverview?type=HelmetEnchant&league=";
 
         private void GetJsonData(string league)
         {
@@ -63,9 +64,8 @@ namespace Ninja_Price.Main
                     Api.Json.SaveSettingFile(NinjaDirectory + "Scarabs.json", JsonConvert.DeserializeObject<Scarab.RootObject>(Api.DownloadFromUrl(Scarabs_URL + league)));
                     Api.Json.SaveSettingFile(NinjaDirectory + "DeliriumOrbs.json", JsonConvert.DeserializeObject<DeliriumOrb.RootObject>(Api.DownloadFromUrl(DeliriumOrb_URL + league)));
                     Api.Json.SaveSettingFile(NinjaDirectory + "Invitations.json", JsonConvert.DeserializeObject<Invitations.RootObject>(Api.DownloadFromUrl(Invitation_URL + league)));
+                    Api.Json.SaveSettingFile(NinjaDirectory + "HelmetEnchants.json", JsonConvert.DeserializeObject<HelmetEnchants.RootObject>(Api.DownloadFromUrl(HelmetEnchants_URL + league)));
 
-                    // Not core, throw it at the bottom...
-                    Api.Json.SaveSettingFile(NinjaDirectory + "Seeds.json", JsonConvert.DeserializeObject<Seeds.RootObject>(Api.DownloadFromUrl(Seed_URL + league)));
                     LogMessage("Finished Gathering Data from Poe.Ninja.", 5);
                     UpdatingFromAPI = false;
                     UpdatePoeNinjaData();
@@ -222,18 +222,18 @@ namespace Ninja_Price.Main
                         newData.DeliriumOrb = JsonConvert.DeserializeObject<DeliriumOrb.RootObject>(json);
                     }
 
-                if (JsonExists("Seeds.json"))
-                    using (var r = new StreamReader(NinjaDirectory + "Seeds.json"))
-                    {
-                        var json = r.ReadToEnd();
-                        newData.Seeds = JsonConvert.DeserializeObject<Seeds.RootObject>(json);
-                    }
-
                 if (JsonExists("Invitations.json"))
                     using (var r = new StreamReader(NinjaDirectory + "Invitations.json"))
                     {
                         var json = r.ReadToEnd();
                         newData.Invitations = JsonConvert.DeserializeObject<Invitations.RootObject>(json);
+                    }
+
+                if (JsonExists("HelmetEnchants.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "HelmetEnchants.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.HelmetEnchants = JsonConvert.DeserializeObject<HelmetEnchants.RootObject>(json);
                     }
 
                 CollectedData = newData;

@@ -363,15 +363,6 @@ namespace Ninja_Price.Main
                         }
 
                         break;
-                    case ItemTypes.HarvestSeeds:
-                        var seedLevel = 76; // TODO Diffrentiate between ilvl 1+ and 76+ seeds.
-                        var seedSearch = CollectedData.Seeds.Lines.Find(x => x.Name == item.BaseName && x.LevelRequired == seedLevel);
-                        if (seedSearch != null)
-                        {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)seedSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)seedSearch.Sparkline.TotalChange;
-                        }
-                        break;
                     case ItemTypes.Fossil:
                         var fossilSearch = CollectedData.Fossils.Lines.Find(x => x.Name == item.BaseName);
                         if (fossilSearch != null)
@@ -554,6 +545,25 @@ namespace Ninja_Price.Main
             if (item == null) return NotFound;
             var value = item.ChaosValue;
             return value;
+        }
+        
+        private CustomItem GetHelmetEnchantValue(string EnchantName)
+        {
+            if (string.IsNullOrWhiteSpace(EnchantName))
+                return null;
+
+            var enchantSearch = CollectedData.HelmetEnchants.lines.Find(x => x.name.ToLower().Contains(EnchantName.ToLower()));
+            return enchantSearch == null
+                ? null
+                : new CustomItem
+                {
+                    PriceData = new ReleventPriceData
+                    {
+                        ChaosValue = enchantSearch.chaosValue, ExaltedPrice = enchantSearch.exaltedValue,
+                        ItemType = ItemTypes.None, ChangeInLast7Days = enchantSearch.sparkline.totalChange
+                    },
+                    BaseName = enchantSearch.name
+                };
         }
 
         private Vector4 ToImVector4(SharpDX.Vector4 vector)
