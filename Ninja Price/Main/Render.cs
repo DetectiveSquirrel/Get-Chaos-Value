@@ -204,7 +204,7 @@ namespace Ninja_Price.Main
         public void DrawGraphics()
         {
             // Hovered Item
-            if (Hovereditem != null && Hovereditem.ItemType != ItemTypes.None)
+            if (Hovereditem != null && Hovereditem.ItemType != ItemTypes.None && Settings.HoveredItem.Value)
             {
                 var text = $"Change in last 7 Days: {Hovereditem.PriceData.ChangeInLast7Days}%%";
                 var changeTextLength = text.Length-1;
