@@ -236,10 +236,6 @@ namespace Ninja_Price.Main
                 {
                     ItemType = ItemTypes.DeliriumOrbs;
                 }
-                else if (ClassName == "HarvestSeed")
-                {
-                    ItemType = ItemTypes.HarvestSeeds;
-                }
                 else if (BaseName.StartsWith("Maven's Invitation: "))
                 {
                     ItemType = ItemTypes.MavenInvitation;

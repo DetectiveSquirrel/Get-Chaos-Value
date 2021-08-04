@@ -22,7 +22,6 @@
         Oil,
         Catalyst,
         DeliriumOrbs,
-        HarvestSeeds,
         MavenInvitation
     }
 }
