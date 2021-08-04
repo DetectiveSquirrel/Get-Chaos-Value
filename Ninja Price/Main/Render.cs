@@ -274,6 +274,9 @@ namespace Ninja_Price.Main
             // Inventory Value
             VisibleInventoryValue();
 
+            if (Settings.HelmetEnchantPrices)
+                ShowHelmetEnchantPrices();
+
             if (!StashPanel.IsVisible)
                 return;
 
@@ -411,6 +414,43 @@ namespace Ninja_Price.Main
                     Settings.HighlightFontSize.Value, Settings.HighlightFontSize.Value)
             );
             //Graphics.DrawFrame(item.Item.GetClientRect(), 2, Settings.HighlightColor.Value);
+        }
+
+
+        private void ShowHelmetEnchantPrices()
+        {
+            ExileCore.PoEMemory.Element GetElementByString(ExileCore.PoEMemory.Element element, string str)
+            {
+                if (string.IsNullOrWhiteSpace(str))
+                    return null;
+
+                if (element.Text != null && element.Text.Contains(str))
+                    return element;
+
+                return element.Children.Select(c => GetElementByString(c, str)).FirstOrDefault(e => e != null);
+            }
+            
+            var igui = GameController.Game.IngameState.IngameUi;
+            if (!igui.LabyrinthDivineFontPanel.IsVisible) return;
+            var triggerEnchantment = GetElementByString(igui.LabyrinthDivineFontPanel, "lvl ");
+            var enchantmentContainer = triggerEnchantment?.Parent?.Parent;
+            if(enchantmentContainer == null) return;
+            var enchants = enchantmentContainer.Children.Select(c => new {Name = c.Children[1].Text, ContainerElement = c}).AsEnumerable();
+            if (!enchants.Any()) return;
+            foreach (var enchant in enchants)
+            {
+                var data = GetHelmetEnchantValue("Blade Vortex");
+                if (data == null) continue;
+                var box = enchant.ContainerElement.GetClientRect();
+                var drawBox = new RectangleF(box.X + box.Width, box.Y - 2, 65, box.Height);
+                var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - 7);
+
+                var textColor = data.PriceData.ExaltedPrice >= 1 ? Color.Black : Color.White;
+                var bgColor = data.PriceData.ExaltedPrice >= 1 ? Color.Goldenrod : Color.Black;
+                Graphics.DrawText(Math.Round((decimal) data.PriceData.ChaosValue, 2).ToString() + "c", position, textColor, FontAlign.Center);
+                Graphics.DrawBox(drawBox, bgColor);
+                Graphics.DrawFrame(drawBox, Color.Black, 1);
+            }
         }
 
         //private void PropheccyDisplay()

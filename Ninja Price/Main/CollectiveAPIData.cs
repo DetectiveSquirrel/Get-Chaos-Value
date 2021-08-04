@@ -8,6 +8,7 @@ namespace Ninja_Price.Main
         public DivinationCards.RootObject DivinationCards { get; set; } = new DivinationCards.RootObject();
         public Essences.RootObject Essences { get; set; } = new Essences.RootObject();
         public Fragments.RootObject Fragments { get; set; } = new Fragments.RootObject();
+        
         public HelmetEnchants.RootObject HelmetEnchants { get; set; } = new HelmetEnchants.RootObject();
         public Prophecies.RootObject Prophecies { get; set; } = new Prophecies.RootObject();
         public UniqueAccessories.RootObject UniqueAccessories { get; set; } = new UniqueAccessories.RootObject();
@@ -23,7 +24,6 @@ namespace Ninja_Price.Main
         public Oils.RootObject Oils { get; set; } = new Oils.RootObject();
         public Incubators.RootObject Incubators { get; set; } = new Incubators.RootObject();
         public DeliriumOrb.RootObject DeliriumOrb { get; set; } = new DeliriumOrb.RootObject();
-        public Seeds.RootObject Seeds { get; set; } = new Seeds.RootObject();
         public Invitations.RootObject Invitations { get; set; } = new Invitations.RootObject();
     }
 }
