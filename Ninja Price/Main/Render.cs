@@ -201,7 +201,7 @@ namespace Ninja_Price.Main
         public void DrawGraphics()
         {
             // Hovered Item
-            if (Hovereditem != null && Hovereditem.ItemType != ItemTypes.None)
+            if (Hovereditem != null && Hovereditem.ItemType != ItemTypes.None && Settings.HoveredItem.Value)
             {
                 var text = $"Change in last 7 Days: {Hovereditem.PriceData.ChangeInLast7Days}%%";
                 var changeTextLength = text.Length-1;
@@ -433,7 +433,7 @@ namespace Ninja_Price.Main
             if (!enchants.Any()) return;
             foreach (var enchant in enchants)
             {
-                var data = GetHelmetEnchantValue("Blade Vortex");
+                var data = GetHelmetEnchantValue(enchant.Name);
                 if (data == null) continue;
                 var box = enchant.ContainerElement.GetClientRect();
                 var drawBox = new RectangleF(box.X + box.Width, box.Y - 2, 65, box.Height);

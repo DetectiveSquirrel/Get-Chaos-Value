@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ExileCore.Shared.Attributes;
 using ExileCore.Shared.Interfaces;
 using ExileCore.Shared.Nodes;
@@ -66,6 +66,9 @@ namespace Ninja_Price.Settings
 
         [Menu("Debug", "Display debug strings", 6)]
         public ToggleNode Debug { get; set; }
+
+        [Menu("Hovered Item", "This shows your prices oon items you hover over.", 567766)]
+        public ToggleNode HoveredItem { get; set; } = new ToggleNode(true);
 
         #region Visible Stash Value
 
