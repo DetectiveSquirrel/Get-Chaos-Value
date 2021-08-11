@@ -287,7 +287,8 @@ namespace Ninja_Price.Main
             {
                 if (customItem.ItemType == ItemTypes.None) continue;
 
-                if (Settings.CurrencyTabSpecifcToggle)
+                if (Settings.CurrencyTabSpecifcToggle &&
+                    (!Settings.DoNotDrawCurrencyTabSpecifcWhileItemHovered || GameController.Game.IngameState.UIHover.Address == 0))
                 {
                     switch (tabType)
                     {
