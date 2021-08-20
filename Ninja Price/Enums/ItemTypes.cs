@@ -22,6 +22,7 @@
         Oil,
         Catalyst,
         DeliriumOrbs,
-        MavenInvitation
+        MavenInvitation,
+        Artifact
     }
 }
