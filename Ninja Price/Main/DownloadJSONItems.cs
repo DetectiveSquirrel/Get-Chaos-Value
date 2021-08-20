@@ -31,6 +31,7 @@ namespace Ninja_Price.Main
         private const string Seed_URL = "https://poe.ninja/api/data/itemoverview?type=Seed&league=";
         private const string Invitation_URL = "https://poe.ninja/api/data/ItemOverview?type=Invitation&league=";
         private const string HelmetEnchants_URL = "https://poe.ninja/api/data/ItemOverview?type=HelmetEnchant&league=";
+        private const string Artifacts_URL = "https://poe.ninja/api/data/ItemOverview?type=Artifact&league=";
 
         private void GetJsonData(string league)
         {
@@ -65,6 +66,7 @@ namespace Ninja_Price.Main
                     Api.Json.SaveSettingFile(NinjaDirectory + "DeliriumOrbs.json", JsonConvert.DeserializeObject<DeliriumOrb.RootObject>(Api.DownloadFromUrl(DeliriumOrb_URL + league)));
                     Api.Json.SaveSettingFile(NinjaDirectory + "Invitations.json", JsonConvert.DeserializeObject<Invitations.RootObject>(Api.DownloadFromUrl(Invitation_URL + league)));
                     Api.Json.SaveSettingFile(NinjaDirectory + "HelmetEnchants.json", JsonConvert.DeserializeObject<HelmetEnchants.RootObject>(Api.DownloadFromUrl(HelmetEnchants_URL + league)));
+                    Api.Json.SaveSettingFile(NinjaDirectory + "Artifacts.json", JsonConvert.DeserializeObject<Artifacts.RootObject>(Api.DownloadFromUrl(Artifacts_URL + league)));
 
                     LogMessage("Finished Gathering Data from Poe.Ninja.", 5);
                     UpdatingFromAPI = false;
@@ -234,6 +236,13 @@ namespace Ninja_Price.Main
                     {
                         var json = r.ReadToEnd();
                         newData.HelmetEnchants = JsonConvert.DeserializeObject<HelmetEnchants.RootObject>(json);
+                    }
+
+                if (JsonExists("Artifacts.json"))
+                    using (var r = new StreamReader(NinjaDirectory + "Artifacts.json"))
+                    {
+                        var json = r.ReadToEnd();
+                        newData.Artifacts = JsonConvert.DeserializeObject<Artifacts.RootObject>(json);
                     }
 
                 CollectedData = newData;
