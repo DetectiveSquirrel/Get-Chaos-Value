@@ -249,16 +249,29 @@ namespace Ninja_Price.Main
                         text += $"\n\rChaos: {Hovereditem.PriceData.ChaosValue}c";
                         break;
                 }
+                
                 if (Settings.Debug)
                 {
                     text += $"\n\rUniqueName: {Hovereditem.UniqueName}";
                     text += $"\n\rBaseName: {Hovereditem.BaseName}";
                     text += $"\n\rItemType: {Hovereditem.ItemType}";
                     text += $"\n\rMapType: {Hovereditem.MapInfo.MapType}";
-                }
+                } 
                 
+                if (Settings.ArtifactChaosPrices)
+                {
+                    var artifactChaosPrice = TryGetArtifactToChaosPrice(Hovereditem);
+                    if (artifactChaosPrice > 0)
+                    {
+                        var exaltString = ExaltedValue > 0 && artifactChaosPrice >= (0.5 * ExaltedValue)
+                            ? $" ({artifactChaosPrice / ExaltedValue:F2} ex)"
+                            : string.Empty;
+                        text += $"\n\rArtifact price: {artifactChaosPrice:F1}c{exaltString}";
+                    }
+                }
 
-               var textMeasure = Graphics.MeasureText(text, 15);
+
+                var textMeasure = Graphics.MeasureText(text, 15);
                 //Graphics.DrawBox(new RectangleF(0, 0, textMeasure.Width, textMeasure.Height), Color.Black);
                 //Graphics.DrawText(text, new Vector2(50, 50), Color.White);
 
@@ -447,6 +460,46 @@ namespace Ninja_Price.Main
                 Graphics.DrawBox(drawBox, bgColor);
                 Graphics.DrawFrame(drawBox, Color.Black, 1);
             }
+        }
+
+        private double TryGetArtifactToChaosPrice(CustomItem item)
+        {
+            if (item == null || item.Item == null)
+                return -1;
+
+            ExileCore.PoEMemory.Element GetElementByString(ExileCore.PoEMemory.Element element, string str)
+            {
+                if (element == null || string.IsNullOrWhiteSpace(str))
+                    return null;
+
+                if (element.Text != null && element.Text.Contains(str))
+                    return element;
+
+                return element.Children.Select(c => GetElementByString(c, str)).FirstOrDefault(e => e != null);
+            }
+
+            var costElement = GetElementByString(item.Item?.AsObject<HoverItemIcon>()?.Tooltip, "Cost");
+            if (costElement == null || costElement.Parent == null || costElement.Parent.ChildCount < 2 ||
+                costElement.Parent.Children[1].ChildCount < 3)
+                return -1;
+            var amountText = costElement.Parent.Children[1].Children[0].Text;
+            var artifactName = costElement.Parent.Children[1].Children[2].Text;
+            if (string.IsNullOrWhiteSpace(amountText) || string.IsNullOrWhiteSpace(artifactName))
+                return -1;
+            var artifactSearch = CollectedData.Artifacts.Lines.Find(x => x.Name == artifactName);
+            if (artifactSearch == null)
+                return -1;
+            if (costElement.Text.Equals("Cost:")) // Tujen haggling
+            {
+                var amount = int.Parse(amountText.Substring(0, amountText.Length - 1));
+                return artifactSearch.ChaosValue.Value * amount;
+            }
+            if (costElement.Text.Equals("Cost Per Unit:")) // Artifact stacks (Dannig)
+            {
+                var costPerUnit = double.Parse(amountText);
+                return item.CurrencyInfo.StackSize * costPerUnit * artifactSearch.ChaosValue.Value;
+            }
+            return -1;
         }
 
         //private void PropheccyDisplay()
