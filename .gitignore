@@ -262,3 +262,4 @@ __pycache__/
 
 # KDiff
 *.orig
+sync.ffs_db
