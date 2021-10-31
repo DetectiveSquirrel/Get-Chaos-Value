@@ -36,7 +36,7 @@ namespace Ninja_Price.Main
 
         public CustomItem Hovereditem { get; set; }
 
-        // TODO: Get hovered items && items from inventory - Getting hovered itemw ill become useful later on
+        // TODO: Get hovered items && items from inventory - Getting hovered item  will become useful later on
 
         public override void Render()
         {
@@ -91,6 +91,10 @@ namespace Ninja_Price.Main
                             default:
                                 ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
                                 break;
+                        }
+                        if (ItemList.Count == 0)
+                        {
+                            ItemList = (List<NormalInventoryItem>)GameController.Game.IngameState.IngameUi.RitualWindow.Items;
                         }
                         FortmattedItemList = new List<CustomItem>();
                         FortmattedItemList = FormatItems(ItemList);
