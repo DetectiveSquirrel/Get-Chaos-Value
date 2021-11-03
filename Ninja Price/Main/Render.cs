@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
@@ -13,6 +15,7 @@ using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
 using ExileCore.RenderQ;
 using ImGuiNET;
+using static Ninja_Price.Enums.HaggleTypes.HaggleType;
 
 namespace Ninja_Price.Main
 {
@@ -26,6 +29,8 @@ namespace Ninja_Price.Main
         public double StashTabValue { get; set; }
         public double InventoryTabValue { get; set; }
         public double ExaltedValue { get; set; } = 0;
+        public List<NormalInventoryItem> HaggleItemList { get; set; } = new List<NormalInventoryItem>();
+        public List<CustomItem> FortmattedHaggleItemList { get; set; } = new List<CustomItem>();
         public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
         public List<CustomItem> FortmattedItemList { get; set; } = new List<CustomItem>();
 
@@ -36,6 +41,7 @@ namespace Ninja_Price.Main
         public List<CustomItem> InventoryItemsToDrawList { get; set; } = new List<CustomItem>();
         public StashElement StashPanel { get; set; }
         public InventoryElement InventoryPanel { get; set; }
+        public Element HagglePanel { get; set; }
 
         public CustomItem Hovereditem { get; set; }
 
@@ -52,6 +58,7 @@ namespace Ninja_Price.Main
 
             StashPanel = GameController.Game.IngameState.IngameUi.StashElement;
             InventoryPanel = GameController.Game.IngameState.IngameUi.InventoryPanel;
+            HagglePanel = GameController.Game.IngameState.IngameUi.HaggleWindow;
 
             #endregion
 
@@ -171,7 +178,63 @@ namespace Ninja_Price.Main
                     }
                 }
 
-                // TODO: Graphical part from gathered data
+                if (HagglePanel.IsVisible)
+                {
+
+                    var haggleType = None;
+
+                    // Return Haggle Window Type
+                    var haggleText = HagglePanel.GetChildAtIndex(6).GetChildAtIndex(2).GetChildAtIndex(0).Text;
+
+                    switch (haggleText)
+                    {
+                        case "Exchange":
+                            haggleType = Exchange;
+                            break;
+                        case "Gamble":
+                            haggleType = Gamble;
+                            break;
+                        case "Deal":
+                            haggleType = Deal;
+                            break;
+                        case "Haggle":
+                            haggleType = Haggle;
+                            break;
+                    }
+
+                    if (haggleType == Gamble)
+                    {
+                        HaggleItemList = new List<NormalInventoryItem>();
+                        var itemChild = HagglePanel.GetChildAtIndex(8).GetChildAtIndex(1).GetChildAtIndex(0).GetChildAtIndex(0);
+
+                        for (var i = 1; i < itemChild.ChildCount; ++i)
+                        {
+                            var item = itemChild.Children[i].AsObject<NormalInventoryItem>();
+                            HaggleItemList.Add(item);
+
+                            if (Settings.Debug)
+                            {
+                                LogMessage(
+                                    $"Haggle Item[{HaggleItemList.Count}]: {GameController.Files.BaseItemTypes.Translate(item.Item.Path).BaseName}");
+                            }
+                        }
+
+                        // Format Haggle Items
+                        FortmattedHaggleItemList = new List<CustomItem>();
+                        FortmattedHaggleItemList = FormatItems(HaggleItemList);
+
+                        foreach (var item in FortmattedHaggleItemList)
+                            GetValueHaggle(item);
+                    }
+                    else
+                    {
+                        HaggleItemList = new List<NormalInventoryItem>();
+                        FortmattedHaggleItemList = new List<CustomItem>();
+                    }
+                }
+
+                // Expedition Gamble Func
+                ExpeditionGamble();
 
                 GetHoveredItem(); // Get information for the hovered item
                 DrawGraphics();
@@ -395,6 +458,49 @@ namespace Ninja_Price.Main
             Graphics.DrawText(Math.Round((decimal) item.PriceData.ChaosValue, Settings.CurrenctTabSigDigits.Value).ToString(), position, Settings.CurrencyTabFontColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
             //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
+        }
+
+        private void PriceBoxOverItemHaggle(CustomItem item)
+        {
+            var box = item.Item.GetClientRect();
+            var drawBox = new RectangleF(box.X, box.Y + 2, box.Width, +Settings.CurrencyTabBoxHeight);
+            var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.CurrencyTabFontSize.Value / 2);
+
+            if (item.PriceData.ItemBasePrices.Count == 0)
+                return;
+
+            // Sort base unique price from High -> Low
+            item.PriceData.ItemBasePrices.Sort((a, b) => b.CompareTo(a));
+
+            if (Settings.Debug)
+                Graphics.DrawText(string.Join(",", item.PriceData.ItemBasePrices), position, Settings.CurrencyTabFontColor, FontAlign.Center);
+
+
+            Graphics.DrawText(Math.Round((decimal)item.PriceData.ItemBasePrices.FirstOrDefault(), Settings.CurrenctTabSigDigits.Value).ToString(CultureInfo.InvariantCulture), position, Settings.CurrencyTabFontColor, FontAlign.Center);
+            Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
+            //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
+        }
+
+        private void ExpeditionGamble()
+        {
+            var window = HagglePanel;
+            if (!window.IsVisible) return;
+            foreach (var customItem in FortmattedHaggleItemList)
+            {
+                try
+                {
+                    PriceBoxOverItemHaggle(customItem);
+                }
+                catch (Exception e)
+                {
+                    // ignored
+                    if (Settings.Debug)
+                    {
+                        LogMessage("Error in: ExpeditionGamble, restart PoEHUD.", 5, Color.Red);
+                        LogMessage(e.ToString(), 5, Color.Orange);
+                    }
+                }
+            }
         }
 
         /// <summary>

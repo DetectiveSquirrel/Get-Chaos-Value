@@ -472,6 +472,69 @@ namespace Ninja_Price.Main
             }
         }
 
+        public void GetValueHaggle(CustomItem item)
+        {
+            try
+            {
+                item.PriceData.ExaltedPrice = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
+                switch (item.ItemTypeGamble) // easier to get data for each item type and handle logic based on that
+                {
+                    case ItemTypes.UniqueArmour:
+                        var uniqueArmourSearch = CollectedData.UniqueArmours.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));
+                        if (uniqueArmourSearch.Count > 0)
+                        {
+
+                            foreach (var result in uniqueArmourSearch)
+                            {
+                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                            }
+                        }
+                        break;
+                    case ItemTypes.UniqueWeapon:
+                        var uniqueWeaponSearch = CollectedData.UniqueWeapons.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));
+                        if (uniqueWeaponSearch.Count > 0)
+                        {
+
+                            foreach (var result in uniqueWeaponSearch)
+                            {
+                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                            }
+                        }
+                        break;
+                    case ItemTypes.UniqueAccessory:
+                        var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica "));
+                        if (uniqueAccessorySearch.Count > 0)
+                        {
+
+                            foreach (var result in uniqueAccessorySearch)
+                            {
+                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                            }
+                        }
+                        break;
+                    case ItemTypes.UniqueJewel:
+                        var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x => x.DetailsId.Contains(item.BaseName.ToLower().Replace(" ", "-")) && !x.Name.StartsWith("Replica "));
+                        if (uniqueJewelSearch.Count > 0)
+                        {
+
+                            foreach (var result in uniqueJewelSearch)
+                            {
+                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                            }
+                        }
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                if (Settings.Debug)
+                {
+                    LogMessage($"{GetCurrentMethod()}.GetValueHaggle() Error that i dont understand, Item: {item.BaseName}", 5, Color.Red);
+                    LogMessage($"{GetCurrentMethod()}.GetValueHaggle() {e.Message}", 5, Color.Red);
+                }
+            }
+        }
+
         public bool ShouldUpdateValues()
         {
             if (ValueUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)

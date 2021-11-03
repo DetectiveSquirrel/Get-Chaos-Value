@@ -1,4 +1,5 @@
-﻿using Ninja_Price.Enums;
+﻿using System.Collections.Generic;
+using Ninja_Price.Enums;
 
 namespace Ninja_Price.Main
 {
@@ -10,6 +11,7 @@ namespace Ninja_Price.Main
             public double ExaltedPrice { get; set; }
             public double ChangeInLast7Days { get; set; }
             public ItemTypes ItemType { get; set; }
+            public List<double> ItemBasePrices { get; set; } = new List<double>();
 
             public override string ToString()
             {

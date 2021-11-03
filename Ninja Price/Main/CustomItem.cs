@@ -33,6 +33,7 @@ namespace Ninja_Price.Main
         public string UniqueName;
         public int Width;
         public ItemTypes ItemType;
+        public ItemTypes ItemTypeGamble;
         public MapData MapInfo { get; set; } =  new MapData();
         public CurrencyData CurrencyInfo { get; set; } =  new CurrencyData();
         public Main.ReleventPriceData PriceData { get; set; } = new Main.ReleventPriceData();
@@ -267,6 +268,18 @@ namespace Ninja_Price.Main
                             break;
                         case ItemRarity.Unique when IsIdentified && item.Item.HasComponent<Weapon>():
                             ItemType = ItemTypes.UniqueWeapon;
+                            break;
+                        case ItemRarity.Normal when ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
+                            ItemTypeGamble = ItemTypes.UniqueAccessory;
+                            break;
+                        case ItemRarity.Normal when item.Item.HasComponent<Armour>() || ClassName == "Quiver":
+                            ItemTypeGamble = ItemTypes.UniqueArmour;
+                            break;
+                        case ItemRarity.Normal when ClassName.Equals("Jewel"):
+                            ItemTypeGamble = ItemTypes.UniqueJewel;
+                            break;
+                        case ItemRarity.Normal when item.Item.HasComponent<Weapon>():
+                            ItemTypeGamble = ItemTypes.UniqueWeapon;
                             break;
                     }
             }
