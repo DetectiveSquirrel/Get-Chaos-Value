@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
@@ -13,6 +15,7 @@ using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
 using ExileCore.RenderQ;
 using ImGuiNET;
+using static Ninja_Price.Enums.HaggleTypes.HaggleType;
 
 namespace Ninja_Price.Main
 {
@@ -23,6 +26,8 @@ namespace Ninja_Price.Main
         public double StashTabValue { get; set; }
         public double InventoryTabValue { get; set; }
         public double ExaltedValue { get; set; } = 0;
+        public List<NormalInventoryItem> HaggleItemList { get; set; } = new List<NormalInventoryItem>();
+        public List<CustomItem> FortmattedHaggleItemList { get; set; } = new List<CustomItem>();
         public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
         public List<CustomItem> FortmattedItemList { get; set; } = new List<CustomItem>();
 
@@ -33,6 +38,7 @@ namespace Ninja_Price.Main
         public List<CustomItem> InventoryItemsToDrawList { get; set; } = new List<CustomItem>();
         public StashElement StashPanel { get; set; }
         public InventoryElement InventoryPanel { get; set; }
+        public Element HagglePanel { get; set; }
 
         public CustomItem Hovereditem { get; set; }
 
@@ -49,6 +55,7 @@ namespace Ninja_Price.Main
 
             StashPanel = GameController.Game.IngameState.IngameUi.StashElement;
             InventoryPanel = GameController.Game.IngameState.IngameUi.InventoryPanel;
+            HagglePanel = GameController.Game.IngameState.IngameUi.HaggleWindow;
 
             #endregion
 
@@ -172,7 +179,63 @@ namespace Ninja_Price.Main
                     }
                 }
 
-                // TODO: Graphical part from gathered data
+                if (HagglePanel.IsVisible)
+                {
+
+                    var haggleType = None;
+
+                    // Return Haggle Window Type
+                    var haggleText = HagglePanel.GetChildAtIndex(6).GetChildAtIndex(2).GetChildAtIndex(0).Text;
+
+                    switch (haggleText)
+                    {
+                        case "Exchange":
+                            haggleType = Exchange;
+                            break;
+                        case "Gamble":
+                            haggleType = Gamble;
+                            break;
+                        case "Deal":
+                            haggleType = Deal;
+                            break;
+                        case "Haggle":
+                            haggleType = Haggle;
+                            break;
+                    }
+
+                    if (haggleType == Gamble)
+                    {
+                        HaggleItemList = new List<NormalInventoryItem>();
+                        var itemChild = HagglePanel.GetChildAtIndex(8).GetChildAtIndex(1).GetChildAtIndex(0).GetChildAtIndex(0);
+
+                        for (var i = 1; i < itemChild.ChildCount; ++i)
+                        {
+                            var item = itemChild.Children[i].AsObject<NormalInventoryItem>();
+                            HaggleItemList.Add(item);
+
+                            if (Settings.Debug)
+                            {
+                                LogMessage(
+                                    $"Haggle Item[{HaggleItemList.Count}]: {GameController.Files.BaseItemTypes.Translate(item.Item.Path).BaseName}");
+                            }
+                        }
+
+                        // Format Haggle Items
+                        FortmattedHaggleItemList = new List<CustomItem>();
+                        FortmattedHaggleItemList = FormatItems(HaggleItemList);
+
+                        foreach (var item in FortmattedHaggleItemList)
+                            GetValueHaggle(item);
+                    }
+                    else
+                    {
+                        HaggleItemList = new List<NormalInventoryItem>();
+                        FortmattedHaggleItemList = new List<CustomItem>();
+                    }
+                }
+
+                // Expedition Gamble Func
+                ExpeditionGamble();
 
                 GetHoveredItem(); // Get information for the hovered item
                 DrawGraphics();
@@ -220,6 +283,7 @@ namespace Ninja_Price.Main
                     case ItemTypes.Resonator:
                     case ItemTypes.Fossil:
                     case ItemTypes.Oil:
+                    case ItemTypes.Artifact:
                     case ItemTypes.Catalyst:
                     case ItemTypes.DeliriumOrbs:
                     case ItemTypes.Vials:
@@ -257,12 +321,25 @@ namespace Ninja_Price.Main
                         text += $"\n\rChaos: {Hovereditem.PriceData.MinChaosValue}c";
                         break;
                 }
+                
                 if (Settings.Debug)
                 {
                     text += $"\n\rUniqueName: {Hovereditem.UniqueName}";
                     text += $"\n\rBaseName: {Hovereditem.BaseName}";
                     text += $"\n\rItemType: {Hovereditem.ItemType}";
                     text += $"\n\rMapType: {Hovereditem.MapInfo.MapType}";
+                } 
+                
+                if (Settings.ArtifactChaosPrices)
+                {
+                    var artifactChaosPrice = TryGetArtifactToChaosPrice(Hovereditem);
+                    if (artifactChaosPrice > 0)
+                    {
+                        var exaltString = ExaltedValue > 0 && artifactChaosPrice >= (0.5 * ExaltedValue)
+                            ? $" ({artifactChaosPrice / ExaltedValue:F2} ex)"
+                            : string.Empty;
+                        text += $"\n\rArtifact price: {artifactChaosPrice:F1}c{exaltString}";
+                    }
                 }
 
                 // var textMeasure = Graphics.MeasureText(text, 15);
@@ -392,6 +469,49 @@ namespace Ninja_Price.Main
             //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
         }
 
+        private void PriceBoxOverItemHaggle(CustomItem item)
+        {
+            var box = item.Item.GetClientRect();
+            var drawBox = new RectangleF(box.X, box.Y + 2, box.Width, +Settings.CurrencyTabBoxHeight);
+            var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.CurrencyTabFontSize.Value / 2);
+
+            if (item.PriceData.ItemBasePrices.Count == 0)
+                return;
+
+            // Sort base unique price from High -> Low
+            item.PriceData.ItemBasePrices.Sort((a, b) => b.CompareTo(a));
+
+            if (Settings.Debug)
+                Graphics.DrawText(string.Join(",", item.PriceData.ItemBasePrices), position, Settings.CurrencyTabFontColor, FontAlign.Center);
+
+
+            Graphics.DrawText(Math.Round((decimal)item.PriceData.ItemBasePrices.FirstOrDefault(), Settings.CurrenctTabSigDigits.Value).ToString(CultureInfo.InvariantCulture), position, Settings.CurrencyTabFontColor, FontAlign.Center);
+            Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
+            //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
+        }
+
+        private void ExpeditionGamble()
+        {
+            var window = HagglePanel;
+            if (!window.IsVisible) return;
+            foreach (var customItem in FortmattedHaggleItemList)
+            {
+                try
+                {
+                    PriceBoxOverItemHaggle(customItem);
+                }
+                catch (Exception e)
+                {
+                    // ignored
+                    if (Settings.Debug)
+                    {
+                        LogMessage("Error in: ExpeditionGamble, restart PoEHUD.", 5, Color.Red);
+                        LogMessage(e.ToString(), 5, Color.Orange);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         ///     Displays price for unique items, and highlights the uniques under X value by drawing a border arround them.
         /// </summary>
@@ -451,5 +571,100 @@ namespace Ninja_Price.Main
                 Graphics.DrawFrame(drawBox, Color.Black, 1);
             }
         }
+
+        private double TryGetArtifactToChaosPrice(CustomItem item)
+        {
+            if (item == null || item.Item == null)
+                return -1;
+
+            ExileCore.PoEMemory.Element GetElementByString(ExileCore.PoEMemory.Element element, string str)
+            {
+                if (element == null || string.IsNullOrWhiteSpace(str))
+                    return null;
+
+                if (element.Text != null && element.Text.Contains(str))
+                    return element;
+
+                return element.Children.Select(c => GetElementByString(c, str)).FirstOrDefault(e => e != null);
+            }
+
+            var costElement = GetElementByString(item.Item?.AsObject<HoverItemIcon>()?.Tooltip, "Cost");
+            if (costElement == null || costElement.Parent == null || costElement.Parent.ChildCount < 2 ||
+                costElement.Parent.Children[1].ChildCount < 3)
+                return -1;
+            var amountText = costElement.Parent.Children[1].Children[0].Text;
+            var artifactName = costElement.Parent.Children[1].Children[2].Text;
+            if (string.IsNullOrWhiteSpace(amountText) || string.IsNullOrWhiteSpace(artifactName))
+                return -1;
+            var artifactSearch = CollectedData.Artifacts.Lines.Find(x => x.Name == artifactName);
+            if (artifactSearch == null)
+                return -1;
+            if (costElement.Text.Equals("Cost:")) // Tujen haggling
+            {
+                var amount = int.Parse(amountText.Substring(0, amountText.Length - 1));
+                return artifactSearch.ChaosValue.Value * amount;
+            }
+            if (costElement.Text.Equals("Cost Per Unit:")) // Artifact stacks (Dannig)
+            {
+                var costPerUnit = double.Parse(amountText);
+                return item.CurrencyInfo.StackSize * costPerUnit * artifactSearch.ChaosValue.Value;
+            }
+            return -1;
+        }
+
+        //private void PropheccyDisplay()
+        //{
+        //    if (!Settings.ProphecyPrices)
+        //        return;
+
+        //    try
+        //    {
+        //        var UIHover = GameController.Game.IngameState.UIHover;
+        //        var newBox = new RectangleF(lastProphWindowPos.X, lastProphWindowPos.Y, lastProphWindowSize.X, lastProphWindowSize.Y);
+
+        //        if (!StashPanel.IsVisible) return;
+        //        var refBool = true;
+
+        //        if (!UIHover.Tooltip.GetClientRect().Intersects(newBox))
+        //        {
+        //            var menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
+        //            if (Settings.ProphecyOverrideColors)
+        //            {
+        //                var tempColor = new SharpDX.Vector4(Settings.ProphecyBackground.Value.R / 255.0f, Settings.ProphecyBackground.Value.G / 255.0f,
+        //                    Settings.ProphecyBackground.Value.B / 255.0f, Settings.ProphecyBackground.Value.A / 255.0f);
+        //                ImGui.PushStyleColor(ColorTarget.WindowBg, ToImVector4(tempColor));
+        //                menuOpacity = ImGui.GetStyle().GetColor(ColorTarget.WindowBg).W;
+        //            }
+
+        //            ImGui.BeginWindow("Poe.NinjaProphs", ref refBool, new System.Numerics.Vector2(200, 150), menuOpacity, Settings.ProphecyLocked ? WindowFlags.NoCollapse | WindowFlags.NoScrollbar | WindowFlags.NoMove | WindowFlags.NoResize | WindowFlags.NoInputs | WindowFlags.NoBringToFrontOnFocus | WindowFlags.NoTitleBar | WindowFlags.NoFocusOnAppearing : WindowFlags.Default | WindowFlags.NoTitleBar | WindowFlags.ResizeFromAnySide);
+
+        //            if (Settings.ProphecyOverrideColors)
+        //                ImGui.PopStyleColor();
+
+
+        //            var prophystringlist = new List<string>();
+        //            var propicies = GameController.Player.GetComponent<Player>().Prophecies;
+        //            foreach (var prophecyDat in propicies)
+        //            {
+        //                //var text = $"{GetProphecyValues(prophecyDat.Name)}c - {prophecyDat.Name}({prophecyDat.SealCost})";
+        //                var text = $"{{{HexConverter(Settings.ProphecyChaosValue)}}}{GetProphecyValues(prophecyDat.Name)}c {{}}- {{{HexConverter(Settings.ProphecyProecyName)}}}{prophecyDat.Name} {{{HexConverter(Settings.ProphecyProecySealColor)}}}({prophecyDat.SealCost}){{}}";
+        //                if (prophystringlist.Any(x => Equals(x, text))) continue;
+        //                prophystringlist.Add(text);
+        //            }
+
+        //            foreach (var proph in prophystringlist)
+        //                //ImGui.Text(VARIABLE);
+        //                Coloredtext(proph);
+
+        //            lastProphWindowSize = new Vector2(ImGui.GetWindowSize().X, ImGui.GetWindowSize().Y);
+        //            lastProphWindowPos = new Vector2(ImGui.GetWindowPosition().X, ImGui.GetWindowPosition().Y);
+        //            ImGui.EndWindow();
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        ImGui.EndWindow();
+        //    }
+        //}
     }
 }

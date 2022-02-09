@@ -199,8 +199,7 @@ namespace Ninja_Price.Main
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)catalystSearch.ChaosEquivalent;
                                 item.PriceData.ChangeInLast7Days = (double)catalystSearch.ReceiveSparkLine.TotalChange;
                             }
-
-                            break;
+                        break;
                         case ItemTypes.DivinationCard:
                             var divinationSearch = CollectedData.DivinationCards.Lines.Find(x => x.Name == item.BaseName);
                             if (divinationSearch != null)
@@ -208,31 +207,38 @@ namespace Ninja_Price.Main
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)divinationSearch.ChaosValue;
                                 item.PriceData.ChangeInLast7Days = (double)divinationSearch.Sparkline.TotalChange;
                             }
-
                             break;
-                        case ItemTypes.Essence:
-                            var essenceSearch = CollectedData.Essences.Lines.Find(x => x.Name == item.BaseName);
-                            if (essenceSearch != null)
-                            {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)essenceSearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)essenceSearch.Sparkline.TotalChange;
-                            }
-                            break;
-                        case ItemTypes.Oil:
-                            var oilSearch = CollectedData.Oils.Lines.Find(x => x.Name == item.BaseName);
-                            if (oilSearch != null)
-                            {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)oilSearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)oilSearch.Sparkline.TotalChange;
-                            }
-                            break;
-                        case ItemTypes.Fragment:
-                            var fragmentSearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
-                            if (fragmentSearch != null)
-                            {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)fragmentSearch.ChaosEquivalent;
-                                item.PriceData.ChangeInLast7Days = (double)fragmentSearch.ReceiveSparkLine.TotalChange;
-                            }
+                    case ItemTypes.Essence:
+                        var essenceSearch = CollectedData.Essences.Lines.Find(x => x.Name == item.BaseName);
+                        if (essenceSearch != null)
+                        {
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)essenceSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)essenceSearch.Sparkline.TotalChange;
+                        }
+                        break;
+                    case ItemTypes.Oil:
+                        var oilSearch = CollectedData.Oils.Lines.Find(x => x.Name == item.BaseName);
+                        if (oilSearch != null)
+                        {
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)oilSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)oilSearch.Sparkline.TotalChange;
+                        }
+                        break;
+                    case ItemTypes.Artifact:
+                        var artifactSearch = CollectedData.Artifacts.Lines.Find(x => x.Name == item.BaseName);
+                        if (artifactSearch != null)
+                        {
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)artifactSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = (double)artifactSearch.Sparkline.TotalChange;
+                        }
+                        break;
+                    case ItemTypes.Fragment:
+                        var fragmentSearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                        if (fragmentSearch != null)
+                        {
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)fragmentSearch.ChaosEquivalent;
+                            item.PriceData.ChangeInLast7Days = (double)fragmentSearch.ReceiveSparkLine.TotalChange;
+                        }
 
                             break;
                         case ItemTypes.MavenInvitation:
@@ -571,6 +577,69 @@ namespace Ninja_Price.Main
                 if(item.PriceData.MaxChaosValue == 0)
                 {
                     item.PriceData.MaxChaosValue = item.PriceData.MinChaosValue;
+                }
+            }
+        }
+
+        public void GetValueHaggle(CustomItem item)
+        {
+            try
+            {
+                item.PriceData.ExaltedPrice = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
+                switch (item.ItemTypeGamble) // easier to get data for each item type and handle logic based on that
+                {
+                    case ItemTypes.UniqueArmour:
+                        var uniqueArmourSearch = CollectedData.UniqueArmours.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));
+                        if (uniqueArmourSearch.Count > 0)
+                        {
+
+                            foreach (var result in uniqueArmourSearch)
+                            {
+                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                            }
+                        }
+                        break;
+                    case ItemTypes.UniqueWeapon:
+                        var uniqueWeaponSearch = CollectedData.UniqueWeapons.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));
+                        if (uniqueWeaponSearch.Count > 0)
+                        {
+
+                            foreach (var result in uniqueWeaponSearch)
+                            {
+                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                            }
+                        }
+                        break;
+                    case ItemTypes.UniqueAccessory:
+                        var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica "));
+                        if (uniqueAccessorySearch.Count > 0)
+                        {
+
+                            foreach (var result in uniqueAccessorySearch)
+                            {
+                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                            }
+                        }
+                        break;
+                    case ItemTypes.UniqueJewel:
+                        var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x => x.DetailsId.Contains(item.BaseName.ToLower().Replace(" ", "-")) && !x.Name.StartsWith("Replica "));
+                        if (uniqueJewelSearch.Count > 0)
+                        {
+
+                            foreach (var result in uniqueJewelSearch)
+                            {
+                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                            }
+                        }
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                if (Settings.Debug)
+                {
+                    LogMessage($"{GetCurrentMethod()}.GetValueHaggle() Error that i dont understand, Item: {item.BaseName}", 5, Color.Red);
+                    LogMessage($"{GetCurrentMethod()}.GetValueHaggle() {e.Message}", 5, Color.Red);
                 }
             }
         }

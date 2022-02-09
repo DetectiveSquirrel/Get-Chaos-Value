@@ -34,6 +34,7 @@ namespace Ninja_Price.Settings
 
             HighlightUniqueJunk = new ToggleNode(true);
             HelmetEnchantPrices = new ToggleNode(true);
+            ArtifactChaosPrices = new ToggleNode(true);
             HighlightColor = new ColorNode(Color.AliceBlue);
             HighlightFontSize = new RangeNode<int>(20, 0, 200);
             HighlightSignificantDigits = new RangeNode<int>(5, 0, 10);
@@ -127,6 +128,9 @@ namespace Ninja_Price.Settings
 
         [Menu("Helmet Enchant Prices", "Display helmet enchant prices while in the laboratory.).", 6)]
         public ToggleNode HelmetEnchantPrices { get; set; }
+        
+        [Menu("Artifact Chaos Prices", "Display chaos equivalent price for items with artifact costs.).", 7)]
+        public ToggleNode ArtifactChaosPrices { get; set; }
 
         [Menu("Size", "Size of the font used to draw the chaos value of the visible inventory.", 53, 5)]
         public RangeNode<int> HighlightFontSize { get; set; }

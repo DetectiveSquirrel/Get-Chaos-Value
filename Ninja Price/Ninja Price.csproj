@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\PoeNinja\API.cs" />
+    <Compile Include="API\PoeNinja\Classes\Artifacts.cs" />
     <Compile Include="API\PoeNinja\Classes\Fossils.cs" />
     <Compile Include="API\PoeNinja\Classes\Invitations.cs" />
     <Compile Include="API\PoeNinja\Classes\Incubators.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="API\PoeNinja\Classes\UniqueWeapons.cs" />
     <Compile Include="API\PoeNinja\Classes\Vials.cs" />
     <Compile Include="API\PoeNinja\Classes\WhiteMaps.cs" />
+    <Compile Include="Enums\HaggleTypes.cs" />
     <Compile Include="Enums\MapTypes.cs" />
     <Compile Include="Main\CollectiveAPIData.cs" />
     <Compile Include="Main\CustomItem.cs" />
