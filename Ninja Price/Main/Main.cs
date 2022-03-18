@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using ExileCore;
 using Newtonsoft.Json;
 using Ninja_Price.API.PoeNinja;
@@ -12,31 +10,20 @@ namespace Ninja_Price.Main
 {
     public partial class Main : BaseSettingsPlugin<Settings.Settings>
     {
-        public const int NotFound = -1;
-        public string NinjaDirectory;
-        public DateTime BuildDate;
-        public CollectiveApiData CollectedData = new CollectiveApiData();
-        public bool DownloadDone;
-        public bool InitJsonDone;
-        public string PluginVersion;
-        public string PoeLeagueApiList = "http://api.pathofexile.com/leagues?type=main&compact=1";
-        public bool UpdatingFromJson { get; set; } = false;
-        public bool UpdatingFromAPI { get; set; } = false;
-
-        //https://stackoverflow.com/questions/826777/how-to-have-an-auto-incrementing-version-number-visual-studio
-        public Version Version = Assembly.GetExecutingAssembly().GetName().Version;
+        private string NinjaDirectory;
+        private CollectiveApiData CollectedData = new CollectiveApiData();
+        private const string PoeLeagueApiList = "http://api.pathofexile.com/leagues?type=main&compact=1";
+        private bool UpdatingFromJson { get; set; } = false;
+        private bool UpdatingFromAPI { get; set; } = false;
 
         public static Main Controller { get; set; }
 
-
-        public string CurrentLeague { get; set; }
+        private string CurrentLeague { get; set; }
 
         public override bool Initialise()
         {
             Name = "Ninja Price";
             Controller = this;
-            BuildDate = new DateTime(2000, 1, 1).AddDays(Version.Build).AddSeconds(Version.Revision * 2);
-            PluginVersion = $"{Version}";
             NinjaDirectory = DirectoryFullName + "\\NinjaData\\";
             var file = new FileInfo(NinjaDirectory);
             file.Directory?.Create();

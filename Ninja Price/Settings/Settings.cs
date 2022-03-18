@@ -104,7 +104,7 @@ namespace Ninja_Price.Settings
         public RangeNode<int> CurrencyTabFontSize { get; set; } = new RangeNode<int>(14, 5, 50);
 
         [Menu("Significant Digits Per Currency", 58, 23452)]
-        public RangeNode<int> CurrenctTabSigDigits { get; set; } = new RangeNode<int>(2, 0, 10);
+        public RangeNode<int> CurrencyTabSigDigits { get; set; } = new RangeNode<int>(2, 0, 10);
 
         [Menu("Box Height", 59, 23452)]
         public RangeNode<int> CurrencyTabBoxHeight { get; set; } = new RangeNode<int>(15, 0, 100);

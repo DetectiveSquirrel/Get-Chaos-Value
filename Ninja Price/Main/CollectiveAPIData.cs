@@ -9,7 +9,6 @@ namespace Ninja_Price.Main
         public Essences.RootObject Essences { get; set; } = new Essences.RootObject();
         public Fragments.RootObject Fragments { get; set; } = new Fragments.RootObject();
         public HelmetEnchants.RootObject HelmetEnchants { get; set; } = new HelmetEnchants.RootObject();
-        public Prophecies.RootObject Prophecies { get; set; } = new Prophecies.RootObject();
         public UniqueAccessories.RootObject UniqueAccessories { get; set; } = new UniqueAccessories.RootObject();
         public UniqueArmours.RootObject UniqueArmours { get; set; } = new UniqueArmours.RootObject();
         public UniqueFlasks.RootObject UniqueFlasks { get; set; } = new UniqueFlasks.RootObject();

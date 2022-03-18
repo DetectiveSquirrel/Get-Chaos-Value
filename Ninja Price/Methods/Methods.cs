@@ -1,10 +1,7 @@
 using Ninja_Price.Enums;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Enums;
@@ -22,48 +19,12 @@ namespace Ninja_Price.Main
             return !inventory.IsVisible ? null : inventory[InventoryIndex.PlayerInventory].VisibleInventoryItems.ToList();
         }
 
-        public Vector4 ToImVector4(Vector4 vector)
-        {
-            return new Vector4(vector.X, vector.Y, vector.Z, vector.W);
-        }
-
-        /// <summary>
-        ///     Used for converting SharpDX.Color into string #AARRGGBB.
-        /// </summary>
-        public static string HexConverter(Color c)
-        {
-            var rtn = string.Empty;
-            try
-            {
-                rtn = "#" + c.A.ToString("X2") + c.R.ToString("X2") + c.G.ToString("X2") + c.B.ToString("X2");
-                return rtn;
-            }
-            catch
-            {
-                // ignored
-            }
-
-            return rtn;
-        }
-
-        public void DownloadChaosIcon()
-        {
-            // check if image exists, if it doesn't, download it.
-            var fileName = $"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png";
-            if (File.Exists(fileName)) return;
-            Directory.CreateDirectory($"{DirectoryFullName}//images//");
-            using (var client = new WebClient())
-            {
-                client.DownloadFile(new Uri("https://gamepedia.cursecdn.com/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"), fileName);
-            }
-        }
-
         public List<CustomItem> FormatItems(List<NormalInventoryItem> itemList)
         {
             return itemList.ToList().Select(inventoryItem => new CustomItem(inventoryItem)).ToList();
         }
 
-        public string GetShardPartent(string shardBaseName)
+        public string GetShardParent(string shardBaseName)
         {
             var name = "";
             var orbsAndTheirRespectiveShards = new Dictionary<string, string>
@@ -113,9 +74,9 @@ namespace Ninja_Price.Main
                         var baseItemType = GameController.Files.BaseItemTypes.Translate(item.Path);
                         if (baseItemType != null)
                         {
-                            Hovereditem = new CustomItem(inventoryItemIcon);
-                            if (Hovereditem.ItemType != ItemTypes.None)
-                                GetValue(Hovereditem);
+                            HoveredItem = new CustomItem(inventoryItemIcon);
+                            if (HoveredItem.ItemType != ItemTypes.None)
+                                GetValue(HoveredItem);
                         }
                     }
                 }
@@ -158,7 +119,7 @@ namespace Ninja_Price.Main
                             }
                             if (item.BaseName.Contains("Ritual Splinter")) // Ritual
                             {
-                                var shardParent = GetShardPartent(item.BaseName);
+                                var shardParent = GetShardParent(item.BaseName);
                                 var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
                                 if (shardCurrencySearch != null)
                                 {
@@ -179,7 +140,7 @@ namespace Ninja_Price.Main
 
                                     break;
                                 case true:
-                                    var shardParent = GetShardPartent(item.BaseName);
+                                    var shardParent = GetShardParent(item.BaseName);
                                     var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
                                     if (shardCurrencySearch != null)
                                     {
@@ -280,15 +241,6 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)scarabSearch.ChaosValue;
                                 item.PriceData.ChangeInLast7Days = (double)scarabSearch.Sparkline.TotalChange;
-                            }
-
-                            break;
-                        case ItemTypes.Prophecy:
-                            var prophecySearch = CollectedData.Prophecies.Lines.Find(x => x.Name == item.Item.Item.GetComponent<Prophecy>().DatProphecy.Name);
-                            if (prophecySearch != null)
-                            {
-                                item.PriceData.MinChaosValue = (double)prophecySearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)prophecySearch.Sparkline.TotalChange;
                             }
 
                             break;
@@ -715,15 +667,6 @@ namespace Ninja_Price.Main
             if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
             return true;
         }
-
-
-        private double? GetProphecyValues(string ProphName)
-        {
-            var item = CollectedData.Prophecies.Lines.Find(x => x.Name == ProphName);
-            if (item == null) return NotFound;
-            var value = item.ChaosValue;
-            return value;
-        }
         
         private CustomItem GetHelmetEnchantValue(string EnchantName)
         {
@@ -735,7 +678,7 @@ namespace Ninja_Price.Main
                 ? null
                 : new CustomItem
                 {
-                    PriceData = new ReleventPriceData
+                    PriceData = new RelevantPriceData
                     {
                         MinChaosValue = enchantSearch.chaosValue, ExaltedPrice = enchantSearch.exaltedValue,
                         ItemType = ItemTypes.None, ChangeInLast7Days = enchantSearch.sparkline.totalChange
@@ -743,69 +686,5 @@ namespace Ninja_Price.Main
                     BaseName = enchantSearch.name
                 };
         }
-
-        private Vector4 ToImVector4(SharpDX.Vector4 vector)
-        {
-            return new Vector4(vector.X, vector.Y, vector.Z, vector.W);
-        }
-
-        /*
-         * format is as follows
-         * To change color of the string surround hex codes with {} Example: "Uncolored {#AARRGGBB}Colored"
-         * having a blank {} will make it go back to default imgui text color, Example: "Uncolored {#AARRGGBB}Colored {}Back to orig color"
-         */
-        //public void Coloredtext(string TextIn)
-        //{
-        //    try
-        //    {
-        //        var accumulatedText = "";
-        //        var startColor = ImGui.GetStyle().GetColor(ColorTarget.Text);
-        //        var hexCode = "";
-        //        var sameLine = false;
-        //        var nextColor = startColor;
-        //        for (var i = 0; i < TextIn.Length; i++)
-        //        {
-        //            if (TextIn[i] == '{')
-        //            {
-        //                var foundBracketStart = TextIn.Substring(i + 1);
-        //                for (var j = 0; j < foundBracketStart.Length; j++)
-        //                {
-        //                    i++;
-        //                    if (foundBracketStart[j] == '}')
-        //                        break;
-        //                    hexCode += foundBracketStart[j];
-        //                }
-
-        //                if (sameLine)
-        //                    ImGui.SameLine(0f, 0f);
-        //                ImGui.Text(accumulatedText);
-        //                if (TextIn[i - 1] == '{')
-        //                    nextColor = startColor;
-        //                accumulatedText = "";
-        //                sameLine = true;
-        //                if (hexCode != "")
-        //                {
-        //                    var tempColor = ColorTranslator.FromHtml(hexCode);
-        //                    var tempColor2 = new Color(tempColor.R, tempColor.G, tempColor.B, tempColor.A).ToVector4();
-        //                    nextColor = new Vector4(tempColor2.X, tempColor2.Y, tempColor2.Z, tempColor2.W);
-        //                }
-
-        //                i++;
-        //                hexCode = "";
-        //            }
-
-        //            accumulatedText += TextIn[i];
-        //        }
-
-        //        if (sameLine)
-        //            ImGui.SameLine(0f, 0f);
-        //        ImGui.Text(accumulatedText);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // This spams all the time even tho nothing seems broken so it can fuck riiiiiiiight off
-        //        //LogError("ColorText: Incorrect hex format \n" + e, 15);
-        //    }
-        //}
     }
 }

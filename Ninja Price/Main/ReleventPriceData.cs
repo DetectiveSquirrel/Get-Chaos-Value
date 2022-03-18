@@ -5,7 +5,7 @@ namespace Ninja_Price.Main
 {
     public partial class Main
     {
-        public class ReleventPriceData // store data that was got from checking the item against the poe.ninja data
+        public class RelevantPriceData // store data that was got from checking the item against the poe.ninja data
         {
             public double MinChaosValue { get; set; }
             public double MaxChaosValue { get; set; }

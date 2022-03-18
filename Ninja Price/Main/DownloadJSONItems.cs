@@ -14,7 +14,6 @@ namespace Ninja_Price.Main
         private const string DivinationCards_URL = "https://poe.ninja/api/data/itemoverview?type=DivinationCard&league=";
         private const string Essences_URL = "https://poe.ninja/api/data/itemoverview?type=Essence&league=";
         private const string Fragments_URL = "https://poe.ninja/api/data/currencyoverview?type=Fragment&league=";
-        private const string Prophecies_URL = "https://poe.ninja/api/data/itemoverview?type=Prophecy&league=";
         private const string UniqueAccessories_URL = "https://poe.ninja/api/data/itemoverview?type=UniqueAccessory&league=";
         private const string UniqueArmours_URL = "https://poe.ninja/api/data/itemoverview?type=UniqueArmour&league=";
         private const string UniqueFlasks_URL = "https://poe.ninja/api/data/itemoverview?type=UniqueFlask&league=";
@@ -50,7 +49,6 @@ namespace Ninja_Price.Main
                     Api.Json.SaveSettingFile(NinjaDirectory + "DivinationCards.json", JsonConvert.DeserializeObject<DivinationCards.RootObject>(Api.DownloadFromUrl(DivinationCards_URL + league)));
                     Api.Json.SaveSettingFile(NinjaDirectory + "Essences.json", JsonConvert.DeserializeObject<Essences.RootObject>(Api.DownloadFromUrl(Essences_URL + league)));
                     Api.Json.SaveSettingFile(NinjaDirectory + "Fragments.json", JsonConvert.DeserializeObject<Fragments.RootObject>(Api.DownloadFromUrl(Fragments_URL + league)));
-                    Api.Json.SaveSettingFile(NinjaDirectory + "Prophecies.json", JsonConvert.DeserializeObject<Prophecies.RootObject>(Api.DownloadFromUrl(Prophecies_URL + league)));
                     Api.Json.SaveSettingFile(NinjaDirectory + "UniqueAccessories.json", JsonConvert.DeserializeObject<UniqueAccessories.RootObject>(Api.DownloadFromUrl(UniqueAccessories_URL + league)));
                     Api.Json.SaveSettingFile(NinjaDirectory + "UniqueArmours.json", JsonConvert.DeserializeObject<UniqueArmours.RootObject>(Api.DownloadFromUrl(UniqueArmours_URL + league)));
                     Api.Json.SaveSettingFile(NinjaDirectory + "UniqueFlasks.json", JsonConvert.DeserializeObject<UniqueFlasks.RootObject>(Api.DownloadFromUrl(UniqueFlasks_URL + league)));
@@ -75,7 +73,6 @@ namespace Ninja_Price.Main
                 }
                 catch
                 {
-
                     UpdatingFromAPI = false;
                     UpdatePoeNinjaData();
                 }
@@ -125,13 +122,6 @@ namespace Ninja_Price.Main
                     {
                         var json = r.ReadToEnd();
                         newData.Fragments = JsonConvert.DeserializeObject<Fragments.RootObject>(json);
-                    }
-
-                if (JsonExists("Prophecies.json"))
-                    using (var r = new StreamReader(NinjaDirectory + "Prophecies.json"))
-                    {
-                        var json = r.ReadToEnd();
-                        newData.Prophecies = JsonConvert.DeserializeObject<Prophecies.RootObject>(json);
                     }
 
                 if (JsonExists("UniqueAccessories.json"))

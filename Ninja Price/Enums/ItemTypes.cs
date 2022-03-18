@@ -7,7 +7,6 @@ namespace Ninja_Price.Enums
         DivinationCard,
         Essence,
         Fragment,
-        Prophecy,
         UniqueAccessory,
         UniqueArmour,
         UniqueFlask,

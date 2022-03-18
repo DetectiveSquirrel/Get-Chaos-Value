@@ -25,7 +25,6 @@ namespace Ninja_Price.Main
         public int ItemLevel;
         public int LargestLink { get; set; } = 0;
         public string Path;
-        public string ProphecyName;
         public int Quality;
         public ItemRarity Rarity;
         public int Sockets;
@@ -35,7 +34,7 @@ namespace Ninja_Price.Main
         public ItemTypes ItemTypeGamble;
         public MapData MapInfo { get; set; } =  new MapData();
         public CurrencyData CurrencyInfo { get; set; } =  new CurrencyData();
-        public Main.ReleventPriceData PriceData { get; set; } = new Main.ReleventPriceData();
+        public Main.RelevantPriceData PriceData { get; set; } = new Main.RelevantPriceData();
 
         public static void InitCustomItem(Main _core)
         {
@@ -98,15 +97,6 @@ namespace Ninja_Price.Main
                     var @base = item.Item.GetComponent<Base>();
                     IsElder = @base.isElder;
                     IsShaper = @base.isShaper;
-
-                    if (@base.Name == "Prophecy")
-                    {
-                        var prophParse = item.Item.GetComponent<Prophecy>();
-                        ProphecyName = prophParse.DatProphecy.Name.ToLower();
-                        ProphecyName = ProphecyName.Replace(" ", "");
-                        ProphecyName = ProphecyName.Replace(",", "");
-                        ProphecyName = ProphecyName.Replace("'", "");
-                    }
                 }
 
                 if (item.Item.HasComponent<Mods>())
@@ -217,10 +207,6 @@ namespace Ninja_Price.Main
                 {
                     ItemType = ItemTypes.Scarab;
                 }
-                else if (BaseName == "Prophecy")
-                {
-                    ItemType = ItemTypes.Prophecy;
-                }
                 else if (MapInfo.IsMap && Rarity != ItemRarity.Unique)
                 {
                     ItemType = ItemTypes.Map;
@@ -289,7 +275,7 @@ namespace Ninja_Price.Main
             catch (Exception exception)
             {
                 if (Core.Settings.Debug)
-                    Core.LogError("Ninja Pricer.CustomItem Error:" + Environment.NewLine + exception.ToString());
+                    Core.LogError($"Ninja Pricer.CustomItem Error:{Environment.NewLine}{exception}");
             }
 
         }
