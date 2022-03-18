@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net;
 using Newtonsoft.Json;
-using SharpDX;
 
 namespace Ninja_Price.API.PoeNinja
 {

@@ -1,5 +1,4 @@
-﻿using SharpDX;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Ninja_Price.Main

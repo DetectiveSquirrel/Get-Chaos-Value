@@ -1,7 +1,6 @@
 using Ninja_Price.Enums;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,7 +10,6 @@ using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Enums;
 using Ninja_Price.API.PoeNinja.Classes;
 using Color = SharpDX.Color;
-using RectangleF = SharpDX.RectangleF;
 using Vector4 = System.Numerics.Vector4;
 
 namespace Ninja_Price.Main

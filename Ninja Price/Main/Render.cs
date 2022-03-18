@@ -2,18 +2,15 @@ using Ninja_Price.Enums;
 using SharpDX;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using ExileCore.PoEMemory;
-using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Enums;
 using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
-using ExileCore.RenderQ;
 using ImGuiNET;
 using static Ninja_Price.Enums.HaggleTypes.HaggleType;
 
