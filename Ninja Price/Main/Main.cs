@@ -11,65 +11,37 @@ namespace Ninja_Price.Main
     public partial class Main : BaseSettingsPlugin<Settings.Settings>
     {
         private string NinjaDirectory;
-        private CollectiveApiData CollectedData = new CollectiveApiData();
+        private CollectiveApiData CollectedData;
         private const string PoeLeagueApiList = "http://api.pathofexile.com/leagues?type=main&compact=1";
-        private bool UpdatingFromJson { get; set; } = false;
-        private bool UpdatingFromAPI { get; set; } = false;
-
-        public static Main Controller { get; set; }
-
-        private string CurrentLeague { get; set; }
+        private int _updating;
 
         public override bool Initialise()
         {
             Name = "Ninja Price";
-            Controller = this;
-            NinjaDirectory = DirectoryFullName + "\\NinjaData\\";
-            var file = new FileInfo(NinjaDirectory);
-            file.Directory?.Create();
+            NinjaDirectory = Path.Join(DirectoryFullName, "NinjaData");
+            Directory.CreateDirectory(NinjaDirectory);
 
             GatherLeagueNames();
-
-            if (Settings.FirstTime)
-            {
-                LoadJsonData();
-                UpdatePoeNinjaData();
-                Settings.FirstTime = true;
-            }
-            else
-            {
-                UpdatePoeNinjaData();
-            }
-
-            CurrentLeague = Settings.LeagueList.Value;
+            StartDataReload(Settings.LeagueList.Value, false);
 
             // Enable Events
-            Settings.ReloadButton.OnPressed += LoadJsonData;
+            Settings.ReloadButton.OnPressed += () => StartDataReload(Settings.LeagueList.Value, true);
 
             CustomItem.InitCustomItem(this);
 
             return true;
         }
 
-        public void LoadJsonData()
-        {
-            LogMessage($"Getting data for {CurrentLeague}", 5);
-            GetJsonData(CurrentLeague);
-            UpdatePoeNinjaData();
-        }
-
         private void GatherLeagueNames()
         {
-            var leagueListFromUrl = Api.DownloadFromUrl(PoeLeagueApiList);
+            var leagueListFromUrl = Api.DownloadFromUrl(PoeLeagueApiList).Result;
             var leagueData = JsonConvert.DeserializeObject<List<Leagues>>(leagueListFromUrl);
-            Api.Json.SaveSettingFile($"{NinjaDirectory}Leagues.json", leagueData);
-            var leagueList = (from league in leagueData where !league.Id.Contains("SSF") select league.Id).ToList();
+            var leagueList = leagueData.Where(league => !league.Id.Contains("SSF")).Select(league => league.Id).ToList();
 
-            // set wanted league
-            CurrentLeague = CurrentLeague == null ? leagueList[0] : Settings.LeagueList.Value;
-            // display default league in setting
-            if (Settings.LeagueList.Value == null)
-                Settings.LeagueList.Value = CurrentLeague;
+            if (!leagueList.Contains(Settings.LeagueList.Value))
+            {
+                Settings.LeagueList.Value = leagueList[0];
+            }
 
             Settings.LeagueList.SetListValues(leagueList);
         }

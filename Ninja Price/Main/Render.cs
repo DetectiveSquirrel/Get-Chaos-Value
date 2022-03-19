@@ -22,7 +22,7 @@ namespace Ninja_Price.Main
         public Stopwatch ValueUpdateTimer = Stopwatch.StartNew();
         public double StashTabValue { get; set; }
         public double InventoryTabValue { get; set; }
-        public double ExaltedValue { get; set; } = 0;
+        public double? ExaltedValue { get; set; }
         public List<NormalInventoryItem> HaggleItemList { get; set; } = new List<NormalInventoryItem>();
         public List<CustomItem> FormattedHaggleItemList { get; set; } = new List<CustomItem>();
         public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
@@ -45,7 +45,6 @@ namespace Ninja_Price.Main
         {
             #region Reset All Data
 
-            CurrentLeague = Settings.LeagueList.Value; //  Update selected league every tick
             StashTabValue = 0;
             InventoryTabValue = 0;
             HoveredItem = null;
@@ -56,13 +55,18 @@ namespace Ninja_Price.Main
 
             #endregion
 
+            if (CollectedData == null)
+            {
+                //nothing loaded yet, don't waste time
+                return;
+            }
 
             try // Im lazy and just want to surpress all errors produced
             {
                 // only update if the time between last update is more than AutoReloadTimer interval
-                if (Settings.AutoReload && Settings.LastUpDateTime.AddMinutes(Settings.AutoReloadTimer.Value) < DateTime.Now)
+                if (Settings.AutoReload && Settings.LastUpDateTime.AddMinutes(Settings.ReloadTimer.Value) < DateTime.Now)
                 {
-                    LoadJsonData();
+                    StartDataReload(Settings.LeagueList.Value, true);
                     Settings.LastUpDateTime = DateTime.Now;
                 }
 
@@ -78,7 +82,6 @@ namespace Ninja_Price.Main
                 {
                     if (ShouldUpdateValues())
                     {
-                        ExaltedValue = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
                         // Format stash items
                         ItemList = new List<NormalInventoryItem>();
                         switch (tabType)
@@ -242,7 +245,6 @@ namespace Ninja_Price.Main
                 // ignored
                 if (Settings.Debug)
                 {
-
                     LogMessage("Error in: Main Render Loop, restart PoEHUD.", 5, Color.Red);
                     LogMessage(e.ToString(), 5, Color.Orange);
                 }
@@ -318,7 +320,7 @@ namespace Ninja_Price.Main
                     var artifactChaosPrice = TryGetArtifactToChaosPrice(HoveredItem);
                     if (artifactChaosPrice > 0)
                     {
-                        var exaltString = ExaltedValue > 0 && artifactChaosPrice >= (0.5 * ExaltedValue)
+                        var exaltString = ExaltedValue != null && artifactChaosPrice >= 0.5 * ExaltedValue
                             ? $" ({artifactChaosPrice / ExaltedValue:F2} ex)"
                             : string.Empty;
                         text += $"\n\rArtifact price: {artifactChaosPrice:F1}c{exaltString}";
@@ -391,7 +393,6 @@ namespace Ninja_Price.Main
                 if (!Settings.VisibleStashValue.Value || !StashPanel.IsVisible) return;
                 {
                     var pos = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
-                    var significantDigits = Math.Round((decimal)StashTabValue, Settings.StashValueSignificantDigits.Value);
                     //Graphics.DrawText(
                     //    DrawImage($"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png",
                     //        new RectangleF(Settings.StashValueX.Value - Settings.StashValueFontSize.Value,
@@ -401,7 +402,8 @@ namespace Ninja_Price.Main
                     //        : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos,
                     //    Settings.UniTextColor);
 
-                    Graphics.DrawText($"Chaos: {significantDigits:#,##0.################}\n\rExalt: {Math.Round((decimal)(StashTabValue / ExaltedValue), Settings.StashValueSignificantDigits.Value):#,##0.################}", pos, Settings.UniTextColor, FontAlign.Left);
+                    var chaosValue = StashTabValue;
+                    DrawWorthWidget(chaosValue, pos);
                 }
             }
             catch (Exception e)
@@ -409,11 +411,19 @@ namespace Ninja_Price.Main
                 // ignored
                 if (Settings.Debug)
                 {
-
                     LogMessage("Error in: VisibleStashValue, restart PoEHUD.", 5, Color.Red);
                     LogMessage(e.ToString(), 5, Color.Orange);
                 }
             }
+        }
+
+        private void DrawWorthWidget(double chaosValue, Vector2 pos)
+        {
+            Graphics.DrawText($"Chaos: {Math.Round(chaosValue, Settings.StashValueSignificantDigits.Value):#,##0.################}" +
+                              (ExaltedValue != null
+                                   ? $"\nExalt: {Math.Round(chaosValue / ExaltedValue.Value, Settings.StashValueSignificantDigits.Value):#,##0.################}"
+                                   : ""),
+                pos, Settings.UniTextColor, FontAlign.Left);
         }
 
         private void VisibleInventoryValue()
@@ -424,9 +434,7 @@ namespace Ninja_Price.Main
                 if (!Settings.VisibleInventoryValue.Value || !inventory.IsVisible) return;
                 {
                     var pos = new Vector2(Settings.InventoryValueX.Value, Settings.InventoryValueY.Value);
-                    var significantDigits =
-                        Math.Round((decimal)InventoryTabValue, Settings.InventoryValueSignificantDigits.Value);
-                    Graphics.DrawText($"Chaos: {significantDigits:#,##0.################}\n\rExalt: {Math.Round((decimal)(InventoryTabValue / ExaltedValue), Settings.StashValueSignificantDigits.Value):#,##0.################}", pos, Settings.UniTextColor, FontAlign.Left);
+                    DrawWorthWidget(InventoryTabValue, pos);
                 }
             }
             catch (Exception e)
@@ -535,8 +543,7 @@ namespace Ninja_Price.Main
             var triggerEnchantment = GetElementByString(ingameUi.LabyrinthDivineFontPanel, "lvl ");
             var enchantmentContainer = triggerEnchantment?.Parent?.Parent;
             if(enchantmentContainer == null) return;
-            var enchants = enchantmentContainer.Children.Select(c => new {Name = c.Children[1].Text, ContainerElement = c}).AsEnumerable();
-            if (!enchants.Any()) return;
+            var enchants = enchantmentContainer.Children.Select(c => new {Name = c.Children[1].Text, ContainerElement = c});
             foreach (var enchant in enchants)
             {
                 var data = GetHelmetEnchantValue(enchant.Name);
@@ -547,7 +554,7 @@ namespace Ninja_Price.Main
 
                 var textColor = data.PriceData.ExaltedPrice >= 1 ? Color.Black : Color.White;
                 var bgColor = data.PriceData.ExaltedPrice >= 1 ? Color.Goldenrod : Color.Black;
-                Graphics.DrawText(Math.Round((decimal) data.PriceData.MinChaosValue, 2).ToString() + "c", position, textColor, FontAlign.Center);
+                Graphics.DrawText(Math.Round((decimal) data.PriceData.MinChaosValue, 2) + "c", position, textColor, FontAlign.Center);
                 Graphics.DrawBox(drawBox, bgColor);
                 Graphics.DrawFrame(drawBox, Color.Black, 1);
             }

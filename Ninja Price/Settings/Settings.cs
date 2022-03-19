@@ -13,7 +13,7 @@ namespace Ninja_Price.Settings
             LeagueList = new ListNode();
             ReloadButton = new ButtonNode();
             AutoReload = new ToggleNode();
-            AutoReloadTimer = new RangeNode<int>(15, 1, 60);
+            ReloadTimer = new RangeNode<int>(15, 1, 60);
             UniTextColor = Color.White;
             Debug = new ToggleNode(false);
 
@@ -42,7 +42,6 @@ namespace Ninja_Price.Settings
         }
 
         public DateTime LastUpDateTime { get; set; } = DateTime.Now;
-        public bool FirstTime { get; set; } = false;
 
         [Menu("Value Loop Timer")]
         public RangeNode<int> ValueLoopTimerMS { get; set; } = new RangeNode<int>(250, 1, 2000);
@@ -59,8 +58,8 @@ namespace Ninja_Price.Settings
         [Menu("Auto Reload Toggle", 3)]
         public ToggleNode AutoReload { get; set; }
 
-        [Menu("Auto Reload (Minutes)", 31, 3)]
-        public RangeNode<int> AutoReloadTimer { get; set; }
+        [Menu("Reload timer (Minutes)", 31, 3)]
+        public RangeNode<int> ReloadTimer { get; set; }
 
         [Menu("Plugin Wide Text Color", 355, 3)]
         public ColorNode UniTextColor { get; set; }
