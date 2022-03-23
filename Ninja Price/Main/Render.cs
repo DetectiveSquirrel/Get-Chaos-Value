@@ -9,6 +9,7 @@ using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Enums;
+using ExileCore.Shared.Helpers;
 using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
 using ImGuiNET;
@@ -18,13 +19,11 @@ namespace Ninja_Price.Main
 {
     public partial class Main
     {
-        // TODO: Clean this shit up later
-        public Stopwatch ValueUpdateTimer = Stopwatch.StartNew();
+        public Stopwatch StashUpdateTimer = Stopwatch.StartNew();
+        public Stopwatch InventoryUpdateTimer = Stopwatch.StartNew();
         public double StashTabValue { get; set; }
         public double InventoryTabValue { get; set; }
         public double? ExaltedValue { get; set; }
-        public List<NormalInventoryItem> HaggleItemList { get; set; } = new List<NormalInventoryItem>();
-        public List<CustomItem> FormattedHaggleItemList { get; set; } = new List<CustomItem>();
         public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
         public List<CustomItem> FormattedItemList { get; set; } = new List<CustomItem>();
 
@@ -83,13 +82,12 @@ namespace Ninja_Price.Main
                     if (ShouldUpdateValues())
                     {
                         // Format stash items
-                        ItemList = new List<NormalInventoryItem>();
                         switch (tabType)
                         {
                             case InventoryType.BlightStash:
                                 ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
                                 ItemList.RemoveAt(0);
-                                ItemList.RemoveAt(ItemList.Count()-1);
+                                ItemList.RemoveAt(ItemList.Count - 1);
                                 break;
                             case InventoryType.MetamorphStash:
                                 ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
@@ -103,141 +101,58 @@ namespace Ninja_Price.Main
                         {
                             ItemList = (List<NormalInventoryItem>)GameController.Game.IngameState.IngameUi.RitualWindow.Items;
                         }
-                        FormattedItemList = new List<CustomItem>();
                         FormattedItemList = FormatItems(ItemList);
-
-                        // Format Inventory Items
-                        InventoryItemList = new List<NormalInventoryItem>();
-                        InventoryItemList = GetInventoryItems();
-                        FormattedInventoryItemList = new List<CustomItem>();
-                        FormattedInventoryItemList = FormatItems(InventoryItemList);
 
                         if (Settings.Debug)
                             LogMessage($"{GetCurrentMethod()}.Render() Looping if (ShouldUpdateValues())", 5,
                                 Color.LawnGreen);
 
-                        foreach (var item in FormattedItemList)
-                            GetValue(item);
-                        foreach (var item in FormattedInventoryItemList)
-                            GetValue(item);
+                        FormattedItemList.ForEach(GetValue);
                     }
 
-                    // Gather all information needed before rendering as we only want to itterate through the list once
+                    // Gather all information needed before rendering as we only want to iterate through the list once
 
                     ItemsToDrawList = new List<CustomItem>();
                     foreach (var item in FormattedItemList)
                     {
                         if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
                         if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
-                            continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
+                            continue; // Disregard non visible items as that usually means they aren't part of what we want to look at
 
                         StashTabValue += item.PriceData.MinChaosValue;
                         ItemsToDrawList.Add(item);
                     }
-
-                    InventoryItemsToDrawList = new List<CustomItem>();
-                    foreach (var item in FormattedInventoryItemList)
-                    {
-
-                        if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
-                        if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
-                            continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
-
-                        InventoryTabValue += item.PriceData.MinChaosValue;
-                        InventoryItemsToDrawList.Add(item);
-                    }
                 }
-                else if (InventoryPanel.IsVisible)
+                if (InventoryPanel.IsVisible)
                 {
                     if (ShouldUpdateValuesInventory())
                     {
                         // Format Inventory Items
-                        InventoryItemList = new List<NormalInventoryItem>();
                         InventoryItemList = GetInventoryItems();
-                        FormattedInventoryItemList = new List<CustomItem>();
                         FormattedInventoryItemList = FormatItems(InventoryItemList);
 
                         if (Settings.Debug)
-                            LogMessage($"{GetCurrentMethod()}.Render() Looping if (ShouldUpdateValues())", 5,
+                            LogMessage($"{GetCurrentMethod()}.Render() Looping if (ShouldUpdateValuesInventory())", 5,
                                 Color.LawnGreen);
 
-                        foreach (var item in FormattedInventoryItemList)
-                            GetValue(item);
+                        FormattedInventoryItemList.ForEach(GetValue);
                     }
 
-                    // Gather all information needed before rendering as we only want to itterate through the list once
+                    // Gather all information needed before rendering as we only want to iterate through the list once
                     InventoryItemsToDrawList = new List<CustomItem>();
                     foreach (var item in FormattedInventoryItemList)
                     {
-
                         if (item == null || item.Item.Address == 0) continue; // Item is fucked, skip
                         if (!item.Item.IsVisible && item.ItemType != ItemTypes.None)
-                            continue; // Disregard non visable items as that usually means they arnt part of what we want to look at
+                            continue; // Disregard non visible items as that usually means they aren't part of what we want to look at
 
                         InventoryTabValue += item.PriceData.MinChaosValue;
                         InventoryItemsToDrawList.Add(item);
                     }
                 }
 
-                if (HagglePanel.IsVisible)
-                {
-
-                    var haggleType = None;
-
-                    // Return Haggle Window Type
-                    var haggleText = HagglePanel.GetChildAtIndex(6).GetChildAtIndex(2).GetChildAtIndex(0).Text;
-
-                    switch (haggleText)
-                    {
-                        case "Exchange":
-                            haggleType = Exchange;
-                            break;
-                        case "Gamble":
-                            haggleType = Gamble;
-                            break;
-                        case "Deal":
-                            haggleType = Deal;
-                            break;
-                        case "Haggle":
-                            haggleType = Haggle;
-                            break;
-                    }
-
-                    if (haggleType == Gamble)
-                    {
-                        HaggleItemList = new List<NormalInventoryItem>();
-                        var itemChild = HagglePanel.GetChildAtIndex(8).GetChildAtIndex(1).GetChildAtIndex(0).GetChildAtIndex(0);
-
-                        for (var i = 1; i < itemChild.ChildCount; ++i)
-                        {
-                            var item = itemChild.Children[i].AsObject<NormalInventoryItem>();
-                            HaggleItemList.Add(item);
-
-                            if (Settings.Debug)
-                            {
-                                LogMessage(
-                                    $"Haggle Item[{HaggleItemList.Count}]: {GameController.Files.BaseItemTypes.Translate(item.Item.Path).BaseName}");
-                            }
-                        }
-
-                        // Format Haggle Items
-                        FormattedHaggleItemList = new List<CustomItem>();
-                        FormattedHaggleItemList = FormatItems(HaggleItemList);
-
-                        foreach (var item in FormattedHaggleItemList)
-                            GetValueHaggle(item);
-                    }
-                    else
-                    {
-                        HaggleItemList = new List<NormalInventoryItem>();
-                        FormattedHaggleItemList = new List<CustomItem>();
-                    }
-                }
-
-                // Expedition Gamble Func
-                ExpeditionGamble();
-
                 GetHoveredItem(); // Get information for the hovered item
+                ProcessExpeditionWindow();
                 DrawGraphics();
             }
             catch (Exception e)
@@ -288,6 +203,18 @@ namespace Ninja_Price.Main
                     case ItemTypes.UniqueJewel:
                     case ItemTypes.UniqueMap:
                     case ItemTypes.UniqueWeapon:
+                        if (HoveredItem.UniqueNameCandidates.Any())
+                        {
+                            if (HoveredItem.UniqueNameCandidates.Count == 1)
+                            {
+                                text += $"\nIdentified as: {HoveredItem.UniqueNameCandidates.First()}";
+                            }
+                            else
+                            {
+                                text += $"\nIdentified as one of:\n";
+                                text += string.Join('\n', HoveredItem.UniqueNameCandidates);
+                            }
+                        }
                         if (HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice >= 0.1)
                         {
                             text += $"\n\rExalt: {HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice:0.##}ex - {HoveredItem.PriceData.MaxChaosValue / HoveredItem.PriceData.ExaltedPrice:0.##}ex";
@@ -317,13 +244,9 @@ namespace Ninja_Price.Main
                 
                 if (Settings.ArtifactChaosPrices)
                 {
-                    var artifactChaosPrice = TryGetArtifactToChaosPrice(HoveredItem);
-                    if (artifactChaosPrice > 0)
+                    if (TryGetArtifactPrice(HoveredItem, out var amount, out var artifactName))
                     {
-                        var exaltString = ExaltedValue != null && artifactChaosPrice >= 0.5 * ExaltedValue
-                            ? $" ({artifactChaosPrice / ExaltedValue:F2} ex)"
-                            : string.Empty;
-                        text += $"\n\rArtifact price: {artifactChaosPrice:F1}c{exaltString}";
+                        text += $"\nArtifact price: ({Math.Round(HoveredItem.PriceData.MinChaosValue / amount * 100, 2)}c per 100 {artifactName})";
                     }
                 }
 
@@ -455,7 +378,7 @@ namespace Ninja_Price.Main
             var drawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.CurrencyTabBoxHeight);
             var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.CurrencyTabFontSize.Value / 2);
            
-            Graphics.DrawText(Math.Round((decimal) item.PriceData.MinChaosValue, Settings.CurrencyTabSigDigits.Value).ToString(), position, Settings.CurrencyTabFontColor, FontAlign.Center);
+            Graphics.DrawText(Math.Round(item.PriceData.MinChaosValue, Settings.CurrencyTabSigDigits.Value).ToString(), position, Settings.CurrencyTabFontColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
             //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
         }
@@ -469,35 +392,91 @@ namespace Ninja_Price.Main
             if (item.PriceData.ItemBasePrices.Count == 0)
                 return;
 
-            // Sort base unique price from High -> Low
-            item.PriceData.ItemBasePrices.Sort((a, b) => b.CompareTo(a));
-
             if (Settings.Debug)
                 Graphics.DrawText(string.Join(",", item.PriceData.ItemBasePrices), position, Settings.CurrencyTabFontColor, FontAlign.Center);
 
-
-            Graphics.DrawText(Math.Round((decimal)item.PriceData.ItemBasePrices.FirstOrDefault(), Settings.CurrencyTabSigDigits.Value).ToString(CultureInfo.InvariantCulture), position, Settings.CurrencyTabFontColor, FontAlign.Center);
+            Graphics.DrawText(Math.Round(item.PriceData.ItemBasePrices.Max(), Settings.CurrencyTabSigDigits.Value).ToString(CultureInfo.InvariantCulture), position, Settings.CurrencyTabFontColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
             //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
         }
 
-        private void ExpeditionGamble()
+        private void ProcessExpeditionWindow()
         {
-            var window = HagglePanel;
-            if (!window.IsVisible) return;
-            foreach (var customItem in FormattedHaggleItemList)
+            if (!HagglePanel.IsVisible) return;
             {
-                try
+                // Return Haggle Window Type
+                var haggleText = HagglePanel.GetChildFromIndices(6, 2, 0)?.Text;
+
+                var haggleType = haggleText switch
                 {
-                    PriceBoxOverItemHaggle(customItem);
-                }
-                catch (Exception e)
+                    "Exchange" => Exchange,
+                    "Gamble" => Gamble,
+                    "Deal" => Deal,
+                    "Haggle" => Haggle,
+                    _ => None
+                };
+
+                var inventory = HagglePanel.GetChildFromIndices(8, 1, 0, 0);
+                var itemList = inventory?.GetChildrenAs<NormalInventoryItem>().Skip(1).ToList() ?? new List<NormalInventoryItem>();
+                if (haggleType == Gamble)
                 {
-                    // ignored
                     if (Settings.Debug)
                     {
-                        LogMessage("Error in: ExpeditionGamble, restart PoEHUD.", 5, Color.Red);
-                        LogMessage(e.ToString(), 5, Color.Orange);
+                        foreach (var (item, index) in itemList.Select((item, index) => (item, index)))
+                        {
+                            LogMessage(
+                                $"Haggle Item[{index}]: {GameController.Files.BaseItemTypes.Translate(item.Item.Path).BaseName}");
+                        }
+                    }
+
+                    var formattedItemList = FormatItems(itemList);
+
+                    foreach (var customItem in formattedItemList)
+                    {
+                        GetValueHaggle(customItem);
+                        try
+                        {
+                            PriceBoxOverItemHaggle(customItem);
+                        }
+                        catch (Exception e)
+                        {
+                            // ignored
+                            if (Settings.Debug)
+                            {
+                                LogMessage("Error in: ExpeditionGamble, restart PoEHUD.", 5, Color.Red);
+                                LogMessage(e.ToString(), 5, Color.Orange);
+                            }
+                        }
+                    }
+                }
+
+                if (haggleType == Haggle)
+                {
+                    var formattedItemList = FormatItems(itemList);
+                    formattedItemList.ForEach(GetValue);
+                    var tooltipRect = HoveredItem?.Item.AsObject<HoverItemIcon>()?.Tooltip?.GetClientRect() ?? new RectangleF(0, 0, 0, 0);
+                    foreach (var customItem in formattedItemList)
+                    {
+                        var box = customItem.Item.GetClientRect();
+                        if (!tooltipRect.Intersects(box))
+                        {
+                            if (customItem.PriceData.MinChaosValue > 0)
+                            {
+                                Graphics.DrawText(Math.Round(customItem.PriceData.MinChaosValue, 2).ToString(), box.TopRight, Settings.CurrencyTabFontColor, FontAlign.Right);
+                            }
+
+                            if (Settings.ArtifactChaosPrices && TryGetArtifactPrice(customItem, out var amount, out var artifactName))
+                            {
+                                var text = $"[{artifactName.Substring(0, 3)}]\n" +
+                                           (customItem.PriceData.MinChaosValue > 0
+                                                ? Math.Round(customItem.PriceData.MinChaosValue / amount * 100, 2).ToString()
+                                                : "");
+                                var textSize = Graphics.MeasureText(text);
+                                var leftTop = box.BottomLeft - new Vector2(0, textSize.Y);
+                                Graphics.DrawBox(leftTop, leftTop + textSize.TranslateToNum(), Color.Black);
+                                Graphics.DrawText(text, leftTop, Settings.CurrencyTabFontColor);
+                            }
+                        }
                     }
                 }
             }
@@ -512,7 +491,7 @@ namespace Ninja_Price.Main
             var hoverUi = GameController.Game.IngameState.UIHoverTooltip.Tooltip;
             if (hoverUi != null && (item.Rarity != ItemRarity.Unique || hoverUi.GetClientRect().Intersects(item.Item.GetClientRect()) && hoverUi.IsVisibleLocal)) return;
 
-            var chaosValueSignificantDigits = Math.Round((decimal) item.PriceData.MinChaosValue, Settings.HighlightSignificantDigits.Value);
+            var chaosValueSignificantDigits = Math.Round(item.PriceData.MinChaosValue, Settings.HighlightSignificantDigits.Value);
             if (chaosValueSignificantDigits >= Settings.InventoryValueCutOff.Value) return;
             var rec = item.Item.GetClientRect();
             var fontSize = Settings.HighlightFontSize.Value;
@@ -554,16 +533,18 @@ namespace Ninja_Price.Main
 
                 var textColor = data.PriceData.ExaltedPrice >= 1 ? Color.Black : Color.White;
                 var bgColor = data.PriceData.ExaltedPrice >= 1 ? Color.Goldenrod : Color.Black;
-                Graphics.DrawText(Math.Round((decimal) data.PriceData.MinChaosValue, 2) + "c", position, textColor, FontAlign.Center);
+                Graphics.DrawText(Math.Round(data.PriceData.MinChaosValue, 2) + "c", position, textColor, FontAlign.Center);
                 Graphics.DrawBox(drawBox, bgColor);
                 Graphics.DrawFrame(drawBox, Color.Black, 1);
             }
         }
 
-        private double TryGetArtifactToChaosPrice(CustomItem item)
+        private bool TryGetArtifactPrice(CustomItem item, out double amount, out string artifactName)
         {
-            if (item == null || item.Item == null)
-                return -1;
+            amount = 0;
+            artifactName = null;
+            if (item?.Item == null)
+                return false;
 
             Element GetElementByString(Element element, string str)
             {
@@ -577,27 +558,39 @@ namespace Ninja_Price.Main
             }
 
             var costElement = GetElementByString(item.Item?.AsObject<HoverItemIcon>()?.Tooltip, "Cost");
-            if (costElement == null || costElement.Parent == null || costElement.Parent.ChildCount < 2 ||
-                costElement.Parent.Children[1].ChildCount < 3)
-                return -1;
-            var amountText = costElement.Parent.Children[1].Children[0].Text;
-            var artifactName = costElement.Parent.Children[1].Children[2].Text;
-            if (string.IsNullOrWhiteSpace(amountText) || string.IsNullOrWhiteSpace(artifactName))
-                return -1;
-            var artifactSearch = CollectedData.Artifacts.Lines.Find(x => x.Name == artifactName);
-            if (artifactSearch == null)
-                return -1;
+            if (costElement?.Parent == null || 
+                costElement.Parent.ChildCount < 2 ||
+                costElement.Parent.GetChildAtIndex(1).ChildCount < 3)
+                return false;
+            var amountText = costElement.Parent.GetChildFromIndices(1, 0)?.Text;
+            if (amountText == null)
+                return false;
+            artifactName = costElement.Parent.GetChildFromIndices(1, 2)?.Text;
+            if (artifactName == null)
+                return false;
             if (costElement.Text.Equals("Cost:")) // Tujen haggling
             {
-                var amount = int.Parse(amountText.Substring(0, amountText.Length - 1));
-                return artifactSearch.ChaosValue.Value * amount;
+                if (!int.TryParse(amountText.TrimEnd('x'), NumberStyles.Integer, CultureInfo.InvariantCulture, out var amountInt))
+                {
+                    return false;
+                }
+
+                amount = amountInt;
+                return true;
             }
+
             if (costElement.Text.Equals("Cost Per Unit:")) // Artifact stacks (Dannig)
             {
-                var costPerUnit = double.Parse(amountText);
-                return item.CurrencyInfo.StackSize * costPerUnit * artifactSearch.ChaosValue.Value;
+                if (!double.TryParse(amountText, NumberStyles.Float, CultureInfo.InvariantCulture, out var costPerUnit))
+                {
+                    return false;
+                }
+
+                amount = item.CurrencyInfo.StackSize * costPerUnit;
+                return true;
             }
-            return -1;
+
+            return false;
         }
     }
 }

@@ -245,12 +245,12 @@ namespace Ninja_Price.Main
                             break;
                         case ItemTypes.UniqueAccessory:
                             var uniqueAccessorieSearch = CollectedData.UniqueAccessories.Lines.FindAll(x => x.Name == item.UniqueName && !x.DetailsId.Contains("-relic"));
-                            if (uniqueAccessorieSearch.Count() == 1)
+                            if (uniqueAccessorieSearch.Count == 1)
                             {
                                 item.PriceData.MinChaosValue = (double)uniqueAccessorieSearch[0].ChaosValue;
                                 item.PriceData.ChangeInLast7Days = (double)uniqueAccessorieSearch[0].Sparkline.TotalChange;
                             }
-                            else if (uniqueAccessorieSearch.Count() > 1)
+                            else if (uniqueAccessorieSearch.Count > 1)
                             {
                                 item.PriceData.MinChaosValue = (double)uniqueAccessorieSearch.OrderBy(x => x.ChaosValue).First().ChaosValue;
                                 item.PriceData.MaxChaosValue = (double)uniqueAccessorieSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue;
@@ -263,75 +263,37 @@ namespace Ninja_Price.Main
                             }
                             break;
                         case ItemTypes.UniqueArmour:
-                            switch (item.LargestLink)
+                        {
+                            var allLinksLines = CollectedData.UniqueArmours.Lines.Where(x =>
+                                (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
+                                !x.DetailsId.Contains("-relic"));
+                            var uniqueArmourSearchLinks = item.LargestLink switch
                             {
-                                case 0:
-                                case 1:
-                                case 2:
-                                case 3:
-                                case 4:
-                                    var uniqueArmourSearchLinks04 = CollectedData.UniqueArmours.Lines.FindAll(x => x.Name == item.UniqueName && x.Links != 5 && x.Links != 6 && !x.DetailsId.Contains("-relic"));
-                                    if (uniqueArmourSearchLinks04.Count() == 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueArmourSearchLinks04[0].ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = (double)uniqueArmourSearchLinks04[0].Sparkline.TotalChange;
-                                    }
-                                    else if (uniqueArmourSearchLinks04.Count() > 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueArmourSearchLinks04.OrderBy(x => x.ChaosValue).First().ChaosValue;
-                                        item.PriceData.MaxChaosValue = (double)uniqueArmourSearchLinks04.OrderBy(x => x.ChaosValue).Last().ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-                                    else
-                                    {
-                                        item.PriceData.MinChaosValue = 0;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
+                                < 5 => allLinksLines.Where(x => x.Links != 5 && x.Links != 6).ToList(),
+                                5 => allLinksLines.Where(x => x.Links == 5).ToList(),
+                                6 => allLinksLines.Where(x => x.Links == 6).ToList(),
+                                _ => new List<UniqueArmours.Line>()
+                            };
 
-                                    break;
-                                case 5:
-                                    var uniqueArmourSearchLinks05 = CollectedData.UniqueArmours.Lines.FindAll(x => x.Name == item.UniqueName && x.Links == 5 && !x.DetailsId.Contains("-relic"));
-                                    if (uniqueArmourSearchLinks05.Count() == 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueArmourSearchLinks05[0].ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = (double)uniqueArmourSearchLinks05[0].Sparkline.TotalChange;
-                                    }
-                                    else if (uniqueArmourSearchLinks05.Count() > 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueArmourSearchLinks05.OrderBy(x => x.ChaosValue).First().ChaosValue;
-                                        item.PriceData.MaxChaosValue = (double)uniqueArmourSearchLinks05.OrderBy(x => x.ChaosValue).Last().ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-                                    else
-                                    {
-                                        item.PriceData.MinChaosValue = 0;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-
-                                    break;
-                                case 6:
-                                    var uniqueArmourSearchLinks06 = CollectedData.UniqueArmours.Lines.FindAll(x => x.Name == item.UniqueName && x.Links == 6 && !x.DetailsId.Contains("-relic"));
-                                    if (uniqueArmourSearchLinks06.Count() == 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueArmourSearchLinks06[0].ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = (double)uniqueArmourSearchLinks06[0].Sparkline.TotalChange;
-                                    }
-                                    else if (uniqueArmourSearchLinks06.Count() > 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueArmourSearchLinks06.OrderBy(x => x.ChaosValue).First().ChaosValue;
-                                        item.PriceData.MaxChaosValue = (double)uniqueArmourSearchLinks06.OrderBy(x => x.ChaosValue).Last().ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-                                    else
-                                    {
-                                        item.PriceData.MinChaosValue = 0;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-
-                                    break;
+                            if (uniqueArmourSearchLinks.Count == 1)
+                            {
+                                item.PriceData.MinChaosValue = uniqueArmourSearchLinks[0].ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = uniqueArmourSearchLinks[0].Sparkline.TotalChange ?? 0;
+                            }
+                            else if (uniqueArmourSearchLinks.Count > 1)
+                            {
+                                item.PriceData.MinChaosValue = uniqueArmourSearchLinks.Min(x => x.ChaosValue) ?? 0;
+                                item.PriceData.MaxChaosValue = uniqueArmourSearchLinks.Max(x => x.ChaosValue) ?? 0;
+                                item.PriceData.ChangeInLast7Days = 0;
+                            }
+                            else
+                            {
+                                item.PriceData.MinChaosValue = 0;
+                                item.PriceData.ChangeInLast7Days = 0;
                             }
 
                             break;
+                        }
                         case ItemTypes.UniqueFlask:
                             var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.FindAll(x => x.Name == item.UniqueName && !x.DetailsId.Contains("-relic"));
                             if (uniqueFlaskSearch.Count() == 1)
@@ -411,74 +373,35 @@ namespace Ninja_Price.Main
 
                             break;
                         case ItemTypes.UniqueWeapon:
-                            switch (item.LargestLink)
+                        {
+                            var allLinksLines = CollectedData.UniqueWeapons.Lines.Where(x =>
+                                (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
+                                !x.DetailsId.Contains("-relic"));
+                            var uniqueArmourSearchLinks = item.LargestLink switch
                             {
-                                case 0:
-                                case 1:
-                                case 2:
-                                case 3:
-                                case 4:
-                                    var uniqueWeaponSearch04 = CollectedData.UniqueWeapons.Lines.FindAll(x => x.Name == item.UniqueName && x.Links != 5 && x.Links != 6 && !x.DetailsId.Contains("-relic"));
-                                    if (uniqueWeaponSearch04.Count() == 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch04[0].ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch04[0].Sparkline.TotalChange;
-                                    }
-                                    else if (uniqueWeaponSearch04.Count() > 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch04.OrderBy(x => x.ChaosValue).First().ChaosValue;
-                                        item.PriceData.MaxChaosValue = (double)uniqueWeaponSearch04.OrderBy(x => x.ChaosValue).Last().ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-                                    else
-                                    {
-                                        item.PriceData.MinChaosValue = 0;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-
-                                    break;
-                                case 5:
-                                    var uniqueWeaponSearch5 = CollectedData.UniqueWeapons.Lines.FindAll(x => x.Name == item.UniqueName && x.Links == 5 && !x.DetailsId.Contains("-relic"));
-                                    if (uniqueWeaponSearch5.Count() == 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch5[0].ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch5[0].Sparkline.TotalChange;
-                                    }
-                                    else if (uniqueWeaponSearch5.Count() > 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch5.OrderBy(x => x.ChaosValue).First().ChaosValue;
-                                        item.PriceData.MaxChaosValue = (double)uniqueWeaponSearch5.OrderBy(x => x.ChaosValue).Last().ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-                                    else
-                                    {
-                                        item.PriceData.MinChaosValue = 0;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-
-                                    break;
-                                case 6:
-                                    var uniqueWeaponSearch6 = CollectedData.UniqueWeapons.Lines.FindAll(x => x.Name == item.UniqueName && x.Links == 6 && !x.DetailsId.Contains("-relic"));
-                                    if (uniqueWeaponSearch6.Count() == 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch6[0].ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch6[0].Sparkline.TotalChange;
-                                    }
-                                    else if (uniqueWeaponSearch6.Count() > 1)
-                                    {
-                                        item.PriceData.MinChaosValue = (double)uniqueWeaponSearch6.OrderBy(x => x.ChaosValue).First().ChaosValue;
-                                        item.PriceData.MaxChaosValue = (double)uniqueWeaponSearch6.OrderBy(x => x.ChaosValue).Last().ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-                                    else
-                                    {
-                                        item.PriceData.MinChaosValue = 0;
-                                        item.PriceData.ChangeInLast7Days = 0;
-                                    }
-
-                                    break;
+                                < 5 => allLinksLines.Where(x => x.Links != 5 && x.Links != 6).ToList(),
+                                5 => allLinksLines.Where(x => x.Links == 5).ToList(),
+                                6 => allLinksLines.Where(x => x.Links == 6).ToList(),
+                                _ => new List<UniqueWeapons.Line>()
+                            };
+                            if (uniqueArmourSearchLinks.Count == 1)
+                            {
+                                item.PriceData.MinChaosValue = uniqueArmourSearchLinks[0].ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = uniqueArmourSearchLinks[0].Sparkline.TotalChange ?? 0;
+                            }
+                            else if (uniqueArmourSearchLinks.Count > 1)
+                            {
+                                item.PriceData.MinChaosValue = uniqueArmourSearchLinks.Min(x => x.ChaosValue) ?? 0;
+                                item.PriceData.MaxChaosValue = uniqueArmourSearchLinks.Max(x => x.ChaosValue) ?? 0;
+                                item.PriceData.ChangeInLast7Days = 0;
+                            }
+                            else
+                            {
+                                item.PriceData.MinChaosValue = 0;
+                                item.PriceData.ChangeInLast7Days = 0;
                             }
                             break;
+                        }
                         case ItemTypes.Map:
                             switch (item.MapInfo.MapType)
                             {
@@ -595,9 +518,9 @@ namespace Ninja_Price.Main
 
         public bool ShouldUpdateValues()
         {
-            if (ValueUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
+            if (StashUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
             {
-                ValueUpdateTimer.Restart();
+                StashUpdateTimer.Restart();
                 if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
             }
             else
@@ -632,9 +555,9 @@ namespace Ninja_Price.Main
 
         public bool ShouldUpdateValuesInventory()
         {
-            if (ValueUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
+            if (InventoryUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
             {
-                ValueUpdateTimer.Restart();
+                InventoryUpdateTimer.Restart();
                 if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
             }
             else
@@ -646,24 +569,24 @@ namespace Ninja_Price.Main
             {
                 if (!Settings.VisibleInventoryValue.Value || !GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
                 {
-                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Inventory is not visible", 5, Color.DarkGray); }
+                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() Inventory is not visible", 5, Color.DarkGray); }
                     return false;
                 }
 
                 // Dont continue if the stash page isnt even open
                 if (GameController.Game.IngameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory].VisibleInventoryItems == null)
                 {
-                    if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Items == null", 5, Color.DarkGray);
+                    if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() Items == null", 5, Color.DarkGray);
                     return false;
                 }
             }
             catch (Exception)
             {
-                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues()", 5, Color.DarkGray);
+                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory()", 5, Color.DarkGray);
                 return false;
             }
 
-            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
+            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() == True", 5, Color.LimeGreen);
             return true;
         }
         

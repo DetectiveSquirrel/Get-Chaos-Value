@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements.InventoryElements;
+using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.Shared.Enums;
 using Ninja_Price.Enums;
 
@@ -29,6 +30,7 @@ namespace Ninja_Price.Main
         public ItemRarity Rarity;
         public int Sockets;
         public string UniqueName;
+        public List<string> UniqueNameCandidates;
         public int Width;
         public ItemTypes ItemType;
         public ItemTypes ItemTypeGamble;
@@ -106,7 +108,23 @@ namespace Ninja_Price.Main
                     IsIdentified = mods.Identified;
                     ItemLevel = mods.ItemLevel;
                     UniqueName = mods.UniqueName;
+                    if (!IsIdentified && Rarity == ItemRarity.Unique)
+                    {
+                        var artPath = item.Item.GetComponent<RenderItem>()?.ResourcePath;
+                        if (artPath != null)
+                        {
+                            UniqueNameCandidates = Core.GameController.Files.ItemVisualIdentities
+                               .GetByArtPath(artPath)
+                               .SelectMany(Core.GameController.Files.UniqueItemDescriptions.GetByVisualIdentity)
+                               .Select(x => x.UniqueName.Text)
+                               .Distinct()
+                               .ToList();
+                        }
+                    }
+
                 }
+
+                UniqueNameCandidates ??= new List<string>();
 
                 if (item.Item.HasComponent<Sockets>())
                 {
@@ -238,24 +256,23 @@ namespace Ninja_Price.Main
                 else
                     switch (Rarity) // Unique information
                     {
-                        case ItemRarity.Unique when IsIdentified && IsIdentified && ClassName == "Amulet" ||
-                                                    ClassName == "Ring" || ClassName == "Belt":
+                        case ItemRarity.Unique when ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
                             ItemType = ItemTypes.UniqueAccessory;
                             break;
                         case ItemRarity.Unique
-                            when IsIdentified && item.Item.HasComponent<Armour>() || ClassName == "Quiver":
+                            when item.Item.HasComponent<Armour>() || ClassName == "Quiver":
                             ItemType = ItemTypes.UniqueArmour;
                             break;
-                        case ItemRarity.Unique when IsIdentified && item.Item.HasComponent<Flask>():
+                        case ItemRarity.Unique when item.Item.HasComponent<Flask>():
                             ItemType = ItemTypes.UniqueFlask;
                             break;
-                        case ItemRarity.Unique when IsIdentified && ClassName.Equals("Jewel"):
+                        case ItemRarity.Unique when ClassName.Equals("Jewel"):
                             ItemType = ItemTypes.UniqueJewel;
                             break;
                         case ItemRarity.Unique when MapInfo.IsMap:
                             ItemType = ItemTypes.UniqueMap;
                             break;
-                        case ItemRarity.Unique when IsIdentified && item.Item.HasComponent<Weapon>():
+                        case ItemRarity.Unique when item.Item.HasComponent<Weapon>():
                             ItemType = ItemTypes.UniqueWeapon;
                             break;
                         case ItemRarity.Normal when ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
