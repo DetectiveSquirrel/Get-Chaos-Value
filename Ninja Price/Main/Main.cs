@@ -32,6 +32,14 @@ namespace Ninja_Price.Main
             return true;
         }
 
+        public override void AreaChange(AreaInstance area)
+        {
+            if (GameController.Files.UniqueItemDescriptions.EntriesList.Count == 0)
+            {
+                GameController.Files.LoadFiles();
+            }
+        }
+
         private void GatherLeagueNames()
         {
             var leagueListFromUrl = Api.DownloadFromUrl(PoeLeagueApiList).Result;

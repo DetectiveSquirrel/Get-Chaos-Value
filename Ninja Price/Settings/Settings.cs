@@ -160,6 +160,43 @@ namespace Ninja_Price.Settings
 
         #endregion
 
+        #region Unique identification
+
+        [Menu("Unique identification", 30000)]
+        public EmptyNode UniqueIdentification { get; set; }
+
+        [Menu("Do Not Warn About Unique List Load", parentIndex = 30000)]
+        public ToggleNode DoNotWarnAboutUniqueListLoad { get; set; } = new ToggleNode(false);
+
+        [Menu("Price Uniques On Ground", parentIndex = 30000)]
+        public ToggleNode PriceUniquesOnGround { get; set; } = new ToggleNode(true);
+
+        [Menu("Display Real Unique Name On Ground", parentIndex = 30000)]
+        public ToggleNode DisplayRealUniqueNameOnGround { get; set; } = new ToggleNode(true);
+
+        [Menu("Only Display Real Unique Name For Valuable Uniques", parentIndex = 30000)]
+        public ToggleNode OnlyDisplayRealUniqueNameForValuableUniques { get; set; } = new ToggleNode(false);
+
+        [Menu("Unique Label Size", parentIndex = 30000)]
+        public RangeNode<float> UniqueLabelSize { get; set; } = new RangeNode<float>(0.8f, 0.1f, 1);
+
+        [Menu("Unique Item Name Text Color", parentIndex = 30000)]
+        public ColorNode UniqueItemNameTextColor { get; set; } = new ColorNode(Color.Black);
+
+        [Menu("Unique Item Name Background Color", parentIndex = 30000)]
+        public ColorNode UniqueItemNameBackgroundColor { get; set; } = new ColorNode(new Color(175, 96, 37));
+
+        [Menu("Valuable Unique On Ground Value Threshold", parentIndex = 30000)]
+        public RangeNode<int> ValuableUniqueOnGroundValueThreshold { get; set; } = new RangeNode<int>(50, 0, 100000);
+
+        [Menu("Valuable Unique Item Name Text Color", parentIndex = 30000)]
+        public ColorNode ValuableUniqueItemNameTextColor { get; set; } = new ColorNode(new Color(175, 96, 37));
+
+        [Menu("Valuable Unique Item Name Background Color", parentIndex = 30000)]
+        public ColorNode ValuableUniqueItemNameBackgroundColor { get; set; } = new ColorNode(Color.White);
+
+        #endregion
+
         public ToggleNode Enable { get; set; } = new ToggleNode(true);
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.PoEMemory.MemoryObjects;
@@ -22,7 +23,7 @@ namespace Ninja_Price.Main
         public bool IsShaper;
         public bool IsWeapon;
         public bool IsHovered;
-        public NormalInventoryItem Item;
+        public Element Element;
         public int ItemLevel;
         public int LargestLink { get; set; } = 0;
         public string Path;
@@ -60,14 +61,19 @@ namespace Ninja_Price.Main
         {
         }
 
-        public CustomItem(NormalInventoryItem item)
+        public CustomItem(NormalInventoryItem item) : this(item.Item, item)
+        {
+        }
+
+        public CustomItem(Entity itemEntity, Element element)
         {
             try
             {
-                if (item != null && item.Address != 0)
-                    Item = item;
-                Path = item.Item.Path;
-                var baseItemType = Core.GameController.Files.BaseItemTypes.Translate(item.Item.Path);
+                if (element != null && element.Address != 0)
+                    Element = element;
+
+                Path = itemEntity.Path;
+                var baseItemType = Core.GameController.Files.BaseItemTypes.Translate(itemEntity.Path);
                 ClassName = baseItemType.ClassName;
                 BaseName = baseItemType.BaseName;
                 Width = baseItemType.Width;
@@ -88,36 +94,38 @@ namespace Ninja_Price.Main
                     "Staff",
                     "Wand"
                 };
-                if (item.Item.HasComponent<Quality>())
+                if (itemEntity.HasComponent<Quality>())
                 {
-                    var quality = item.Item.GetComponent<Quality>();
+                    var quality = itemEntity.GetComponent<Quality>();
                     Quality = quality.ItemQuality;
                 }
 
-                if (item.Item.HasComponent<Base>())
+                if (itemEntity.HasComponent<Base>())
                 {
-                    var @base = item.Item.GetComponent<Base>();
+                    var @base = itemEntity.GetComponent<Base>();
                     IsElder = @base.isElder;
                     IsShaper = @base.isShaper;
                 }
 
-                if (item.Item.HasComponent<Mods>())
+                if (itemEntity.HasComponent<Mods>())
                 {
-                    var mods = item.Item.GetComponent<Mods>();
+                    var mods = itemEntity.GetComponent<Mods>();
                     Rarity = mods.ItemRarity;
                     IsIdentified = mods.Identified;
                     ItemLevel = mods.ItemLevel;
                     UniqueName = mods.UniqueName;
                     if (!IsIdentified && Rarity == ItemRarity.Unique)
                     {
-                        var artPath = item.Item.GetComponent<RenderItem>()?.ResourcePath;
+                        var artPath = itemEntity.GetComponent<RenderItem>()?.ResourcePath;
                         if (artPath != null)
                         {
                             UniqueNameCandidates = Core.GameController.Files.ItemVisualIdentities
                                .GetByArtPath(artPath)
                                .SelectMany(Core.GameController.Files.UniqueItemDescriptions.GetByVisualIdentity)
-                               .Select(x => x.UniqueName.Text)
+                               .Select(x => x.UniqueName?.Text)
                                .Distinct()
+                               .Where(x => x != null)
+                               .Where(x => !x.StartsWith("Replica "))
                                .ToList();
                         }
                     }
@@ -126,11 +134,11 @@ namespace Ninja_Price.Main
 
                 UniqueNameCandidates ??= new List<string>();
 
-                if (item.Item.HasComponent<Sockets>())
+                if (itemEntity.HasComponent<Sockets>())
                 {
                     try
                     {
-                        var sockets = item.Item.GetComponent<Sockets>();
+                        var sockets = itemEntity.GetComponent<Sockets>();
                         IsRgb = sockets.IsRGB;
                         Sockets = sockets.NumberOfSockets;
                         LargestLink = sockets.LargestLinkSize;
@@ -143,14 +151,14 @@ namespace Ninja_Price.Main
                 if (weaponClass.Any(ClassName.Equals))
                     IsWeapon = true;
 
-                MapInfo.MapTier = item.Item.HasComponent<Map>() ? item.Item.GetComponent<Map>().Tier : 0;
+                MapInfo.MapTier = itemEntity.HasComponent<Map>() ? itemEntity.GetComponent<Map>().Tier : 0;
                 MapInfo.IsMap = MapInfo.MapTier > 0;
 
                 if (Rarity != ItemRarity.Unique && MapInfo.IsMap)
                 {
                     MapInfo.MapType = MapTypes.None;
 
-                    foreach (var itemList in item.Item.GetComponent<Mods>().ItemMods)
+                    foreach (var itemList in itemEntity.GetComponent<Mods>().ItemMods)
                     {
                         if (itemList.RawName.Contains("Shaped "))
                         {
@@ -170,18 +178,17 @@ namespace Ninja_Price.Main
                     }
                 }
 
-                if (item.Item.HasComponent<Stack>())
+                if (itemEntity.HasComponent<Stack>())
                 {
-                    CurrencyInfo.StackSize = item.Item.GetComponent<Stack>().Size;
-                    CurrencyInfo.MaxStackSize = item.Item.GetComponent<Stack>().Info.MaxStackSize;
+                    CurrencyInfo.StackSize = itemEntity.GetComponent<Stack>().Size;
+                    CurrencyInfo.MaxStackSize = itemEntity.GetComponent<Stack>().Info.MaxStackSize;
                     if (BaseName.EndsWith(" Shard") || BaseName.EndsWith(" Fragment") ||
                         BaseName.EndsWith("Ritual Splinter"))
                         CurrencyInfo.IsShard = true;
                 }
 
 
-                IsHovered = Core.GameController.Game.IngameState.UIHover.AsObject<NormalInventoryItem>().Address ==
-                            item.Address;
+                IsHovered = Core.GameController.Game.IngameState.UIHover.AsObject<NormalInventoryItem>().Address == Element.Address;
 
                 // sort items into types to use correct json data later from poe.ninja
                 // This might need tweaking since if this catches anything other than currency.
@@ -260,10 +267,10 @@ namespace Ninja_Price.Main
                             ItemType = ItemTypes.UniqueAccessory;
                             break;
                         case ItemRarity.Unique
-                            when item.Item.HasComponent<Armour>() || ClassName == "Quiver":
+                            when itemEntity.HasComponent<Armour>() || ClassName == "Quiver":
                             ItemType = ItemTypes.UniqueArmour;
                             break;
-                        case ItemRarity.Unique when item.Item.HasComponent<Flask>():
+                        case ItemRarity.Unique when itemEntity.HasComponent<Flask>():
                             ItemType = ItemTypes.UniqueFlask;
                             break;
                         case ItemRarity.Unique when ClassName.Equals("Jewel"):
@@ -272,19 +279,19 @@ namespace Ninja_Price.Main
                         case ItemRarity.Unique when MapInfo.IsMap:
                             ItemType = ItemTypes.UniqueMap;
                             break;
-                        case ItemRarity.Unique when item.Item.HasComponent<Weapon>():
+                        case ItemRarity.Unique when itemEntity.HasComponent<Weapon>():
                             ItemType = ItemTypes.UniqueWeapon;
                             break;
                         case ItemRarity.Normal when ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
                             ItemTypeGamble = ItemTypes.UniqueAccessory;
                             break;
-                        case ItemRarity.Normal when item.Item.HasComponent<Armour>() || ClassName == "Quiver":
+                        case ItemRarity.Normal when itemEntity.HasComponent<Armour>() || ClassName == "Quiver":
                             ItemTypeGamble = ItemTypes.UniqueArmour;
                             break;
                         case ItemRarity.Normal when ClassName.Equals("Jewel"):
                             ItemTypeGamble = ItemTypes.UniqueJewel;
                             break;
-                        case ItemRarity.Normal when item.Item.HasComponent<Weapon>():
+                        case ItemRarity.Normal when itemEntity.HasComponent<Weapon>():
                             ItemTypeGamble = ItemTypes.UniqueWeapon;
                             break;
                     }
