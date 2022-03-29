@@ -53,6 +53,7 @@ namespace Ninja_Price.Main
             var labelsOnGround = GameController.IngameState.IngameUi.ItemsOnGroundLabelsVisible;
             var customItems = labelsOnGround
                .Where(x => x.ItemOnGround.HasComponent<WorldItem>())
+               .Where(x => x.ItemOnGround?.GetComponent<WorldItem>()?.ItemEntity?.IsValid == true)
                .Select(x => new CustomItem(x.ItemOnGround.GetComponent<WorldItem>().ItemEntity, x.Label))
                .Where(x => x.Rarity == ItemRarity.Unique)
                .ToList();
@@ -99,7 +100,7 @@ namespace Ninja_Price.Main
                 var tabType = StashPanel.VisibleStash?.InvType;
 
                 // Everything is updated, lets check if we should draw
-                if (StashPanel.IsVisible)
+                if (StashPanel.IsVisible && tabType != null)
                 {
                     if (ShouldUpdateValues())
                     {
@@ -293,7 +294,7 @@ namespace Ninja_Price.Main
             {
                 VisibleStashValue();
 
-                var tabType = StashPanel.VisibleStash.InvType;
+                var tabType = StashPanel.VisibleStash?.InvType;
                 foreach (var customItem in ItemsToDrawList)
                 {
                     if (customItem.ItemType == ItemTypes.None) continue;
@@ -646,7 +647,7 @@ namespace Ninja_Price.Main
                 if (element == null || string.IsNullOrWhiteSpace(str))
                     return null;
 
-                if (element.Text != null && element.Text.Contains(str))
+                if (element.Text?.Contains(str) == true)
                     return element;
 
                 return element.Children.Select(c => GetElementByString(c, str)).FirstOrDefault(e => e != null);

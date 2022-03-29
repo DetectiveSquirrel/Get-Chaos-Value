@@ -20,7 +20,7 @@ namespace Ninja_Price.Main
 
         public List<CustomItem> FormatItems(List<NormalInventoryItem> itemList)
         {
-            return itemList.ToList().Select(inventoryItem => new CustomItem(inventoryItem)).ToList();
+            return itemList.ToList().Where(x => x?.Item?.IsValid == true).Select(inventoryItem => new CustomItem(inventoryItem)).ToList();
         }
 
         public string GetShardParent(string shardBaseName)
@@ -537,7 +537,7 @@ namespace Ninja_Price.Main
                 }
 
                 // Dont continue if the stash page isnt even open
-                if (GameController.Game.IngameState.IngameUi.StashElement.VisibleStash.VisibleInventoryItems == null)
+                if (GameController.Game.IngameState.IngameUi.StashElement.VisibleStash?.VisibleInventoryItems == null)
                 {
                     if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Items == null", 5, Color.DarkGray);
                     return false;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ExileCore;
@@ -42,9 +43,18 @@ namespace Ninja_Price.Main
 
         private void GatherLeagueNames()
         {
-            var leagueListFromUrl = Api.DownloadFromUrl(PoeLeagueApiList).Result;
-            var leagueData = JsonConvert.DeserializeObject<List<Leagues>>(leagueListFromUrl);
-            var leagueList = leagueData.Where(league => !league.Id.Contains("SSF")).Select(league => league.Id).ToList();
+            List<string> leagueList;
+            try
+            {
+                var leagueListFromUrl = Api.DownloadFromUrl(PoeLeagueApiList).Result;
+                var leagueData = JsonConvert.DeserializeObject<List<Leagues>>(leagueListFromUrl);
+                leagueList = leagueData.Where(league => !league.Id.Contains("SSF")).Select(league => league.Id).ToList();
+            }
+            catch (Exception ex)
+            {
+                LogError($"Failed to download the league list: {ex}");
+                leagueList = new List<string> { GameController.IngameState.ServerData.League };
+            }
 
             if (!leagueList.Contains(Settings.LeagueList.Value))
             {
