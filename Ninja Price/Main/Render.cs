@@ -41,24 +41,36 @@ namespace Ninja_Price.Main
 
         public CustomItem HoveredItem { get; set; }
 
-        private readonly CachedValue<List<CustomItem>> _groundItems;
+        private readonly CachedValue<List<(CustomItem, GroundItemProcessingType)>> _groundItems;
 
         public Main()
         {
-            _groundItems = new TimeCache<List<CustomItem>>(GetItemsOnGround, 500);
+            _groundItems = new TimeCache<List<(CustomItem, GroundItemProcessingType)>>(GetItemsOnGround, 500);
         }
 
-        private List<CustomItem> GetItemsOnGround()
+        private List<(CustomItem item, GroundItemProcessingType type)> GetItemsOnGround()
         {
             var labelsOnGround = GameController.IngameState.IngameUi.ItemsOnGroundLabelsVisible;
-            var customItems = labelsOnGround
-               .Where(x => x.ItemOnGround.HasComponent<WorldItem>())
-               .Where(x => x.ItemOnGround?.GetComponent<WorldItem>()?.ItemEntity?.IsValid == true)
-               .Select(x => new CustomItem(x.ItemOnGround.GetComponent<WorldItem>().ItemEntity, x.Label))
-               .Where(x => x.Rarity == ItemRarity.Unique)
-               .ToList();
-            customItems.ForEach(GetValue);
-            return customItems;
+            var result = new List<(CustomItem item, GroundItemProcessingType type)>();
+            foreach (var labelOnGround in labelsOnGround)
+            {
+                var item = labelOnGround.ItemOnGround;
+                if (item.TryGetComponent<WorldItem>(out var worldItem) &&
+                    worldItem.ItemEntity is { IsValid: true } groundItemEntity &&
+                    groundItemEntity.TryGetComponent<Mods>(out var mods) &&
+                    mods.ItemRarity == ItemRarity.Unique)
+                {
+                    result.Add((new CustomItem(groundItemEntity, labelOnGround.Label), GroundItemProcessingType.WorldItem));
+                }
+                else if (item.TryGetComponent<HeistRewardDisplay>(out var heistReward) &&
+                         heistReward.RewardItem is { IsValid: true } heistItemEntity)
+                {
+                    result.Add((new CustomItem(heistItemEntity, labelOnGround.Label), GroundItemProcessingType.HeistReward));
+                }
+            }
+
+            result.ForEach(x => GetValue(x.item));
+            return result;
         }
 
         // TODO: Get hovered items && items from inventory - Getting hovered item  will become useful later on
@@ -271,7 +283,7 @@ namespace Ninja_Price.Main
                 {
                     if (TryGetArtifactPrice(HoveredItem, out var amount, out var artifactName))
                     {
-                        text += $"\nArtifact price: ({Math.Round(HoveredItem.PriceData.MinChaosValue / amount * 100, 2)}c per 100 {artifactName})";
+                        text += $"\nArtifact price: ({(HoveredItem.PriceData.MinChaosValue / amount * 100).FormatNumber(2)}c per 100 {artifactName})";
                     }
                 }
 
@@ -374,9 +386,9 @@ namespace Ninja_Price.Main
 
         private void DrawWorthWidget(double chaosValue, Vector2 pos)
         {
-            Graphics.DrawText($"Chaos: {Math.Round(chaosValue, Settings.StashValueSignificantDigits.Value):#,##0.################}" +
+            Graphics.DrawText($"Chaos: {chaosValue.FormatNumber(Settings.StashValueSignificantDigits.Value)}" +
                               (ExaltedValue != null
-                                   ? $"\nExalt: {Math.Round(chaosValue / ExaltedValue.Value, Settings.StashValueSignificantDigits.Value):#,##0.################}"
+                                   ? $"\nExalt: {(chaosValue / ExaltedValue.Value).FormatNumber(Settings.StashValueSignificantDigits.Value)}"
                                    : ""),
                 pos, Settings.UniTextColor, FontAlign.Left);
         }
@@ -410,7 +422,7 @@ namespace Ninja_Price.Main
             var drawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.CurrencyTabBoxHeight);
             var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.CurrencyTabFontSize.Value / 2);
            
-            Graphics.DrawText(Math.Round(item.PriceData.MinChaosValue, Settings.CurrencyTabSigDigits.Value).ToString(), position, Settings.CurrencyTabFontColor, FontAlign.Center);
+            Graphics.DrawText(item.PriceData.MinChaosValue.FormatNumber(Settings.CurrencyTabSigDigits.Value), position, Settings.CurrencyTabFontColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
             //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
         }
@@ -427,7 +439,7 @@ namespace Ninja_Price.Main
             if (Settings.Debug)
                 Graphics.DrawText(string.Join(",", item.PriceData.ItemBasePrices), position, Settings.CurrencyTabFontColor, FontAlign.Center);
 
-            Graphics.DrawText(Math.Round(item.PriceData.ItemBasePrices.Max(), Settings.CurrencyTabSigDigits.Value).ToString(CultureInfo.InvariantCulture), position, Settings.CurrencyTabFontColor, FontAlign.Center);
+            Graphics.DrawText(item.PriceData.ItemBasePrices.Max().FormatNumber(Settings.CurrencyTabSigDigits.Value), position, Settings.CurrencyTabFontColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
             //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
         }
@@ -494,14 +506,14 @@ namespace Ninja_Price.Main
                         {
                             if (customItem.PriceData.MinChaosValue > 0)
                             {
-                                Graphics.DrawText(Math.Round(customItem.PriceData.MinChaosValue, 2).ToString(), box.TopRight, Settings.CurrencyTabFontColor, FontAlign.Right);
+                                Graphics.DrawText(customItem.PriceData.MinChaosValue.FormatNumber(2), box.TopRight, Settings.CurrencyTabFontColor, FontAlign.Right);
                             }
 
                             if (Settings.ArtifactChaosPrices && TryGetArtifactPrice(customItem, out var amount, out var artifactName))
                             {
                                 var text = $"[{artifactName.Substring(0, 3)}]\n" +
                                            (customItem.PriceData.MinChaosValue > 0
-                                                ? Math.Round(customItem.PriceData.MinChaosValue / amount * 100, 2).ToString()
+                                                ? (customItem.PriceData.MinChaosValue / amount * 100).FormatNumber(2)
                                                 : "");
                                 var textSize = Graphics.MeasureText(text);
                                 var leftTop = box.BottomLeft - new Vector2(0, textSize.Y);
@@ -516,63 +528,97 @@ namespace Ninja_Price.Main
 
         private void ProcessItemsOnGround()
         {
-            if (!Settings.PriceUniquesOnGround && !Settings.DisplayRealUniqueNameOnGround) return;
+            if (!Settings.PriceUniquesOnGround && !Settings.DisplayRealUniqueNameOnGround && !Settings.PriceHeistRewards) return;
             //this window allows us to change the size of the text we draw to the background list
             //yeah, it's weird
             ImGui.Begin("lmao",
                 ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNav);
             var drawList = ImGui.GetBackgroundDrawList();
             var tooltipRect = HoveredItem?.Element.AsObject<HoverItemIcon>()?.Tooltip?.GetClientRect() ?? new RectangleF(0, 0, 0, 0);
-            foreach (var item in _groundItems.Value)
+            var leftPanelRect = GameController.IngameState.IngameUi.OpenLeftPanel.Address != 0
+                                    ? GameController.IngameState.IngameUi.OpenLeftPanel.GetClientRectCache
+                                    : RectangleF.Empty;
+            var rightPanelRect = GameController.IngameState.IngameUi.OpenRightPanel.Address != 0
+                                     ? GameController.IngameState.IngameUi.OpenRightPanel.GetClientRectCache
+                                     : RectangleF.Empty;
+            foreach (var (item, processingType) in _groundItems.Value)
             {
                 var box = item.Element.GetClientRect();
-                if (!tooltipRect.Intersects(box))
+                switch (processingType)
                 {
-                    if (Settings.PriceUniquesOnGround)
+                    case GroundItemProcessingType.WorldItem:
                     {
-                        if (item.PriceData.MinChaosValue > 0)
+                        if (!tooltipRect.Intersects(box) && !leftPanelRect.Intersects(box) && !rightPanelRect.Intersects(box))
                         {
-                            var s = Math.Round(item.PriceData.MinChaosValue, 2).ToString();
-                            if (item.PriceData.MaxChaosValue > item.PriceData.MaxChaosValue)
+                            if (Settings.PriceUniquesOnGround)
                             {
-                                s += $"-{Math.Round(item.PriceData.MaxChaosValue, 2)}";
+                                if (item.PriceData.MinChaosValue > 0)
+                                {
+                                    var s = item.PriceData.MinChaosValue.FormatNumber(2);
+                                    if (item.PriceData.MaxChaosValue > item.PriceData.MinChaosValue)
+                                    {
+                                        s += $"-{item.PriceData.MaxChaosValue.FormatNumber(2)}";
+                                    }
+
+                                    Graphics.DrawText(s, box.TopRight, Settings.CurrencyTabFontColor, FontAlign.Right);
+                                }
                             }
 
-                            Graphics.DrawText(s, box.TopRight, Settings.CurrencyTabFontColor, FontAlign.Right);
+                            if (Settings.DisplayRealUniqueNameOnGround && !item.IsIdentified && item.UniqueNameCandidates.Any())
+                            {
+                                float GetRatio(string text)
+                                {
+                                    var textSize = Graphics.MeasureText(text);
+                                    return Math.Min(box.Width * Settings.UniqueLabelSize / textSize.X, (box.Height - 2) / textSize.Y);
+                                }
+
+                                var isValuable = item.PriceData.MaxChaosValue >= Settings.ValuableUniqueOnGroundValueThreshold;
+                                if (Settings.OnlyDisplayRealUniqueNameForValuableUniques && !isValuable)
+                                {
+                                    continue;
+                                }
+
+                                var textColor = isValuable ? Settings.ValuableUniqueItemNameTextColor : Settings.UniqueItemNameTextColor;
+                                var backgroundColor = isValuable ? Settings.ValuableUniqueItemNameBackgroundColor : Settings.UniqueItemNameBackgroundColor;
+                                var (text, ratio) = Enumerable.Range(1, item.UniqueNameCandidates.Count).Select(perOneLine =>
+                                        string.Join('\n', MoreLinq.Extensions.BatchExtension.Batch(item.UniqueNameCandidates, perOneLine)
+                                           .Select(onLine => string.Join(" / ", onLine))))
+                                   .Select(text => (text, ratio: GetRatio(text)))
+                                   .MaxBy(x => x.ratio);
+
+                                ImGui.SetWindowFontScale(ratio);
+                                var newTextSize = ImGui.CalcTextSize(text);
+                                var textPosition = box.Center.ToVector2Num() - newTextSize / 2;
+                                var rectPosition = new System.Numerics.Vector2(textPosition.X, box.Top + 1);
+                                drawList.AddRectFilled(rectPosition, rectPosition + new System.Numerics.Vector2(newTextSize.X, box.Height - 2), backgroundColor.Value.ToImgui());
+                                drawList.AddText(textPosition, textColor.Value.ToImgui(), text);
+                                ImGui.SetWindowFontScale(1);
+                            }
                         }
+                        break;
                     }
-
-                    if (Settings.DisplayRealUniqueNameOnGround && !item.IsIdentified && item.UniqueNameCandidates.Any())
+                    case GroundItemProcessingType.HeistReward:
                     {
-                        float GetRatio(string text)
+                        if (Settings.PriceHeistRewards && !leftPanelRect.Contains(box.TopRight) && !rightPanelRect.Contains(box.TopRight))
                         {
-                            var textSize = Graphics.MeasureText(text);
-                            return Math.Min(box.Width * Settings.UniqueLabelSize / textSize.X, (box.Height - 2) / textSize.Y);
+                            if (item.PriceData.MinChaosValue > 0)
+                            {
+                                var s = item.PriceData.MinChaosValue.FormatNumber(2);
+                                if (item.PriceData.MaxChaosValue > item.PriceData.MinChaosValue)
+                                {
+                                    s += $"-{item.PriceData.MaxChaosValue.FormatNumber(2)}";
+                                }
+
+                                var backgroundSize = Graphics.MeasureText(s).Mult(-1).TranslateToNum();
+                                Graphics.DrawBox(box.TopRight, box.TopRight + backgroundSize, Settings.CurrencyTabBackgroundColor);
+                                Graphics.DrawText(s, box.TopRight, Settings.CurrencyTabFontColor, FontAlign.Right);
+                            }
                         }
 
-                        var isValuable = item.PriceData.MaxChaosValue >= Settings.ValuableUniqueOnGroundValueThreshold;
-                        if (Settings.OnlyDisplayRealUniqueNameForValuableUniques && !isValuable)
-                        {
-                            continue;
-                        }
-
-                        var textColor = isValuable ? Settings.ValuableUniqueItemNameTextColor : Settings.UniqueItemNameTextColor;
-                        var backgroundColor = isValuable ? Settings.ValuableUniqueItemNameBackgroundColor : Settings.UniqueItemNameBackgroundColor;
-                        var (text, ratio) = Enumerable.Range(1, item.UniqueNameCandidates.Count).Select(perOneLine =>
-                                string.Join('\n', MoreLinq.Extensions.BatchExtension.Batch(item.UniqueNameCandidates, perOneLine)
-                                   .Select(onLine => string.Join(" / ", onLine))))
-                           .Select(text => (text, ratio: GetRatio(text)))
-                           .MaxBy(x => x.ratio);
-
-                        ImGui.SetWindowFontScale(ratio);
-                        var newTextSize = ImGui.CalcTextSize(text);
-                        var textPosition = box.Center.ToVector2Num() - newTextSize / 2;
-                        var rectPosition = new System.Numerics.Vector2(textPosition.X, box.Top+1);
-                        drawList.AddRectFilled(rectPosition, rectPosition + new System.Numerics.Vector2(newTextSize.X, box.Height - 2), backgroundColor.Value.ToImgui());
-                        drawList.AddText(textPosition, textColor.Value.ToImgui(), text);
-                        ImGui.SetWindowFontScale(1);
+                        break;
                     }
                 }
+                
             }
 
             ImGui.End();
@@ -587,15 +633,15 @@ namespace Ninja_Price.Main
             var hoverUi = GameController.Game.IngameState.UIHoverTooltip.Tooltip;
             if (hoverUi != null && (item.Rarity != ItemRarity.Unique || hoverUi.GetClientRect().Intersects(item.Element.GetClientRect()) && hoverUi.IsVisibleLocal)) return;
 
-            var chaosValueSignificantDigits = Math.Round(item.PriceData.MinChaosValue, Settings.HighlightSignificantDigits.Value);
-            if (chaosValueSignificantDigits >= Settings.InventoryValueCutOff.Value) return;
+            if (item.PriceData.MinChaosValue >= Settings.InventoryValueCutOff.Value) return;
             var rec = item.Element.GetClientRect();
             var fontSize = Settings.HighlightFontSize.Value;
             // var backgroundBox = Graphics.MeasureText($"{chaosValueSignificanDigits}", fontSize);
             var position = new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y);
 
             //Graphics.DrawBox(new RectangleF(position.X - backgroundBox.Width, position.Y, backgroundBox.Width, backgroundBox.Height), Color.Black);
-            Graphics.DrawText($"{chaosValueSignificantDigits}", position, Settings.UniTextColor, FontAlign.Center);
+            Graphics.DrawText(item.PriceData.MinChaosValue.FormatNumber(Settings.HighlightSignificantDigits.Value), 
+                position, Settings.UniTextColor, FontAlign.Center);
             //Graphics.DrawFrame(item.Item.GetClientRect(), 2, Settings.HighlightColor.Value);
         }
 
@@ -629,7 +675,7 @@ namespace Ninja_Price.Main
 
                 var textColor = data.PriceData.ExaltedPrice >= 1 ? Color.Black : Color.White;
                 var bgColor = data.PriceData.ExaltedPrice >= 1 ? Color.Goldenrod : Color.Black;
-                Graphics.DrawText(Math.Round(data.PriceData.MinChaosValue, 2) + "c", position, textColor, FontAlign.Center);
+                Graphics.DrawText($"{data.PriceData.MinChaosValue.FormatNumber(2)}c", position, textColor, FontAlign.Center);
                 Graphics.DrawBox(drawBox, bgColor);
                 Graphics.DrawFrame(drawBox, Color.Black, 1);
             }
