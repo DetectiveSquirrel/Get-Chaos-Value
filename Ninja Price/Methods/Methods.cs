@@ -91,7 +91,6 @@ namespace Ninja_Price.Main
         {
             try
             {
-
                 item.PriceData.ExaltedPrice = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
                 if(item.BaseName.Contains("Rogue's Marker"))
                 {
@@ -244,16 +243,18 @@ namespace Ninja_Price.Main
 
                             break;
                         case ItemTypes.UniqueAccessory:
-                            var uniqueAccessorieSearch = CollectedData.UniqueAccessories.Lines.FindAll(x => x.Name == item.UniqueName && !x.DetailsId.Contains("-relic"));
-                            if (uniqueAccessorieSearch.Count == 1)
+                            var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x =>
+                                (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
+                                !x.DetailsId.Contains("-relic"));
+                            if (uniqueAccessorySearch.Count == 1)
                             {
-                                item.PriceData.MinChaosValue = (double)uniqueAccessorieSearch[0].ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)uniqueAccessorieSearch[0].Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = uniqueAccessorySearch[0].ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = uniqueAccessorySearch[0].Sparkline.TotalChange ?? 0;
                             }
-                            else if (uniqueAccessorieSearch.Count > 1)
+                            else if (uniqueAccessorySearch.Count > 1)
                             {
-                                item.PriceData.MinChaosValue = (double)uniqueAccessorieSearch.OrderBy(x => x.ChaosValue).First().ChaosValue;
-                                item.PriceData.MaxChaosValue = (double)uniqueAccessorieSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue;
+                                item.PriceData.MinChaosValue = uniqueAccessorySearch.Min(x => x.ChaosValue) ?? 0;
+                                item.PriceData.MaxChaosValue = uniqueAccessorySearch.Max(x => x.ChaosValue) ?? 0;
                                 item.PriceData.ChangeInLast7Days = 0;
                             }
                             else
@@ -295,16 +296,18 @@ namespace Ninja_Price.Main
                             break;
                         }
                         case ItemTypes.UniqueFlask:
-                            var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.FindAll(x => x.Name == item.UniqueName && !x.DetailsId.Contains("-relic"));
-                            if (uniqueFlaskSearch.Count() == 1)
+                            var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.FindAll(x =>
+                                (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
+                                !x.DetailsId.Contains("-relic"));
+                            if (uniqueFlaskSearch.Count == 1)
                             {
-                                item.PriceData.MinChaosValue = (double)uniqueFlaskSearch[0].ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)uniqueFlaskSearch[0].Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = uniqueFlaskSearch[0].ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = uniqueFlaskSearch[0].Sparkline.TotalChange ?? 0;
                             }
-                            else if (uniqueFlaskSearch.Count() > 1)
+                            else if (uniqueFlaskSearch.Count > 1)
                             {
-                                item.PriceData.MinChaosValue = (double)uniqueFlaskSearch.OrderBy(x => x.ChaosValue).First().ChaosValue;
-                                item.PriceData.MaxChaosValue = (double)uniqueFlaskSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue;
+                                item.PriceData.MinChaosValue = uniqueFlaskSearch.Min(x => x.ChaosValue) ?? 0;
+                                item.PriceData.MaxChaosValue = uniqueFlaskSearch.Max(x => x.ChaosValue) ?? 0;
                                 item.PriceData.ChangeInLast7Days = 0;
                             }
                             else
@@ -315,16 +318,18 @@ namespace Ninja_Price.Main
 
                             break;
                         case ItemTypes.UniqueJewel:
-                            var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x => x.Name == item.UniqueName && !x.DetailsId.Contains("-relic"));
-                            if (uniqueJewelSearch.Count() == 1)
+                            var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x => 
+                                (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
+                                !x.DetailsId.Contains("-relic"));
+                            if (uniqueJewelSearch.Count == 1)
                             {
-                                item.PriceData.MinChaosValue = (double)uniqueJewelSearch[0].ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)uniqueJewelSearch[0].Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = uniqueJewelSearch[0].ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = uniqueJewelSearch[0].Sparkline.TotalChange ?? 0;
                             }
-                            else if (uniqueJewelSearch.Count() > 1)
+                            else if (uniqueJewelSearch.Count > 1)
                             {
-                                item.PriceData.MinChaosValue = (double)uniqueJewelSearch.OrderBy(x => x.ChaosValue).First().ChaosValue;
-                                item.PriceData.MaxChaosValue = (double)uniqueJewelSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue;
+                                item.PriceData.MinChaosValue = uniqueJewelSearch.Min(x => x.ChaosValue) ?? 0;
+                                item.PriceData.MaxChaosValue = uniqueJewelSearch.Max(x => x.ChaosValue) ?? 0;
                                 item.PriceData.ChangeInLast7Days = 0;
                             }
                             else
@@ -335,16 +340,18 @@ namespace Ninja_Price.Main
 
                             break;
                         case ItemTypes.UniqueMap:
-                            var uniqueMapSearch = CollectedData.UniqueMaps.Lines.FindAll(x => x.BaseType == item.UniqueName && item.MapInfo.MapTier == x.MapTier);
-                            if (uniqueMapSearch.Count() == 1)
+                            var uniqueMapSearch = CollectedData.UniqueMaps.Lines.FindAll(x =>
+                                (x.BaseType == item.UniqueName || item.UniqueNameCandidates.Contains(x.BaseType)) &&
+                                item.MapInfo.MapTier == x.MapTier);
+                            if (uniqueMapSearch.Count == 1)
                             {
-                                item.PriceData.MinChaosValue = (double)uniqueMapSearch[0].ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)uniqueMapSearch[0].Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = uniqueMapSearch[0].ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = uniqueMapSearch[0].Sparkline.TotalChange ?? 0;
                             }
-                            else if (uniqueMapSearch.Count() > 1)
+                            else if (uniqueMapSearch.Count > 1)
                             {
-                                item.PriceData.MinChaosValue = (double)uniqueMapSearch.OrderBy(x => x.ChaosValue).First().ChaosValue;
-                                item.PriceData.MaxChaosValue = (double)uniqueMapSearch.OrderBy(x => x.ChaosValue).Last().ChaosValue;
+                                item.PriceData.MinChaosValue = uniqueMapSearch.Min(x => x.ChaosValue) ?? 0;
+                                item.PriceData.MaxChaosValue = uniqueMapSearch.Max(x => x.ChaosValue) ?? 0;
                                 item.PriceData.ChangeInLast7Days = 0;
                             }
                             else
