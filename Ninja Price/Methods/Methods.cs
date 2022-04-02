@@ -93,7 +93,7 @@ namespace Ninja_Price.Main
             {
 
                 item.PriceData.ExaltedPrice = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
-                if(item.BaseName.Contains("Infused Engineer's Orb") || item.BaseName.Contains("Rogue's Marker") || item.BaseName.Contains("Perandus Coin"))
+                if(item.BaseName.Contains("Rogue's Marker"))
                 {
                     item.PriceData.MinChaosValue = 0;
                 }
