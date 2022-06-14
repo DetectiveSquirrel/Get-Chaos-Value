@@ -208,10 +208,22 @@ namespace Ninja_Price.Main
             // Hovered Item
             if (HoveredItem != null && HoveredItem.ItemType != ItemTypes.None && Settings.HoveredItem.Value)
             {
-                var text = $"Change in last 7 Days: {HoveredItem.PriceData.ChangeInLast7Days}%%";
-                var changeTextLength = text.Length-1;
-                text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
+                var textSections = new List<string> { "" };
+                void AddSection() => textSections.Add("");
+                void AddText(string text1) => textSections[^1] += text1;
 
+                var changeText = $"Change in last 7 Days: {HoveredItem.PriceData.ChangeInLast7Days}%%";
+                var changeTextLength = changeText.Length - 1;
+                var sectionBreak = $"\n{new string('-', changeTextLength)}\n";
+                if (HoveredItem.PriceData.ChangeInLast7Days != 0)
+                {
+                    AddText(changeText);
+                }
+
+                var priceInExalts = HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice;
+                var priceInExaltsText = priceInExalts.FormatNumber(2);
+                var minPriceText = HoveredItem.PriceData.MinChaosValue.FormatNumber(2);
+                AddSection();
                 switch (HoveredItem.ItemType)
                 {
                     case ItemTypes.Currency:
@@ -226,13 +238,14 @@ namespace Ninja_Price.Main
                     case ItemTypes.DeliriumOrbs:
                     case ItemTypes.Vials:
                     case ItemTypes.DivinationCard:
-                        if (HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice >= 0.1)
+                        if (priceInExalts >= 0.1)
                         {
-                            text += $"\n\rExalt: {HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice:0.##}ex";
-                            text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
+                            var priceInExaltsPerOne = priceInExalts / HoveredItem.CurrencyInfo.StackSize;
+                            AddText(priceInExaltsPerOne >= 0.1
+                                        ? $"\nExalt: {priceInExaltsText}ex ({priceInExaltsPerOne.FormatNumber(2)}ex per one)"
+                                        : $"\nExalt: {priceInExaltsText}ex");
                         }
-                        text += $"\n\rChaos: {HoveredItem.PriceData.MinChaosValue / HoveredItem.CurrencyInfo.StackSize}c";
-                        text += $"\n\rTotal: {HoveredItem.PriceData.MinChaosValue}c";
+                        AddText($"\nChaos: {minPriceText}c ({(HoveredItem.PriceData.MinChaosValue / HoveredItem.CurrencyInfo.StackSize).FormatNumber(2)}c per one)");
                         break;
                     case ItemTypes.UniqueAccessory:
                     case ItemTypes.UniqueArmour:
@@ -242,48 +255,53 @@ namespace Ninja_Price.Main
                     case ItemTypes.UniqueWeapon:
                         if (HoveredItem.UniqueNameCandidates.Any())
                         {
-                            if (HoveredItem.UniqueNameCandidates.Count == 1)
-                            {
-                                text += $"\nIdentified as: {HoveredItem.UniqueNameCandidates.First()}";
-                            }
-                            else
-                            {
-                                text += $"\nIdentified as one of:\n";
-                                text += string.Join('\n', HoveredItem.UniqueNameCandidates);
-                            }
+                            AddText(HoveredItem.UniqueNameCandidates.Count == 1
+                                        ? $"\nIdentified as: {HoveredItem.UniqueNameCandidates.First()}"
+                                        : $"\nIdentified as one of:\n{string.Join('\n', HoveredItem.UniqueNameCandidates)}");
                         }
-                        if (HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice >= 0.1)
+
+                        AddSection();
+                        if (priceInExalts >= 0.1)
                         {
-                            text += $"\n\rExalt: {HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice:0.##}ex - {HoveredItem.PriceData.MaxChaosValue / HoveredItem.PriceData.ExaltedPrice:0.##}ex";
-                            text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
+                            var maxExaltPriceText = (HoveredItem.PriceData.MaxChaosValue / HoveredItem.PriceData.ExaltedPrice).FormatNumber(2);
+                            AddText(priceInExaltsText != maxExaltPriceText 
+                                        ? $"\nExalt: {priceInExaltsText}ex - {maxExaltPriceText}ex" 
+                                        : $"\nExalt: {priceInExaltsText}ex");
                         }
-                        text += $"\n\rChaos: {HoveredItem.PriceData.MinChaosValue}c - {HoveredItem.PriceData.MaxChaosValue}c";
+
+                        var maxPriceText = HoveredItem.PriceData.MaxChaosValue.FormatNumber(2);
+                        AddText(minPriceText != maxPriceText 
+                                    ? $"\nChaos: {minPriceText}c - {maxPriceText}c" 
+                                    : $"\nChaos: {minPriceText}c");
+
                         break;
                     case ItemTypes.Map:
                     case ItemTypes.Incubator:
                     case ItemTypes.MavenInvitation:
-                        if (HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice >= 0.1)
+                        if (priceInExalts >= 0.1)
                         {
-                            text += $"\n\rExalt: {HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice:0.##}ex";
-                            text += $"\n\r{String.Concat(Enumerable.Repeat('-', changeTextLength))}";
+                            AddText($"\nExalt: {priceInExaltsText}ex");
                         }
-                        text += $"\n\rChaos: {HoveredItem.PriceData.MinChaosValue}c";
+
+                        AddText($"\nChaos: {minPriceText}c");
                         break;
                 }
-                
+
                 if (Settings.Debug)
                 {
-                    text += $"\n\rUniqueName: {HoveredItem.UniqueName}";
-                    text += $"\n\rBaseName: {HoveredItem.BaseName}";
-                    text += $"\n\rItemType: {HoveredItem.ItemType}";
-                    text += $"\n\rMapType: {HoveredItem.MapInfo.MapType}";
+                    AddSection();
+                    AddText($"\nUniqueName: {HoveredItem.UniqueName}"
+                          + $"\nBaseName: {HoveredItem.BaseName}"
+                          + $"\nItemType: {HoveredItem.ItemType}"
+                          + $"\nMapType: {HoveredItem.MapInfo.MapType}");
                 } 
                 
                 if (Settings.ArtifactChaosPrices)
                 {
                     if (TryGetArtifactPrice(HoveredItem, out var amount, out var artifactName))
                     {
-                        text += $"\nArtifact price: ({(HoveredItem.PriceData.MinChaosValue / amount * 100).FormatNumber(2)}c per 100 {artifactName})";
+                        AddSection();
+                        AddText($"\nArtifact price: ({(HoveredItem.PriceData.MinChaosValue / amount * 100).FormatNumber(2)}c per 100 {artifactName})");
                     }
                 }
 
@@ -291,9 +309,13 @@ namespace Ninja_Price.Main
                 //Graphics.DrawBox(new RectangleF(0, 0, textMeasure.Width, textMeasure.Height), Color.Black);
                 //Graphics.DrawText(text, new Vector2(50, 50), Color.White);
 
-                ImGui.BeginTooltip();
-                ImGui.SetTooltip(text);
-                ImGui.EndTooltip();
+                var tooltipText = string.Join(sectionBreak, textSections.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()));
+                if (!string.IsNullOrWhiteSpace(tooltipText))
+                {
+                    ImGui.BeginTooltip();
+                    ImGui.SetTooltip(tooltipText);
+                    ImGui.EndTooltip();
+                }
             }
 
             // Inventory Value
@@ -648,7 +670,7 @@ namespace Ninja_Price.Main
 
         private void ShowHelmetEnchantPrices()
         {
-            ExileCore.PoEMemory.Element GetElementByString(ExileCore.PoEMemory.Element element, string str)
+            Element GetElementByString(Element element, string str)
             {
                 if (string.IsNullOrWhiteSpace(str))
                     return null;

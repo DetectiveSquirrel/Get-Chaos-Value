@@ -12,6 +12,8 @@ namespace Ninja_Price.Main
 {
     public partial class Main
     {
+        private double ExaltedPrice => CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb")?.ChaosEquivalent ?? throw new Exception("Exalt price is missing");
+
         public List<NormalInventoryItem> GetInventoryItems()
         {
             var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel;
@@ -91,7 +93,7 @@ namespace Ninja_Price.Main
         {
             try
             {
-                item.PriceData.ExaltedPrice = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
+                item.PriceData.ExaltedPrice = ExaltedPrice;
                 if(item.BaseName.Contains("Rogue's Marker"))
                 {
                     item.PriceData.MinChaosValue = 0;
@@ -460,11 +462,12 @@ namespace Ninja_Price.Main
             }
         }
 
+
         public void GetValueHaggle(CustomItem item)
         {
             try
             {
-                item.PriceData.ExaltedPrice = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
+                item.PriceData.ExaltedPrice = ExaltedPrice;
                 switch (item.ItemTypeGamble) // easier to get data for each item type and handle logic based on that
                 {
                     case ItemTypes.UniqueArmour:
