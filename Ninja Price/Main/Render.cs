@@ -233,7 +233,6 @@ namespace Ninja_Price.Main
                     case ItemTypes.Resonator:
                     case ItemTypes.Fossil:
                     case ItemTypes.Oil:
-                    case ItemTypes.Artifact:
                     case ItemTypes.Catalyst:
                     case ItemTypes.DeliriumOrbs:
                     case ItemTypes.Vials:
@@ -278,6 +277,7 @@ namespace Ninja_Price.Main
                     case ItemTypes.Map:
                     case ItemTypes.Incubator:
                     case ItemTypes.MavenInvitation:
+                    case ItemTypes.SkillGem:
                         if (priceInExalts >= 0.1)
                         {
                             AddText($"\nExalt: {priceInExaltsText}ex");

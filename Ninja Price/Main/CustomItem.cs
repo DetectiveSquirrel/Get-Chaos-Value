@@ -19,6 +19,7 @@ namespace Ninja_Price.Main
         public int Height;
         public bool IsElder;
         public bool IsIdentified;
+        public bool IsCorrupted;
         public bool IsRgb;
         public bool IsShaper;
         public bool IsWeapon;
@@ -28,6 +29,8 @@ namespace Ninja_Price.Main
         public int LargestLink { get; set; } = 0;
         public string Path;
         public int Quality;
+        public SkillGemQualityTypeE QualityType;
+        public int GemLevel;
         public ItemRarity Rarity;
         public int Sockets;
         public string UniqueName;
@@ -100,11 +103,18 @@ namespace Ninja_Price.Main
                     Quality = quality.ItemQuality;
                 }
 
+                if (itemEntity.TryGetComponent<SkillGem>(out var skillGem))
+                {
+                    QualityType = skillGem.QualityType;
+                    GemLevel = skillGem.Level;
+                }
+
                 if (itemEntity.HasComponent<Base>())
                 {
                     var @base = itemEntity.GetComponent<Base>();
                     IsElder = @base.isElder;
                     IsShaper = @base.isShaper;
+                    IsCorrupted = @base.isCorrupted;
                 }
 
                 if (itemEntity.HasComponent<Mods>())
@@ -207,10 +217,6 @@ namespace Ninja_Price.Main
                 {
                     ItemType = ItemTypes.Catalyst;
                 }
-                else if (BaseName.Contains("Artifact") || BaseName.Contains("Astragali") || BaseName.Contains("Burial Medallion") || BaseName.Contains("Scrap Metal") || BaseName.Contains("Exotic Coinage"))     
-                {
-                    ItemType = ItemTypes.Artifact;
-                }
                 else if (BaseName.EndsWith(" Oil"))
                 {
                     ItemType = ItemTypes.Oil;
@@ -223,8 +229,9 @@ namespace Ninja_Price.Main
                 {
                     ItemType = ItemTypes.Essence;
                 }
-                else if (((ClassName == "MapFragment" || BaseName.Contains("Timeless ") ||
-                          BaseName.StartsWith("Simulacrum")) && !BaseName.EndsWith(" Scarab")) || ClassName == "StackableCurrency" && BaseName.StartsWith("Splinter of ") ||  BaseName.StartsWith("Crescent Splinter"))
+                else if (((ClassName == "MapFragment" || BaseName.Contains("Timeless ") || BaseName.StartsWith("Simulacrum")) && !BaseName.EndsWith(" Scarab")) ||
+                         ClassName == "StackableCurrency" && BaseName.StartsWith("Splinter of ") ||
+                         BaseName.StartsWith("Crescent Splinter"))
                 {
                     ItemType = ItemTypes.Fragment;
                 }
@@ -260,39 +267,30 @@ namespace Ninja_Price.Main
                 {
                     ItemType = ItemTypes.MavenInvitation;
                 }
+                else if (ClassName is "Support Skill Gem" or "Active Skill Gem")
+                {
+                    ItemType = ItemTypes.SkillGem;
+                }
                 else
                     switch (Rarity) // Unique information
                     {
-                        case ItemRarity.Unique when ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
+                        case ItemRarity.Unique or ItemRarity.Normal when ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
                             ItemType = ItemTypes.UniqueAccessory;
                             break;
-                        case ItemRarity.Unique
-                            when itemEntity.HasComponent<Armour>() || ClassName == "Quiver":
+                        case ItemRarity.Unique or ItemRarity.Normal when itemEntity.HasComponent<Armour>() || ClassName == "Quiver":
                             ItemType = ItemTypes.UniqueArmour;
                             break;
                         case ItemRarity.Unique when itemEntity.HasComponent<Flask>():
                             ItemType = ItemTypes.UniqueFlask;
                             break;
-                        case ItemRarity.Unique when ClassName.Equals("Jewel"):
+                        case ItemRarity.Unique or ItemRarity.Normal when ClassName == "Jewel":
                             ItemType = ItemTypes.UniqueJewel;
                             break;
                         case ItemRarity.Unique when MapInfo.IsMap:
                             ItemType = ItemTypes.UniqueMap;
                             break;
-                        case ItemRarity.Unique when itemEntity.HasComponent<Weapon>():
+                        case ItemRarity.Unique or ItemRarity.Normal when itemEntity.HasComponent<Weapon>():
                             ItemType = ItemTypes.UniqueWeapon;
-                            break;
-                        case ItemRarity.Normal when ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
-                            ItemTypeGamble = ItemTypes.UniqueAccessory;
-                            break;
-                        case ItemRarity.Normal when itemEntity.HasComponent<Armour>() || ClassName == "Quiver":
-                            ItemTypeGamble = ItemTypes.UniqueArmour;
-                            break;
-                        case ItemRarity.Normal when ClassName.Equals("Jewel"):
-                            ItemTypeGamble = ItemTypes.UniqueJewel;
-                            break;
-                        case ItemRarity.Normal when itemEntity.HasComponent<Weapon>():
-                            ItemTypeGamble = ItemTypes.UniqueWeapon;
                             break;
                     }
             }

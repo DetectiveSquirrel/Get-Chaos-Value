@@ -115,97 +115,118 @@ namespace Ninja_Price.Main
                                         item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize / 20.0;
                                         break;
                                 }
+
                                 break;
                             }
+
                             if (item.BaseName.Contains("Ritual Splinter")) // Ritual
                             {
                                 var shardParent = GetShardParent(item.BaseName);
                                 var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
                                 if (shardCurrencySearch != null)
                                 {
-                                    item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)shardCurrencySearch.ChaosEquivalent / 100;
-                                    item.PriceData.ChangeInLast7Days = (double)shardCurrencySearch.ReceiveSparkLine.TotalChange;
+                                    item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (shardCurrencySearch.ChaosEquivalent ?? 0) / 100;
+                                    item.PriceData.ChangeInLast7Days = shardCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
                                 }
+
                                 break;
                             }
-                            switch (item.CurrencyInfo.IsShard)
+
+                            if (item.CurrencyInfo.IsShard)
                             {
-                                case false:
-                                    var normalCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
-                                    if (normalCurrencySearch != null)
-                                    {
-                                        item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)normalCurrencySearch.ChaosEquivalent;
-                                        item.PriceData.ChangeInLast7Days = (double)normalCurrencySearch.ReceiveSparkLine.TotalChange;
-                                    }
-
-                                    break;
-                                case true:
-                                    var shardParent = GetShardParent(item.BaseName);
-                                    var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
-                                    if (shardCurrencySearch != null)
-                                    {
-                                        item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)shardCurrencySearch.ChaosEquivalent / (item.CurrencyInfo.MaxStackSize > 0 ? item.CurrencyInfo.MaxStackSize : 20);
-                                        item.PriceData.ChangeInLast7Days = (double)shardCurrencySearch.ReceiveSparkLine.TotalChange;
-                                    }
-
-                                    break;
+                                var shardParent = GetShardParent(item.BaseName);
+                                var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
+                                if (shardCurrencySearch != null)
+                                {
+                                    item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (shardCurrencySearch.ChaosEquivalent ?? 0) /
+                                                                   (item.CurrencyInfo.MaxStackSize > 0 ? item.CurrencyInfo.MaxStackSize : 20);
+                                    item.PriceData.ChangeInLast7Days = shardCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                }
                             }
+                            else
+                            {
+                                var normalCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                                if (normalCurrencySearch != null)
+                                {
+                                    item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * normalCurrencySearch.ChaosEquivalent ?? 0;
+                                    item.PriceData.ChangeInLast7Days = normalCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                }
+                            }
+
                             break;
                         case ItemTypes.Catalyst:
                             var catalystSearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
                             if (catalystSearch != null)
                             {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)catalystSearch.ChaosEquivalent;
-                                item.PriceData.ChangeInLast7Days = (double)catalystSearch.ReceiveSparkLine.TotalChange;
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * catalystSearch.ChaosEquivalent ?? 0;
+                                item.PriceData.ChangeInLast7Days = catalystSearch.ReceiveSparkLine.TotalChange ?? 0;
                             }
-                        break;
+
+                            break;
                         case ItemTypes.DivinationCard:
                             var divinationSearch = CollectedData.DivinationCards.Lines.Find(x => x.Name == item.BaseName);
                             if (divinationSearch != null)
                             {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)divinationSearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)divinationSearch.Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * divinationSearch.ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = divinationSearch.Sparkline.TotalChange ?? 0;
                             }
+
                             break;
-                    case ItemTypes.Essence:
-                        var essenceSearch = CollectedData.Essences.Lines.Find(x => x.Name == item.BaseName);
-                        if (essenceSearch != null)
-                        {
-                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)essenceSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)essenceSearch.Sparkline.TotalChange;
-                        }
-                        break;
-                    case ItemTypes.Oil:
-                        var oilSearch = CollectedData.Oils.Lines.Find(x => x.Name == item.BaseName);
-                        if (oilSearch != null)
-                        {
-                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)oilSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)oilSearch.Sparkline.TotalChange;
-                        }
-                        break;
-                    case ItemTypes.Artifact:
-                        var artifactSearch = CollectedData.Artifacts.Lines.Find(x => x.Name == item.BaseName);
-                        if (artifactSearch != null)
-                        {
-                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)artifactSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)artifactSearch.Sparkline.TotalChange;
-                        }
-                        break;
-                    case ItemTypes.Fragment:
-                        var fragmentSearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
-                        if (fragmentSearch != null)
-                        {
-                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)fragmentSearch.ChaosEquivalent;
-                            item.PriceData.ChangeInLast7Days = (double)fragmentSearch.ReceiveSparkLine.TotalChange;
-                        }
+                        case ItemTypes.Essence:
+                            var essenceSearch = CollectedData.Essences.Lines.Find(x => x.Name == item.BaseName);
+                            if (essenceSearch != null)
+                            {
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * essenceSearch.ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = essenceSearch.Sparkline.TotalChange ?? 0;
+                            }
+
+                            break;
+                        case ItemTypes.Oil:
+                            var oilSearch = CollectedData.Oils.Lines.Find(x => x.Name == item.BaseName);
+                            if (oilSearch != null)
+                            {
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * oilSearch.ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = oilSearch.Sparkline.TotalChange ?? 0;
+                            }
+
+                            break;
+                        case ItemTypes.Fragment:
+                            var fragmentSearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                            if (fragmentSearch != null)
+                            {
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * fragmentSearch.ChaosEquivalent ?? 0;
+                                item.PriceData.ChangeInLast7Days = fragmentSearch.ReceiveSparkLine.TotalChange ?? 0;
+                            }
+
+                            break;
+                        case ItemTypes.SkillGem:
+                            var displayText = item.QualityType == SkillGemQualityTypeE.Superior ? item.BaseName : $"{item.QualityType} {item.BaseName}";
+                            var fittingGems = CollectedData.SkillGems.Lines
+                               .Where(x => x.Name == displayText && x.GemLevel <= item.GemLevel).ToList();
+                            var gemSearch = MoreLinq.MoreEnumerable.MaxBy(fittingGems,
+                                x => (x.GemLevel == item.GemLevel,
+                                      x.Corrupted == item.IsCorrupted,
+                                      x.GemQuality == item.Quality,
+                                      x.GemQuality == item.Quality switch { > 15 and < 21 => 20, var o => o },
+                                      x.GemQuality <= item.Quality,
+                                      x.GemLevel + x.GemQuality)).ToList();
+
+                            if (gemSearch.Any())
+                            {
+                                var minValueRecord = gemSearch.MinBy(x => x.ChaosValue)!;
+                                item.PriceData.MinChaosValue = minValueRecord.ChaosValue;
+                                item.PriceData.ChangeInLast7Days = minValueRecord.Sparkline.Data?.Any() == true
+                                                                       ? minValueRecord.Sparkline.TotalChange
+                                                                       : minValueRecord.LowConfidenceSparkline.TotalChange;
+                            }
 
                             break;
                         case ItemTypes.MavenInvitation:
                             var InvitationSearch = CollectedData.Invitations.Lines.Find(x => x.Name == item.BaseName);
                             if (InvitationSearch != null)
                             {
-                                item.PriceData.MinChaosValue = (double)InvitationSearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)InvitationSearch.Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = InvitationSearch.ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = InvitationSearch.Sparkline.TotalChange ?? 0;
                             }
 
                             break;
@@ -213,8 +234,8 @@ namespace Ninja_Price.Main
                             var deliriumOrbsSearch = CollectedData.DeliriumOrb.Lines.Find(x => x.Name == item.BaseName);
                             if (deliriumOrbsSearch != null)
                             {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)deliriumOrbsSearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)deliriumOrbsSearch.Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * deliriumOrbsSearch.ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = deliriumOrbsSearch.Sparkline.TotalChange ?? 0;
                             }
 
                             break;
@@ -222,16 +243,17 @@ namespace Ninja_Price.Main
                             var vialCurrencySearch = CollectedData.Vials.Lines.Find(x => x.Name == item.BaseName);
                             if (vialCurrencySearch != null)
                             {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)vialCurrencySearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)vialCurrencySearch.Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * vialCurrencySearch.ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = vialCurrencySearch.Sparkline.TotalChange ?? 0;
                             }
+
                             break;
                         case ItemTypes.Incubator:
                             var incubatorSearch = CollectedData.Incubators.Lines.Find(x => x.Name == item.BaseName);
                             if (incubatorSearch != null)
                             {
-                                item.PriceData.MinChaosValue = (double)incubatorSearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)incubatorSearch.Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = incubatorSearch.ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = incubatorSearch.Sparkline.TotalChange ?? 0;
                             }
 
                             break;
@@ -239,8 +261,8 @@ namespace Ninja_Price.Main
                             var scarabSearch = CollectedData.Scarabs.Lines.Find(x => x.Name == item.BaseName);
                             if (scarabSearch != null)
                             {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)scarabSearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)scarabSearch.Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * scarabSearch.ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = scarabSearch.Sparkline.TotalChange ?? 0;
                             }
 
                             break;
@@ -264,6 +286,7 @@ namespace Ninja_Price.Main
                                 item.PriceData.MinChaosValue = 0;
                                 item.PriceData.ChangeInLast7Days = 0;
                             }
+
                             break;
                         case ItemTypes.UniqueArmour:
                         {
@@ -320,7 +343,7 @@ namespace Ninja_Price.Main
 
                             break;
                         case ItemTypes.UniqueJewel:
-                            var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x => 
+                            var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x =>
                                 (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
                                 !x.DetailsId.Contains("-relic"));
                             if (uniqueJewelSearch.Count == 1)
@@ -367,8 +390,8 @@ namespace Ninja_Price.Main
                             var resonatorSearch = CollectedData.Resonators.Lines.Find(x => x.Name == item.BaseName);
                             if (resonatorSearch != null)
                             {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)resonatorSearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)resonatorSearch.Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * resonatorSearch.ChaosValue;
+                                item.PriceData.ChangeInLast7Days = resonatorSearch.Sparkline.TotalChange;
                             }
 
                             break;
@@ -376,8 +399,8 @@ namespace Ninja_Price.Main
                             var fossilSearch = CollectedData.Fossils.Lines.Find(x => x.Name == item.BaseName);
                             if (fossilSearch != null)
                             {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (double)fossilSearch.ChaosValue;
-                                item.PriceData.ChangeInLast7Days = (double)fossilSearch.Sparkline.TotalChange;
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * fossilSearch.ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = fossilSearch.Sparkline.TotalChange ?? 0;
                             }
 
                             break;
@@ -409,42 +432,46 @@ namespace Ninja_Price.Main
                                 item.PriceData.MinChaosValue = 0;
                                 item.PriceData.ChangeInLast7Days = 0;
                             }
+
                             break;
                         }
                         case ItemTypes.Map:
                             switch (item.MapInfo.MapType)
                             {
                                 case MapTypes.Blighted:
-                                    WhiteMaps.Line normalBlightedMapSearch;
 
-                                    if (Settings.MapVariant.Value)
-                                        normalBlightedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Blighted {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value);
-                                    else
-                                        normalBlightedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Blighted {item.BaseName}" && item.MapInfo.MapTier == x.MapTier);
+                                    var blightedBaseName = $"Blighted {item.BaseName}";
+                                    var normalBlightedMapSearch = Settings.MapVariant.Value
+                                                                      ? CollectedData.WhiteMaps.Lines.Find(x =>
+                                                                          x.BaseType == blightedBaseName && item.MapInfo.MapTier == x.MapTier &&
+                                                                          x.Variant == Settings.LeagueList.Value)
+                                                                      : CollectedData.WhiteMaps.Lines.Find(x =>
+                                                                          x.BaseType == blightedBaseName && item.MapInfo.MapTier == x.MapTier);
 
-                                        if (normalBlightedMapSearch != null)
-                                        {
-                                            item.PriceData.MinChaosValue = (double)normalBlightedMapSearch.ChaosValue;
-                                            item.PriceData.ChangeInLast7Days = (double)normalBlightedMapSearch.Sparkline.TotalChange;
-                                        }
+                                    if (normalBlightedMapSearch != null)
+                                    {
+                                        item.PriceData.MinChaosValue = normalBlightedMapSearch.ChaosValue ?? 0;
+                                        item.PriceData.ChangeInLast7Days = normalBlightedMapSearch.Sparkline.TotalChange ?? 0;
+                                    }
 
                                     break;
                                 case MapTypes.None:
-                                    WhiteMaps.Line normalMapSearch;
 
-                                    if (Settings.MapVariant.Value)
-                                        normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value);
-                                    else
-                                        normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier);
+                                    var normalMapSearch = Settings.MapVariant.Value
+                                                              ? CollectedData.WhiteMaps.Lines.Find(x =>
+                                                                  x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value)
+                                                              : CollectedData.WhiteMaps.Lines.Find(x =>
+                                                                  x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier);
 
                                     if (normalMapSearch != null)
                                     {
-                                        item.PriceData.MinChaosValue = (double)normalMapSearch.ChaosValue;
-                                        item.PriceData.ChangeInLast7Days = (double)normalMapSearch.Sparkline.TotalChange;
+                                        item.PriceData.MinChaosValue = normalMapSearch.ChaosValue ?? 0;
+                                        item.PriceData.ChangeInLast7Days = normalMapSearch.Sparkline.TotalChange ?? 0;
                                     }
 
                                     break;
                             }
+
                             break;
                     }
                 }
