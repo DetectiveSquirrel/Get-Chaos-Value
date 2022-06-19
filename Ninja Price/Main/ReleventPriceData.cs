@@ -13,10 +13,11 @@ namespace Ninja_Price.Main
             public double ChangeInLast7Days { get; set; }
             public ItemTypes ItemType { get; set; }
             public List<double> ItemBasePrices { get; set; } = new List<double>();
+            public string DetailsId { get; set; }
 
             public override string ToString()
             {
-                return $"MinChaosValue: {MinChaosValue}, MaxChaosValue: {MaxChaosValue}, ChangeInLast7Days: {ChangeInLast7Days}, ItemType: {ItemType}";
+                return $"MinChaosValue: {MinChaosValue}, MaxChaosValue: {MaxChaosValue}, ChangeInLast7Days: {ChangeInLast7Days}, ItemType: {ItemType}, DetailsId: {DetailsId}";
             }
         }
     }

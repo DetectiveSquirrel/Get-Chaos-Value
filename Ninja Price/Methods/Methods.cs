@@ -127,6 +127,7 @@ namespace Ninja_Price.Main
                                 {
                                     item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (shardCurrencySearch.ChaosEquivalent ?? 0) / 100;
                                     item.PriceData.ChangeInLast7Days = shardCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                    item.PriceData.DetailsId = shardCurrencySearch.DetailsId;
                                 }
 
                                 break;
@@ -141,6 +142,7 @@ namespace Ninja_Price.Main
                                     item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (shardCurrencySearch.ChaosEquivalent ?? 0) /
                                                                    (item.CurrencyInfo.MaxStackSize > 0 ? item.CurrencyInfo.MaxStackSize : 20);
                                     item.PriceData.ChangeInLast7Days = shardCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                    item.PriceData.DetailsId = shardCurrencySearch.DetailsId;
                                 }
                             }
                             else
@@ -150,6 +152,7 @@ namespace Ninja_Price.Main
                                 {
                                     item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * normalCurrencySearch.ChaosEquivalent ?? 0;
                                     item.PriceData.ChangeInLast7Days = normalCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                    item.PriceData.DetailsId = normalCurrencySearch.DetailsId;
                                 }
                             }
 
@@ -160,6 +163,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * catalystSearch.ChaosEquivalent ?? 0;
                                 item.PriceData.ChangeInLast7Days = catalystSearch.ReceiveSparkLine.TotalChange ?? 0;
+                                item.PriceData.DetailsId = catalystSearch.DetailsId;
                             }
 
                             break;
@@ -169,6 +173,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * divinationSearch.ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = divinationSearch.Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = divinationSearch.DetailsId;
                             }
 
                             break;
@@ -178,6 +183,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * essenceSearch.ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = essenceSearch.Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = essenceSearch.DetailsId;
                             }
 
                             break;
@@ -187,6 +193,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * oilSearch.ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = oilSearch.Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = oilSearch.DetailsId;
                             }
 
                             break;
@@ -196,6 +203,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * fragmentSearch.ChaosEquivalent ?? 0;
                                 item.PriceData.ChangeInLast7Days = fragmentSearch.ReceiveSparkLine.TotalChange ?? 0;
+                                item.PriceData.DetailsId = fragmentSearch.DetailsId;
                             }
 
                             break;
@@ -218,6 +226,7 @@ namespace Ninja_Price.Main
                                 item.PriceData.ChangeInLast7Days = minValueRecord.Sparkline.Data?.Any() == true
                                                                        ? minValueRecord.Sparkline.TotalChange
                                                                        : minValueRecord.LowConfidenceSparkline.TotalChange;
+                                item.PriceData.DetailsId = minValueRecord.DetailsId;
                             }
 
                             break;
@@ -227,6 +236,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = InvitationSearch.ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = InvitationSearch.Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = InvitationSearch.DetailsId;
                             }
 
                             break;
@@ -236,6 +246,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * deliriumOrbsSearch.ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = deliriumOrbsSearch.Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = deliriumOrbsSearch.DetailsId;
                             }
 
                             break;
@@ -245,6 +256,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * vialCurrencySearch.ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = vialCurrencySearch.Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = vialCurrencySearch.DetailsId;
                             }
 
                             break;
@@ -254,6 +266,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = incubatorSearch.ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = incubatorSearch.Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = incubatorSearch.DetailsId;
                             }
 
                             break;
@@ -263,6 +276,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * scarabSearch.ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = scarabSearch.Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = scarabSearch.DetailsId;
                             }
 
                             break;
@@ -274,12 +288,14 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = uniqueAccessorySearch[0].ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = uniqueAccessorySearch[0].Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = uniqueAccessorySearch[0].DetailsId;
                             }
                             else if (uniqueAccessorySearch.Count > 1)
                             {
                                 item.PriceData.MinChaosValue = uniqueAccessorySearch.Min(x => x.ChaosValue) ?? 0;
                                 item.PriceData.MaxChaosValue = uniqueAccessorySearch.Max(x => x.ChaosValue) ?? 0;
                                 item.PriceData.ChangeInLast7Days = 0;
+                                item.PriceData.DetailsId = uniqueAccessorySearch[0].DetailsId;
                             }
                             else
                             {
@@ -305,12 +321,14 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = uniqueArmourSearchLinks[0].ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = uniqueArmourSearchLinks[0].Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = uniqueArmourSearchLinks[0].DetailsId;
                             }
                             else if (uniqueArmourSearchLinks.Count > 1)
                             {
                                 item.PriceData.MinChaosValue = uniqueArmourSearchLinks.Min(x => x.ChaosValue) ?? 0;
                                 item.PriceData.MaxChaosValue = uniqueArmourSearchLinks.Max(x => x.ChaosValue) ?? 0;
                                 item.PriceData.ChangeInLast7Days = 0;
+                                item.PriceData.DetailsId = uniqueArmourSearchLinks[0].DetailsId;
                             }
                             else
                             {
@@ -328,12 +346,14 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = uniqueFlaskSearch[0].ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = uniqueFlaskSearch[0].Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = uniqueFlaskSearch[0].DetailsId;
                             }
                             else if (uniqueFlaskSearch.Count > 1)
                             {
                                 item.PriceData.MinChaosValue = uniqueFlaskSearch.Min(x => x.ChaosValue) ?? 0;
                                 item.PriceData.MaxChaosValue = uniqueFlaskSearch.Max(x => x.ChaosValue) ?? 0;
                                 item.PriceData.ChangeInLast7Days = 0;
+                                item.PriceData.DetailsId = uniqueFlaskSearch[0].DetailsId;
                             }
                             else
                             {
@@ -350,12 +370,14 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = uniqueJewelSearch[0].ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = uniqueJewelSearch[0].Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = uniqueJewelSearch[0].DetailsId;
                             }
                             else if (uniqueJewelSearch.Count > 1)
                             {
                                 item.PriceData.MinChaosValue = uniqueJewelSearch.Min(x => x.ChaosValue) ?? 0;
                                 item.PriceData.MaxChaosValue = uniqueJewelSearch.Max(x => x.ChaosValue) ?? 0;
                                 item.PriceData.ChangeInLast7Days = 0;
+                                item.PriceData.DetailsId = uniqueJewelSearch[0].DetailsId;
                             }
                             else
                             {
@@ -372,12 +394,14 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = uniqueMapSearch[0].ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = uniqueMapSearch[0].Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = uniqueMapSearch[0].DetailsId;
                             }
                             else if (uniqueMapSearch.Count > 1)
                             {
                                 item.PriceData.MinChaosValue = uniqueMapSearch.Min(x => x.ChaosValue) ?? 0;
                                 item.PriceData.MaxChaosValue = uniqueMapSearch.Max(x => x.ChaosValue) ?? 0;
                                 item.PriceData.ChangeInLast7Days = 0;
+                                item.PriceData.DetailsId = uniqueMapSearch[0].DetailsId;
                             }
                             else
                             {
@@ -392,6 +416,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * resonatorSearch.ChaosValue;
                                 item.PriceData.ChangeInLast7Days = resonatorSearch.Sparkline.TotalChange;
+                                item.PriceData.DetailsId = resonatorSearch.DetailsId;
                             }
 
                             break;
@@ -401,6 +426,7 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * fossilSearch.ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = fossilSearch.Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = fossilSearch.DetailsId;
                             }
 
                             break;
@@ -420,12 +446,14 @@ namespace Ninja_Price.Main
                             {
                                 item.PriceData.MinChaosValue = uniqueArmourSearchLinks[0].ChaosValue ?? 0;
                                 item.PriceData.ChangeInLast7Days = uniqueArmourSearchLinks[0].Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = uniqueArmourSearchLinks[0].DetailsId;
                             }
                             else if (uniqueArmourSearchLinks.Count > 1)
                             {
                                 item.PriceData.MinChaosValue = uniqueArmourSearchLinks.Min(x => x.ChaosValue) ?? 0;
                                 item.PriceData.MaxChaosValue = uniqueArmourSearchLinks.Max(x => x.ChaosValue) ?? 0;
                                 item.PriceData.ChangeInLast7Days = 0;
+                                item.PriceData.DetailsId = uniqueArmourSearchLinks[0].DetailsId;
                             }
                             else
                             {
@@ -452,6 +480,7 @@ namespace Ninja_Price.Main
                                     {
                                         item.PriceData.MinChaosValue = normalBlightedMapSearch.ChaosValue ?? 0;
                                         item.PriceData.ChangeInLast7Days = normalBlightedMapSearch.Sparkline.TotalChange ?? 0;
+                                        item.PriceData.DetailsId = normalBlightedMapSearch.DetailsId;
                                     }
 
                                     break;
@@ -467,6 +496,7 @@ namespace Ninja_Price.Main
                                     {
                                         item.PriceData.MinChaosValue = normalMapSearch.ChaosValue ?? 0;
                                         item.PriceData.ChangeInLast7Days = normalMapSearch.Sparkline.TotalChange ?? 0;
+                                        item.PriceData.DetailsId = normalMapSearch.DetailsId;
                                     }
 
                                     break;
@@ -482,7 +512,7 @@ namespace Ninja_Price.Main
             }
             finally
             {
-                if(item.PriceData.MaxChaosValue == 0)
+                if (item.PriceData.MaxChaosValue == 0)
                 {
                     item.PriceData.MaxChaosValue = item.PriceData.MinChaosValue;
                 }

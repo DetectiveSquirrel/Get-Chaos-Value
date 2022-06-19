@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using ExileCore;
 using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
@@ -293,7 +292,8 @@ namespace Ninja_Price.Main
                     AddText($"\nUniqueName: {HoveredItem.UniqueName}"
                           + $"\nBaseName: {HoveredItem.BaseName}"
                           + $"\nItemType: {HoveredItem.ItemType}"
-                          + $"\nMapType: {HoveredItem.MapInfo.MapType}");
+                          + $"\nMapType: {HoveredItem.MapInfo.MapType}"
+                          + $"\nDetailsId: {HoveredItem.PriceData.DetailsId}");
                 } 
                 
                 if (Settings.ArtifactChaosPrices)
