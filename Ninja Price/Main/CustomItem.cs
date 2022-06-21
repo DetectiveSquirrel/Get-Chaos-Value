@@ -217,6 +217,10 @@ namespace Ninja_Price.Main
                 {
                     ItemType = ItemTypes.Catalyst;
                 }
+                else if (BaseName.Contains("Astragali") || BaseName.Contains("Burial Medallion") || BaseName.Contains("Scrap Metal") || BaseName.Contains("Exotic Coinage"))     
+                {
+                    ItemType = ItemTypes.Artifact;
+                }
                 else if (BaseName.EndsWith(" Oil"))
                 {
                     ItemType = ItemTypes.Oil;

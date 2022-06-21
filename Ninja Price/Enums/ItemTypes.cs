@@ -23,6 +23,7 @@ namespace Ninja_Price.Enums
         DeliriumOrbs,
         Vials,
         MavenInvitation,
-        SkillGem
+        Artifact,
+        SkillGem,
     }
 }

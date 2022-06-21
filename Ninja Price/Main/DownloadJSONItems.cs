@@ -30,6 +30,7 @@ namespace Ninja_Price.Main
         private const string Vial_URL = "https://poe.ninja/api/data/itemoverview?type=Vial&league=";
         private const string Invitation_URL = "https://poe.ninja/api/data/ItemOverview?type=Invitation&league=";
         private const string HelmetEnchants_URL = "https://poe.ninja/api/data/ItemOverview?type=HelmetEnchant&league=";
+        private const string Artifacts_URL = "https://poe.ninja/api/data/ItemOverview?type=Artifact&league=";
         private const string SkillGems_URL = "https://poe.ninja/api/data/ItemOverview?type=SkillGem&league=";
 
         private class LeagueMetadata
@@ -81,6 +82,7 @@ namespace Ninja_Price.Main
                     await LoadData<Vials.RootObject>("Vials.json", Vial_URL, league, tryWebFirst, t => newData.Vials = t);
                     await LoadData<Invitations.RootObject>("Invitations.json", Invitation_URL, league, tryWebFirst, t => newData.Invitations = t);
                     await LoadData<HelmetEnchants.RootObject>("HelmetEnchants.json", HelmetEnchants_URL, league, tryWebFirst, t => newData.HelmetEnchants = t);
+                    await LoadData<Artifacts.RootObject>("Artifacts.json", Artifacts_URL, league, tryWebFirst, t => newData.Artifacts = t);
                     await LoadData<SkillGems.RootObject>("SkillGems.json", SkillGems_URL, league, tryWebFirst, t => newData.SkillGems = t);
 
                     new FileInfo(metadataPath).Directory.Create();

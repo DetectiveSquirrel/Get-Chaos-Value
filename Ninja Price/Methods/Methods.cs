@@ -195,6 +195,15 @@ namespace Ninja_Price.Main
                                 item.PriceData.ChangeInLast7Days = oilSearch.Sparkline.TotalChange ?? 0;
                                 item.PriceData.DetailsId = oilSearch.DetailsId;
                             }
+                            break;
+                        case ItemTypes.Artifact:
+                            var artifactSearch = CollectedData.Artifacts.Lines.Find(x => x.Name == item.BaseName);
+                            if (artifactSearch != null)
+                            {
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * artifactSearch.ChaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = artifactSearch.Sparkline.TotalChange ?? 0;
+                                item.PriceData.DetailsId = artifactSearch.DetailsId;
+                            }
 
                             break;
                         case ItemTypes.Fragment:

@@ -24,6 +24,7 @@ namespace Ninja_Price.Main
         public DeliriumOrb.RootObject DeliriumOrb { get; set; } = new DeliriumOrb.RootObject();
         public Vials.RootObject Vials { get; set; } = new Vials.RootObject();
         public Invitations.RootObject Invitations { get; set; } = new Invitations.RootObject();
+        public Artifacts.RootObject Artifacts { get; set; } = new Artifacts.RootObject();
         public SkillGems.RootObject SkillGems { get; set; } = new SkillGems.RootObject();
     }
 }
