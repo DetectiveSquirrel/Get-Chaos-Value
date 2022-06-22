@@ -20,7 +20,7 @@ public partial class Main
         return !inventory.IsVisible ? null : inventory[InventoryIndex.PlayerInventory].VisibleInventoryItems.ToList();
     }
 
-    private static List<CustomItem> FormatItems(List<NormalInventoryItem> itemList)
+    private static List<CustomItem> FormatItems(IEnumerable<NormalInventoryItem> itemList)
     {
         return itemList.ToList().Where(x => x?.Item?.IsValid == true).Select(inventoryItem => new CustomItem(inventoryItem)).ToList();
     }

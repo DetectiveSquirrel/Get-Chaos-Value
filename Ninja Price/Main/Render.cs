@@ -12,6 +12,7 @@ using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Cache;
 using ExileCore.Shared.Enums;
 using ExileCore.Shared.Helpers;
+using ExileCore.Shared.Nodes;
 using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
 using ImGuiNET;
@@ -203,6 +204,7 @@ public partial class Main
     {
         ProcessExpeditionWindow();
         ProcessItemsOnGround();
+        ProcessTradeWindow();
 
         // Hovered Item
         if (HoveredItem != null && HoveredItem.ItemType != ItemTypes.None && Settings.HoveredItem.Value)
@@ -393,7 +395,7 @@ public partial class Main
                 //    Settings.UniTextColor);
 
                 var chaosValue = StashTabValue;
-                DrawWorthWidget(chaosValue, pos);
+                DrawWorthWidget(chaosValue, pos, Settings.StashValueSignificantDigits.Value, Settings.UniTextColor, false);
             }
         }
         catch (Exception e)
@@ -407,13 +409,17 @@ public partial class Main
         }
     }
 
-    private void DrawWorthWidget(double chaosValue, Vector2 pos)
+    private void DrawWorthWidget(double chaosValue, Vector2 pos, int significantDigits, Color textColor, bool drawBackground)
     {
-        Graphics.DrawText($"Chaos: {chaosValue.FormatNumber(Settings.StashValueSignificantDigits.Value)}" +
-                          (ExaltedValue != null
-                               ? $"\nExalt: {(chaosValue / ExaltedValue.Value).FormatNumber(Settings.StashValueSignificantDigits.Value)}"
-                               : ""),
-            pos, Settings.UniTextColor, FontAlign.Left);
+        var text = $"Chaos: {chaosValue.FormatNumber(significantDigits)}" +
+                    (ExaltedValue != null
+                         ? $"\nExalt: {(chaosValue / ExaltedValue.Value).FormatNumber(significantDigits)}"
+                         : "");
+        var box = Graphics.DrawText(text, pos, textColor);
+        if (drawBackground)
+        {
+            Graphics.DrawBox(pos, pos + new Vector2(box.X, box.Y), Color.Black);
+        }
     }
 
     private void VisibleInventoryValue()
@@ -424,7 +430,7 @@ public partial class Main
             if (!Settings.VisibleInventoryValue.Value || !inventory.IsVisible) return;
             {
                 var pos = new Vector2(Settings.InventoryValueX.Value, Settings.InventoryValueY.Value);
-                DrawWorthWidget(InventoryTabValue, pos);
+                DrawWorthWidget(InventoryTabValue, pos, Settings.StashValueSignificantDigits.Value, Settings.UniTextColor, false);
             }
         }
         catch (Exception e)
@@ -547,6 +553,42 @@ public partial class Main
                 }
             }
         }
+    }
+
+    private void ProcessTradeWindow()
+    {
+        if (!Settings.ShowTradeWindowValue) return;
+
+        var (yourItems, theirItems, element) =
+            (GameController.IngameState.IngameUi.TradeWindow,
+             GameController.IngameState.IngameUi.SellWindow,
+             GameController.IngameState.IngameUi.SellWindowHideout)
+                switch
+                {
+                    ({ IsVisible: true } trade, _, _) => (trade.YourOffer, trade.OtherOffer, trade.SellDialog),
+                    (_, { IsVisible: true } sell, _) => (sell.YourOfferItems, sell.OtherOfferItems, sell.SellDialog),
+                    (_, _, { IsVisible: true } sellHideout) => (sellHideout.YourOfferItems, sellHideout.OtherOfferItems, sellHideout.SellDialog),
+                    (_, _, _) => (null, null, null),
+                };
+        if (yourItems == null || theirItems == null || element == null || yourItems.Count + theirItems.Count == 0)
+        {
+            return;
+        }
+
+        var yourFormattedItems = FormatItems(yourItems);
+        var theirFormatterItems = FormatItems(theirItems);
+        yourFormattedItems.ForEach(GetValue);
+        theirFormatterItems.ForEach(GetValue);
+        var yourTradeWindowValue = yourFormattedItems.Sum(x => x.PriceData.MinChaosValue);
+        var theirTradeWindowValue = theirFormatterItems.Sum(x => x.PriceData.MinChaosValue);
+        var textPosition = new Vector2(element.GetClientRectCache.Right, element.GetClientRectCache.Center.Y - ImGui.GetTextLineHeight() * 3) 
+                         + new Vector2(Settings.TradeWindowValueOffsetX, Settings.TradeWindowValueOffsetY);
+        DrawWorthWidget(theirTradeWindowValue, textPosition, 2, Settings.UniTextColor, true);
+        textPosition.Y += ImGui.GetTextLineHeight() * 2;
+        var diff = theirTradeWindowValue - yourTradeWindowValue;
+        DrawWorthWidget(diff, textPosition, 2, diff switch { > 0 => Color.Green, 0 => Settings.UniTextColor, < 0 => Color.Red, double.NaN => Color.Purple }, true);
+        textPosition.Y += ImGui.GetTextLineHeight() * 2;
+        DrawWorthWidget(yourTradeWindowValue, textPosition, 2, Settings.UniTextColor, true);
     }
 
     private void ProcessItemsOnGround()

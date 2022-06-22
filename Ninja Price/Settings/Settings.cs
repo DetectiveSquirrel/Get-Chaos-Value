@@ -149,5 +149,17 @@ public class Settings : ISettings
 
     #endregion
 
+    [Menu(null, index = 290)]
+    public EmptyNode TradeWindowValue { get; set; }
+
+    [Menu(null, parentIndex = 290)]
+    public ToggleNode ShowTradeWindowValue { get; set; } = new ToggleNode(true);
+
+    [Menu(null, parentIndex = 290)]
+    public RangeNode<int> TradeWindowValueOffsetX { get; set; } = new RangeNode<int>(0, -2000, 2000);
+
+    [Menu(null, parentIndex = 290)]
+    public RangeNode<int> TradeWindowValueOffsetY { get; set; } = new RangeNode<int>(0, -2000, 2000);
+
     public ToggleNode Enable { get; set; } = new ToggleNode(true);
 }
