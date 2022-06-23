@@ -381,19 +381,9 @@ public partial class Main
     {
         try
         {
-            //var StashType = GameController.Game.IngameState.IngameUi.StashElement.VisibleStash.InvType;
             if (!Settings.VisibleStashValue.Value || !StashPanel.IsVisible) return;
             {
                 var pos = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
-                //Graphics.DrawText(
-                //    DrawImage($"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png",
-                //        new RectangleF(Settings.StashValueX.Value - Settings.StashValueFontSize.Value,
-                //            Settings.StashValueY.Value,
-                //            Settings.StashValueFontSize.Value, Settings.StashValueFontSize.Value))
-                //        ? $"{significantDigits}"
-                //        : $"{significantDigits} Chaos", Settings.StashValueFontSize.Value, pos,
-                //    Settings.UniTextColor);
-
                 var chaosValue = StashTabValue;
                 DrawWorthWidget(chaosValue, pos, Settings.StashValueSignificantDigits.Value, Settings.UniTextColor, false);
             }
@@ -453,7 +443,6 @@ public partial class Main
            
         Graphics.DrawText(item.PriceData.MinChaosValue.FormatNumber(Settings.CurrencyTabSigDigits.Value), position, Settings.CurrencyTabFontColor, FontAlign.Center);
         Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
-        //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
     }
 
     private void PriceBoxOverItemHaggle(CustomItem item)
@@ -470,7 +459,6 @@ public partial class Main
 
         Graphics.DrawText(item.PriceData.ItemBasePrices.Max().FormatNumber(Settings.CurrencyTabSigDigits.Value), position, Settings.CurrencyTabFontColor, FontAlign.Center);
         Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
-        //Graphics.DrawFrame(drawBox, 1, Settings.CurrencyTabBorderColor);
     }
 
     private void ProcessExpeditionWindow()
