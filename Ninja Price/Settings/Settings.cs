@@ -16,6 +16,8 @@ public class Settings : ISettings
     [Menu("League", 1)]
     public ListNode LeagueList { get; set; } = new ListNode();
 
+    public ToggleNode SyncCurrentLeague { get; set; } = new ToggleNode(true);
+
     [Menu("Map Variant Check ?", "Toggle Map Variant Checking", 1)]
     public ToggleNode MapVariant { get; set; } = new ToggleNode(true);
 

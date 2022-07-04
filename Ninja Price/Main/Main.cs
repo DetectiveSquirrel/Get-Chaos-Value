@@ -22,7 +22,7 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         NinjaDirectory = Path.Join(DirectoryFullName, "NinjaData");
         Directory.CreateDirectory(NinjaDirectory);
 
-        GatherLeagueNames();
+        UpdateLeagueList();
         StartDataReload(Settings.LeagueList.Value, false);
 
         // Enable Events
@@ -39,28 +39,75 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         {
             GameController.Files.LoadFiles();
         }
+
+        if (Settings.SyncCurrentLeague)
+        {
+            var playerLeague = PlayerLeague;
+            if (playerLeague != null)
+            {
+                if (!Settings.LeagueList.Values.Contains(playerLeague))
+                {
+                    Settings.LeagueList.Values.Add(playerLeague);
+                }
+
+                if (Settings.LeagueList.Value != playerLeague)
+                {
+                    Settings.LeagueList.Value = playerLeague;
+                    StartDataReload(Settings.LeagueList.Value, false);
+                }
+            }
+        }
     }
 
-    private void GatherLeagueNames()
+    private void UpdateLeagueList()
     {
-        List<string> leagueList;
+        var leagueList = new HashSet<string>();
+        var playerLeague = PlayerLeague;
+        if (playerLeague != null)
+        {
+            leagueList.Add(playerLeague);
+        }
+
         try
         {
-            var leagueListFromUrl = Api.DownloadFromUrl(PoeLeagueApiList).Result;
+            var leagueListFromUrl = Utils.DownloadFromUrl(PoeLeagueApiList).Result;
             var leagueData = JsonConvert.DeserializeObject<List<Leagues>>(leagueListFromUrl);
-            leagueList = leagueData.Where(league => !league.Id.Contains("SSF")).Select(league => league.Id).ToList();
+            leagueList.UnionWith(leagueData.Where(league => !league.Id.Contains("SSF")).Select(league => league.Id));
         }
         catch (Exception ex)
         {
             LogError($"Failed to download the league list: {ex}");
-            leagueList = new List<string> { GameController.IngameState.ServerData.League };
         }
+
+        leagueList.Add("Standard");
+        leagueList.Add("Hardcore");
 
         if (!leagueList.Contains(Settings.LeagueList.Value))
         {
-            Settings.LeagueList.Value = leagueList[0];
+            Settings.LeagueList.Value = leagueList.MaxBy(x => x == playerLeague);
         }
 
-        Settings.LeagueList.SetListValues(leagueList);
+        Settings.LeagueList.SetListValues(leagueList.ToList());
+    }
+
+    private string PlayerLeague
+    {
+        get
+        {
+            var playerLeague = GameController.IngameState.ServerData.League;
+            if (string.IsNullOrWhiteSpace(playerLeague))
+            {
+                playerLeague = null;
+            }
+            else
+            {
+                if (playerLeague.StartsWith("SSF "))
+                {
+                    playerLeague = playerLeague["SSF ".Length..];
+                }
+            }
+
+            return playerLeague;
+        }
     }
 }

@@ -59,7 +59,7 @@ public partial class Main
                 var metadataPath = Path.Join(NinjaDirectory, league, "meta.json");
                 if (!tryWebFirst && Settings.AutoReload)
                 {
-                    tryWebFirst = await CheckLastLoadTime(metadataPath);
+                    tryWebFirst = await IsLocalCacheStale(metadataPath);
                 }
 
                 await LoadData<Currency.RootObject>("Currency.json", CurrencyURL, league, tryWebFirst, t => newData.Currency = t);
@@ -100,7 +100,7 @@ public partial class Main
         });
     }
 
-    private async Task<bool> CheckLastLoadTime(string metadataPath)
+    private async Task<bool> IsLocalCacheStale(string metadataPath)
     {
         if (!File.Exists(metadataPath))
         {
