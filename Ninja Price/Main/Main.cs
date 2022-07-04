@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using ExileCore;
 using Newtonsoft.Json;
-using Ninja_Price.API.PoeNinja;
 using Ninja_Price.API.PoeNinja.Classes;
 
 namespace Ninja_Price.Main;

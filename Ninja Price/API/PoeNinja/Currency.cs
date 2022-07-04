@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
-public class Fragments
+public class Currency
 {
     public class RootObject
     {

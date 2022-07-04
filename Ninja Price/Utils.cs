@@ -1,9 +1,9 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Ninja_Price.API.PoeNinja;
+namespace Ninja_Price;
 
-public static class Api
+public static class Utils
 {
     public static async Task<string> DownloadFromUrl(string url)
     {

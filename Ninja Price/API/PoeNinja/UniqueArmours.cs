@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
-public class Essences
+public class UniqueArmours
 {
     public class RootObject
     {
@@ -36,7 +36,7 @@ public class Essences
         public long? StackSize { get; set; }
 
         [JsonProperty("variant")]
-        public object Variant { get; set; }
+        public string Variant { get; set; }
 
         [JsonProperty("prophecyText")]
         public object ProphecyText { get; set; }
@@ -57,10 +57,10 @@ public class Essences
         public Sparkline LowConfidenceSparkline { get; set; }
 
         [JsonProperty("implicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
-        public List<object> ImplicitModifiers { get; set; }
+        public List<PlicitModifier> ImplicitModifiers { get; set; }
 
         [JsonProperty("explicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
-        public List<ExplicitModifier> ExplicitModifiers { get; set; }
+        public List<PlicitModifier> ExplicitModifiers { get; set; }
 
         [JsonProperty("flavourText", NullValueHandling = NullValueHandling.Ignore)]
         public string FlavourText { get; set; }
@@ -88,7 +88,7 @@ public class Essences
         public string DetailsId { get; set; }
     }
 
-    public class ExplicitModifier
+    public class PlicitModifier
     {
         [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
         public string Text { get; set; }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
 public class HelmetEnchants
 {

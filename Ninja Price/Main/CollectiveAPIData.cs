@@ -1,4 +1,4 @@
-using Ninja_Price.API.PoeNinja.Classes;
+using Ninja_Price.API.PoeNinja;
 
 namespace Ninja_Price.Main;
 

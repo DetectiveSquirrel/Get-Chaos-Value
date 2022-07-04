@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
-public class Fossils
+public class UniqueMaps
 {
     public class RootObject
     {
@@ -29,14 +29,14 @@ public class Fossils
         [JsonProperty("levelRequired", NullValueHandling = NullValueHandling.Ignore)]
         public long? LevelRequired { get; set; }
 
-        [JsonProperty("baseType")]
-        public object BaseType { get; set; }
+        [JsonProperty("baseType", NullValueHandling = NullValueHandling.Ignore)]
+        public string BaseType { get; set; }
 
         [JsonProperty("stackSize", NullValueHandling = NullValueHandling.Ignore)]
         public long? StackSize { get; set; }
 
         [JsonProperty("variant")]
-        public object Variant { get; set; }
+        public string Variant { get; set; }
 
         [JsonProperty("prophecyText")]
         public object ProphecyText { get; set; }
@@ -74,7 +74,6 @@ public class Fossils
         [JsonProperty("gemQuality", NullValueHandling = NullValueHandling.Ignore)]
         public long? GemQuality { get; set; }
 
-
         [JsonProperty("chaosValue", NullValueHandling = NullValueHandling.Ignore)]
         public double? ChaosValue { get; set; }
 
@@ -86,6 +85,9 @@ public class Fossils
 
         [JsonProperty("detailsId", NullValueHandling = NullValueHandling.Ignore)]
         public string DetailsId { get; set; }
+
+        [JsonProperty("mapRegion", NullValueHandling = NullValueHandling.Ignore)]
+        public string MapRegion { get; set; }
     }
 
     public class ExplicitModifier
@@ -105,6 +107,5 @@ public class Fossils
         [JsonProperty("totalChange", NullValueHandling = NullValueHandling.Ignore)]
         public double? TotalChange { get; set; }
     }
-
 
 }

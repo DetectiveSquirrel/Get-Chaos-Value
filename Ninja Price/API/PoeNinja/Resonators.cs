@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
 public class Resonators
 {

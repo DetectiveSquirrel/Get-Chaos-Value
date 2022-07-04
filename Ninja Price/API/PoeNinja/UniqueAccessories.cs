@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
-public class UniqueFlasks
+public class UniqueAccessories
 {
     public class RootObject
     {
@@ -74,7 +74,6 @@ public class UniqueFlasks
         [JsonProperty("gemQuality", NullValueHandling = NullValueHandling.Ignore)]
         public long? GemQuality { get; set; }
 
-
         [JsonProperty("chaosValue", NullValueHandling = NullValueHandling.Ignore)]
         public double? ChaosValue { get; set; }
 
@@ -105,4 +104,5 @@ public class UniqueFlasks
         [JsonProperty("totalChange", NullValueHandling = NullValueHandling.Ignore)]
         public double? TotalChange { get; set; }
     }
+
 }

@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
-public class UniqueAccessories
+public class Essences
 {
     public class RootObject
     {
@@ -36,7 +36,7 @@ public class UniqueAccessories
         public long? StackSize { get; set; }
 
         [JsonProperty("variant")]
-        public string Variant { get; set; }
+        public object Variant { get; set; }
 
         [JsonProperty("prophecyText")]
         public object ProphecyText { get; set; }
@@ -57,10 +57,10 @@ public class UniqueAccessories
         public Sparkline LowConfidenceSparkline { get; set; }
 
         [JsonProperty("implicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
-        public List<PlicitModifier> ImplicitModifiers { get; set; }
+        public List<object> ImplicitModifiers { get; set; }
 
         [JsonProperty("explicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
-        public List<PlicitModifier> ExplicitModifiers { get; set; }
+        public List<ExplicitModifier> ExplicitModifiers { get; set; }
 
         [JsonProperty("flavourText", NullValueHandling = NullValueHandling.Ignore)]
         public string FlavourText { get; set; }
@@ -73,6 +73,7 @@ public class UniqueAccessories
 
         [JsonProperty("gemQuality", NullValueHandling = NullValueHandling.Ignore)]
         public long? GemQuality { get; set; }
+
 
         [JsonProperty("chaosValue", NullValueHandling = NullValueHandling.Ignore)]
         public double? ChaosValue { get; set; }
@@ -87,7 +88,7 @@ public class UniqueAccessories
         public string DetailsId { get; set; }
     }
 
-    public class PlicitModifier
+    public class ExplicitModifier
     {
         [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
         public string Text { get; set; }

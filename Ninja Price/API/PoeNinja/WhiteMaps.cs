@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
-public class UniqueMaps
+public class WhiteMaps
 {
     public class RootObject
     {
@@ -35,8 +35,6 @@ public class UniqueMaps
         [JsonProperty("stackSize", NullValueHandling = NullValueHandling.Ignore)]
         public long? StackSize { get; set; }
 
-        [JsonProperty("variant")]
-        public string Variant { get; set; }
 
         [JsonProperty("prophecyText")]
         public object ProphecyText { get; set; }
@@ -60,7 +58,7 @@ public class UniqueMaps
         public List<object> ImplicitModifiers { get; set; }
 
         [JsonProperty("explicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
-        public List<ExplicitModifier> ExplicitModifiers { get; set; }
+        public List<object> ExplicitModifiers { get; set; }
 
         [JsonProperty("flavourText", NullValueHandling = NullValueHandling.Ignore)]
         public string FlavourText { get; set; }
@@ -74,6 +72,7 @@ public class UniqueMaps
         [JsonProperty("gemQuality", NullValueHandling = NullValueHandling.Ignore)]
         public long? GemQuality { get; set; }
 
+
         [JsonProperty("chaosValue", NullValueHandling = NullValueHandling.Ignore)]
         public double? ChaosValue { get; set; }
 
@@ -86,17 +85,11 @@ public class UniqueMaps
         [JsonProperty("detailsId", NullValueHandling = NullValueHandling.Ignore)]
         public string DetailsId { get; set; }
 
+        [JsonProperty("variant", NullValueHandling = NullValueHandling.Ignore)]
+        public string Variant { get; set; }
+
         [JsonProperty("mapRegion", NullValueHandling = NullValueHandling.Ignore)]
         public string MapRegion { get; set; }
-    }
-
-    public class ExplicitModifier
-    {
-        [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
-        public string Text { get; set; }
-
-        [JsonProperty("optional", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Optional { get; set; }
     }
 
     public class Sparkline

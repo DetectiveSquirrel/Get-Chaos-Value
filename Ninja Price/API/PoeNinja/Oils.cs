@@ -2,16 +2,15 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
-public class UniqueJewels
+public class Oils
 {
     public class RootObject
     {
         [JsonProperty("lines", NullValueHandling = NullValueHandling.Ignore)]
         public List<Line> Lines { get; set; }
     }
-
     public class Line
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
@@ -29,6 +28,8 @@ public class UniqueJewels
         [JsonProperty("levelRequired", NullValueHandling = NullValueHandling.Ignore)]
         public long? LevelRequired { get; set; }
 
+        [JsonProperty("baseType", NullValueHandling = NullValueHandling.Ignore)]
+        public string BaseType { get; set; }
 
         [JsonProperty("stackSize", NullValueHandling = NullValueHandling.Ignore)]
         public long? StackSize { get; set; }
@@ -58,7 +59,7 @@ public class UniqueJewels
         public List<object> ImplicitModifiers { get; set; }
 
         [JsonProperty("explicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
-        public List<ExplicitModifier> ExplicitModifiers { get; set; }
+        public List<object> ExplicitModifiers { get; set; }
 
         [JsonProperty("flavourText", NullValueHandling = NullValueHandling.Ignore)]
         public string FlavourText { get; set; }
@@ -86,15 +87,6 @@ public class UniqueJewels
         public string DetailsId { get; set; }
     }
 
-    public class ExplicitModifier
-    {
-        [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
-        public string Text { get; set; }
-
-        [JsonProperty("optional", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Optional { get; set; }
-    }
-
     public class Sparkline
     {
         [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
@@ -103,6 +95,5 @@ public class UniqueJewels
         [JsonProperty("totalChange", NullValueHandling = NullValueHandling.Ignore)]
         public double? TotalChange { get; set; }
     }
-
 
 }

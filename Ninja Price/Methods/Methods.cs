@@ -5,8 +5,8 @@ using System.Linq;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Enums;
-using Ninja_Price.API.PoeNinja.Classes;
 using Color = SharpDX.Color;
+using Ninja_Price.API.PoeNinja;
 
 namespace Ninja_Price.Main;
 

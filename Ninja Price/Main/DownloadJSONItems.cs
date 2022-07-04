@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Ninja_Price.API.PoeNinja;
-using Ninja_Price.API.PoeNinja.Classes;
 
 namespace Ninja_Price.Main;
 
@@ -180,7 +179,7 @@ public partial class Main
                 LogMessage($"Downloading {fileName}");
             }
 
-            var data = JsonConvert.DeserializeObject<T>(await Api.DownloadFromUrl(url + league));
+            var data = JsonConvert.DeserializeObject<T>(await Utils.DownloadFromUrl(url + league));
             if (Settings.Debug)
             {
                 LogMessage($"{fileName} downloaded");

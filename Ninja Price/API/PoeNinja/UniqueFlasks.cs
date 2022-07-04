@@ -2,15 +2,16 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
-public class Oils
+public class UniqueFlasks
 {
     public class RootObject
     {
         [JsonProperty("lines", NullValueHandling = NullValueHandling.Ignore)]
         public List<Line> Lines { get; set; }
     }
+
     public class Line
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
@@ -35,7 +36,7 @@ public class Oils
         public long? StackSize { get; set; }
 
         [JsonProperty("variant")]
-        public object Variant { get; set; }
+        public string Variant { get; set; }
 
         [JsonProperty("prophecyText")]
         public object ProphecyText { get; set; }
@@ -56,10 +57,10 @@ public class Oils
         public Sparkline LowConfidenceSparkline { get; set; }
 
         [JsonProperty("implicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
-        public List<object> ImplicitModifiers { get; set; }
+        public List<PlicitModifier> ImplicitModifiers { get; set; }
 
         [JsonProperty("explicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
-        public List<object> ExplicitModifiers { get; set; }
+        public List<PlicitModifier> ExplicitModifiers { get; set; }
 
         [JsonProperty("flavourText", NullValueHandling = NullValueHandling.Ignore)]
         public string FlavourText { get; set; }
@@ -87,6 +88,15 @@ public class Oils
         public string DetailsId { get; set; }
     }
 
+    public class PlicitModifier
+    {
+        [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
+        public string Text { get; set; }
+
+        [JsonProperty("optional", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Optional { get; set; }
+    }
+
     public class Sparkline
     {
         [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
@@ -95,5 +105,4 @@ public class Oils
         [JsonProperty("totalChange", NullValueHandling = NullValueHandling.Ignore)]
         public double? TotalChange { get; set; }
     }
-
 }

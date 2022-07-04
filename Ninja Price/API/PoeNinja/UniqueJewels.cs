@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Ninja_Price.API.PoeNinja.Classes;
+namespace Ninja_Price.API.PoeNinja;
 
-public class WhiteMaps
+public class UniqueJewels
 {
     public class RootObject
     {
@@ -29,12 +29,12 @@ public class WhiteMaps
         [JsonProperty("levelRequired", NullValueHandling = NullValueHandling.Ignore)]
         public long? LevelRequired { get; set; }
 
-        [JsonProperty("baseType", NullValueHandling = NullValueHandling.Ignore)]
-        public string BaseType { get; set; }
 
         [JsonProperty("stackSize", NullValueHandling = NullValueHandling.Ignore)]
         public long? StackSize { get; set; }
 
+        [JsonProperty("variant")]
+        public object Variant { get; set; }
 
         [JsonProperty("prophecyText")]
         public object ProphecyText { get; set; }
@@ -58,7 +58,7 @@ public class WhiteMaps
         public List<object> ImplicitModifiers { get; set; }
 
         [JsonProperty("explicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
-        public List<object> ExplicitModifiers { get; set; }
+        public List<ExplicitModifier> ExplicitModifiers { get; set; }
 
         [JsonProperty("flavourText", NullValueHandling = NullValueHandling.Ignore)]
         public string FlavourText { get; set; }
@@ -84,12 +84,15 @@ public class WhiteMaps
 
         [JsonProperty("detailsId", NullValueHandling = NullValueHandling.Ignore)]
         public string DetailsId { get; set; }
+    }
 
-        [JsonProperty("variant", NullValueHandling = NullValueHandling.Ignore)]
-        public string Variant { get; set; }
+    public class ExplicitModifier
+    {
+        [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
+        public string Text { get; set; }
 
-        [JsonProperty("mapRegion", NullValueHandling = NullValueHandling.Ignore)]
-        public string MapRegion { get; set; }
+        [JsonProperty("optional", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Optional { get; set; }
     }
 
     public class Sparkline
@@ -100,5 +103,6 @@ public class WhiteMaps
         [JsonProperty("totalChange", NullValueHandling = NullValueHandling.Ignore)]
         public double? TotalChange { get; set; }
     }
+
 
 }
