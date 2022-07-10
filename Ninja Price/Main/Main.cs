@@ -27,6 +27,7 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         // Enable Events
         Settings.ReloadButton.OnPressed += () => StartDataReload(Settings.LeagueList.Value, true);
 
+        Settings.SyncCurrentLeague.OnValueChanged += (_, _) => SyncCurrentLeague();
         CustomItem.InitCustomItem(this);
 
         return true;
@@ -39,6 +40,11 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
             GameController.Files.LoadFiles();
         }
 
+        SyncCurrentLeague();
+    }
+
+    private void SyncCurrentLeague()
+    {
         if (Settings.SyncCurrentLeague)
         {
             var playerLeague = PlayerLeague;
