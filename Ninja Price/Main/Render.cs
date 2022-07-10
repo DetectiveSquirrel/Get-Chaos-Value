@@ -367,14 +367,6 @@ public partial class Main
                     HighlightJunkUniques(customItem);
                 }
         }
-
-        if (!Settings.DoNotWarnAboutUniqueListLoad && GameController.Files.UniqueItemDescriptions.EntriesList.Count == 0)
-        {
-            ImGui.GetBackgroundDrawList()
-               .AddText(new System.Numerics.Vector2(10, GameController.IngameState.IngameUi.Root.Center.Y),
-                    Color.Red.ToImgui(),
-                    "Unique list is not loaded. Open the unique stash tab and load a new zone\nor disable this warning in the settings");
-        }
     }
 
     private void VisibleStashValue()
@@ -581,7 +573,7 @@ public partial class Main
 
     private void ProcessItemsOnGround()
     {
-        if (!Settings.PriceUniquesOnGround && !Settings.DisplayRealUniqueNameOnGround && !Settings.PriceHeistRewards) return;
+        if (!Settings.UniqueIdentificationSettings.PriceUniquesOnGround && !Settings.UniqueIdentificationSettings.DisplayRealUniqueNameOnGround && !Settings.PriceHeistRewards) return;
         //this window allows us to change the size of the text we draw to the background list
         //yeah, it's weird
         ImGui.Begin("lmao",
@@ -603,7 +595,7 @@ public partial class Main
                 {
                     if (!tooltipRect.Intersects(box) && !leftPanelRect.Intersects(box) && !rightPanelRect.Intersects(box))
                     {
-                        if (Settings.PriceUniquesOnGround)
+                        if (Settings.UniqueIdentificationSettings.PriceUniquesOnGround)
                         {
                             if (item.PriceData.MinChaosValue > 0)
                             {
@@ -617,22 +609,22 @@ public partial class Main
                             }
                         }
 
-                        if (Settings.DisplayRealUniqueNameOnGround && !item.IsIdentified && item.UniqueNameCandidates.Any())
+                        if (Settings.UniqueIdentificationSettings.DisplayRealUniqueNameOnGround && !item.IsIdentified && item.UniqueNameCandidates.Any())
                         {
                             float GetRatio(string text)
                             {
                                 var textSize = Graphics.MeasureText(text);
-                                return Math.Min(box.Width * Settings.UniqueLabelSize / textSize.X, (box.Height - 2) / textSize.Y);
+                                return Math.Min(box.Width * Settings.UniqueIdentificationSettings.UniqueLabelSize / textSize.X, (box.Height - 2) / textSize.Y);
                             }
 
-                            var isValuable = item.PriceData.MaxChaosValue >= Settings.ValuableUniqueOnGroundValueThreshold;
-                            if (Settings.OnlyDisplayRealUniqueNameForValuableUniques && !isValuable)
+                            var isValuable = item.PriceData.MaxChaosValue >= Settings.UniqueIdentificationSettings.ValuableUniqueOnGroundValueThreshold;
+                            if (Settings.UniqueIdentificationSettings.OnlyDisplayRealUniqueNameForValuableUniques && !isValuable)
                             {
                                 continue;
                             }
 
-                            var textColor = isValuable ? Settings.ValuableUniqueItemNameTextColor : Settings.UniqueItemNameTextColor;
-                            var backgroundColor = isValuable ? Settings.ValuableUniqueItemNameBackgroundColor : Settings.UniqueItemNameBackgroundColor;
+                            var textColor = isValuable ? Settings.UniqueIdentificationSettings.ValuableUniqueItemNameTextColor : Settings.UniqueIdentificationSettings.UniqueItemNameTextColor;
+                            var backgroundColor = isValuable ? Settings.UniqueIdentificationSettings.ValuableUniqueItemNameBackgroundColor : Settings.UniqueIdentificationSettings.UniqueItemNameBackgroundColor;
                             var (text, ratio) = Enumerable.Range(1, item.UniqueNameCandidates.Count).Select(perOneLine =>
                                     string.Join('\n', MoreLinq.Extensions.BatchExtension.Batch(item.UniqueNameCandidates, perOneLine)
                                        .Select(onLine => string.Join(" / ", onLine))))

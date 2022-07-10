@@ -128,14 +128,9 @@ public class CustomItem
                     var artPath = itemEntity.GetComponent<RenderItem>()?.ResourcePath;
                     if (artPath != null)
                     {
-                        UniqueNameCandidates = Core.GameController.Files.ItemVisualIdentities
-                           .GetByArtPath(artPath)
-                           .SelectMany(Core.GameController.Files.UniqueItemDescriptions.GetByVisualIdentity)
-                           .Select(x => x.UniqueName?.Text)
-                           .Distinct()
-                           .Where(x => x != null)
-                           .Where(x => !x.StartsWith("Replica "))
-                           .ToList();
+                        UniqueNameCandidates = (Core.UniqueArtMapping.GetValueOrDefault(artPath) ?? Enumerable.Empty<string>())
+                            .Where(x => !x.StartsWith("Replica "))
+                            .ToList();
                     }
                 }
 

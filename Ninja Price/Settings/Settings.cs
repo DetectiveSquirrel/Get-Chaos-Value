@@ -2,6 +2,7 @@ using System;
 using ExileCore.Shared.Attributes;
 using ExileCore.Shared.Interfaces;
 using ExileCore.Shared.Nodes;
+using Newtonsoft.Json;
 using SharpDX;
 
 namespace Ninja_Price.Settings;
@@ -21,8 +22,8 @@ public class Settings : ISettings
     [Menu("Map Variant Check ?", "Toggle Map Variant Checking", 1)]
     public ToggleNode MapVariant { get; set; } = new ToggleNode(true);
 
-    [Menu("Reload", 2)]
-    public ButtonNode ReloadButton { get; set; } = new ButtonNode();
+    [JsonIgnore]
+    public ButtonNode ReloadPrices { get; set; } = new ButtonNode();
 
     [Menu("Auto Reload Toggle", 3)]
     public ToggleNode AutoReload { get; set; } = new ToggleNode();
@@ -114,42 +115,7 @@ public class Settings : ISettings
 
     public ToggleNode PriceHeistRewards { get; set; } = new ToggleNode(true);
 
-    #region Unique identification
-
-    [Menu("Unique identification", 30000)]
-    public EmptyNode UniqueIdentification { get; set; }
-
-    [Menu("Do Not Warn About Unique List Load", parentIndex = 30000)]
-    public ToggleNode DoNotWarnAboutUniqueListLoad { get; set; } = new ToggleNode(false);
-
-    [Menu("Price Uniques On Ground", parentIndex = 30000)]
-    public ToggleNode PriceUniquesOnGround { get; set; } = new ToggleNode(true);
-
-    [Menu("Display Real Unique Name On Ground", parentIndex = 30000)]
-    public ToggleNode DisplayRealUniqueNameOnGround { get; set; } = new ToggleNode(true);
-
-    [Menu("Only Display Real Unique Name For Valuable Uniques", parentIndex = 30000)]
-    public ToggleNode OnlyDisplayRealUniqueNameForValuableUniques { get; set; } = new ToggleNode(false);
-
-    [Menu("Unique Label Size", parentIndex = 30000)]
-    public RangeNode<float> UniqueLabelSize { get; set; } = new RangeNode<float>(0.8f, 0.1f, 1);
-
-    [Menu("Unique Item Name Text Color", parentIndex = 30000)]
-    public ColorNode UniqueItemNameTextColor { get; set; } = new ColorNode(Color.Black);
-
-    [Menu("Unique Item Name Background Color", parentIndex = 30000)]
-    public ColorNode UniqueItemNameBackgroundColor { get; set; } = new ColorNode(new Color(175, 96, 37));
-
-    [Menu("Valuable Unique On Ground Value Threshold", parentIndex = 30000)]
-    public RangeNode<int> ValuableUniqueOnGroundValueThreshold { get; set; } = new RangeNode<int>(50, 0, 100000);
-
-    [Menu("Valuable Unique Item Name Text Color", parentIndex = 30000)]
-    public ColorNode ValuableUniqueItemNameTextColor { get; set; } = new ColorNode(new Color(175, 96, 37));
-
-    [Menu("Valuable Unique Item Name Background Color", parentIndex = 30000)]
-    public ColorNode ValuableUniqueItemNameBackgroundColor { get; set; } = new ColorNode(Color.White);
-
-    #endregion
+    public UniqueIdentificationSettings UniqueIdentificationSettings { get; set; } = new UniqueIdentificationSettings();
 
     [Menu(null, index = 290)]
     public EmptyNode TradeWindowValue { get; set; }
@@ -164,4 +130,32 @@ public class Settings : ISettings
     public RangeNode<int> TradeWindowValueOffsetY { get; set; } = new RangeNode<int>(0, -2000, 2000);
 
     public ToggleNode Enable { get; set; } = new ToggleNode(true);
+}
+
+[Submenu]
+public class UniqueIdentificationSettings
+{
+    [JsonIgnore]
+    public ButtonNode RebuildUniqueItemArtMappingBackup { get; set; } = new ButtonNode();
+
+    [Menu(null, "Use if you want to ignore what's in game memory and rely only on your custom/builtin file")]
+    public ToggleNode IgnoreGameUniqueArtMapping { get; set; } = new ToggleNode(false);
+
+    public ToggleNode PriceUniquesOnGround { get; set; } = new ToggleNode(true);
+
+    public ToggleNode DisplayRealUniqueNameOnGround { get; set; } = new ToggleNode(true);
+
+    public ToggleNode OnlyDisplayRealUniqueNameForValuableUniques { get; set; } = new ToggleNode(false);
+
+    public RangeNode<float> UniqueLabelSize { get; set; } = new RangeNode<float>(0.8f, 0.1f, 1);
+
+    public ColorNode UniqueItemNameTextColor { get; set; } = new ColorNode(Color.Black);
+
+    public ColorNode UniqueItemNameBackgroundColor { get; set; } = new ColorNode(new Color(175, 96, 37));
+
+    public RangeNode<int> ValuableUniqueOnGroundValueThreshold { get; set; } = new RangeNode<int>(50, 0, 100000);
+
+    public ColorNode ValuableUniqueItemNameTextColor { get; set; } = new ColorNode(new Color(175, 96, 37));
+
+    public ColorNode ValuableUniqueItemNameBackgroundColor { get; set; } = new ColorNode(Color.White);
 }

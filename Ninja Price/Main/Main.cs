@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using ExileCore;
 using Newtonsoft.Json;
 using Ninja_Price.API.PoeNinja.Classes;
@@ -13,7 +14,10 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
     private string NinjaDirectory;
     private CollectiveApiData CollectedData;
     private const string PoeLeagueApiList = "http://api.pathofexile.com/leagues?type=main&compact=1";
+    private const string CustomUniqueArtMappingPath = "uniqueArtMapping.json";
+    private const string DefaultUniqueArtMappingPath = "uniqueArtMapping.default.json";
     private int _updating;
+    public Dictionary<string, List<string>> UniqueArtMapping = new Dictionary<string, List<string>>();
 
     public override bool Initialise()
     {
@@ -24,9 +28,19 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         UpdateLeagueList();
         StartDataReload(Settings.LeagueList.Value, false);
 
-        // Enable Events
-        Settings.ReloadButton.OnPressed += () => StartDataReload(Settings.LeagueList.Value, true);
-
+        Settings.ReloadPrices.OnPressed += () => StartDataReload(Settings.LeagueList.Value, true);
+        Settings.UniqueIdentificationSettings.RebuildUniqueItemArtMappingBackup.OnPressed += () =>
+        {
+            var mapping = GetGameFileUniqueArtMapping();
+            if (mapping != null)
+            {
+                File.WriteAllText(Path.Join(DirectoryFullName, CustomUniqueArtMappingPath), JsonConvert.SerializeObject(mapping, Formatting.Indented));
+            }
+        };
+        Settings.UniqueIdentificationSettings.IgnoreGameUniqueArtMapping.OnValueChanged += (_, _) =>
+        {
+            UniqueArtMapping = GetUniqueArtMapping();
+        };
         Settings.SyncCurrentLeague.OnValueChanged += (_, _) => SyncCurrentLeague();
         CustomItem.InitCustomItem(this);
 
@@ -35,10 +49,7 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
 
     public override void AreaChange(AreaInstance area)
     {
-        if (GameController.Files.UniqueItemDescriptions.EntriesList.Count == 0)
-        {
-            GameController.Files.LoadFiles();
-        }
+        UniqueArtMapping = GetUniqueArtMapping();
 
         SyncCurrentLeague();
     }
@@ -62,6 +73,82 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
                 }
             }
         }
+    }
+
+    private Dictionary<string, List<string>> GetUniqueArtMapping()
+    {
+        Dictionary<string, List<string>> mapping = null;
+        if (!Settings.UniqueIdentificationSettings.IgnoreGameUniqueArtMapping &&
+            GameController.Files.UniqueItemDescriptions.EntriesList.Count != 0 &&
+            GameController.Files.ItemVisualIdentities.EntriesList.Count != 0)
+        {
+            mapping = GetGameFileUniqueArtMapping();
+        }
+
+        var customFilePath = Path.Join(DirectoryFullName, CustomUniqueArtMappingPath);
+        if (File.Exists(customFilePath))
+        {
+            try
+            {
+                mapping ??= JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(File.ReadAllText(customFilePath));
+            }
+            catch (Exception ex)
+            {
+                LogError($"Unable to load custom art mapping: {ex}");
+            }
+        }
+
+        mapping ??= GetEmbeddedUniqueArtMapping();
+        mapping ??= new Dictionary<string, List<string>>();
+        return mapping;
+    }
+
+    private Dictionary<string, List<string>> GetEmbeddedUniqueArtMapping()
+    {
+        try
+        {
+            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(DefaultUniqueArtMappingPath);
+            if (stream == null)
+            {
+                if (Settings.Debug)
+                {
+                    LogMessage($"Embedded stream {DefaultUniqueArtMappingPath} is missing");
+                }
+
+                return null;
+            }
+
+            using var reader = new StreamReader(stream);
+            var content = reader.ReadToEnd();
+            return JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(content);
+        }
+        catch (Exception ex)
+        {
+            LogError($"Unable to load embedded art mapping: {ex}");
+            return null;
+        }
+    }
+
+    private Dictionary<string, List<string>> GetGameFileUniqueArtMapping()
+    {
+        if (GameController.Files.UniqueItemDescriptions.EntriesList.Count == 0)
+        {
+            GameController.Files.LoadFiles();
+        }
+
+        return GameController.Files.ItemVisualIdentities.EntriesList.Where(x => x.ArtPath != null)
+            .GroupJoin(GameController.Files.UniqueItemDescriptions.EntriesList.Where(x => x.ItemVisualIdentity != null),
+                x => x,
+                x => x.ItemVisualIdentity, (ivi, descriptions) => (ivi.ArtPath, descriptions: descriptions.ToList()))
+            .GroupBy(x => x.ArtPath, x => x.descriptions)
+            .Select(x => (x.Key, Names: x
+                .SelectMany(items => items)
+                .Select(item => item.UniqueName?.Text)
+                .Where(name => name != null)
+                .Distinct()
+                .ToList()))
+            .Where(x => x.Names.Any())
+            .ToDictionary(x => x.Key, x => x.Names);
     }
 
     private void UpdateLeagueList()
