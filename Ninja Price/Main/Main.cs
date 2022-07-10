@@ -2,93 +2,65 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using ExileCore;
 using Newtonsoft.Json;
 using Ninja_Price.API.PoeNinja;
 using Ninja_Price.API.PoeNinja.Classes;
 
-namespace Ninja_Price.Main
+namespace Ninja_Price.Main;
+
+public partial class Main : BaseSettingsPlugin<Settings.Settings>
 {
-    public partial class Main : BaseSettingsPlugin<Settings.Settings>
+    private string NinjaDirectory;
+    private CollectiveApiData CollectedData;
+    private const string PoeLeagueApiList = "http://api.pathofexile.com/leagues?type=main&compact=1";
+    private int _updating;
+
+    public override bool Initialise()
     {
-        public const int NotFound = -1;
-        public string NinjaDirectory;
-        public DateTime BuildDate;
-        public CollectiveApiData CollectedData = new CollectiveApiData();
-        public bool DownloadDone;
-        public bool InitJsonDone;
-        public string PluginVersion;
-        public string PoeLeagueApiList = "http://api.pathofexile.com/leagues?type=main&compact=1";
-        public bool UpdatingFromJson { get; set; } = false;
-        public bool UpdatingFromAPI { get; set; } = false;
+        Name = "Ninja Price";
+        NinjaDirectory = Path.Join(DirectoryFullName, "NinjaData");
+        Directory.CreateDirectory(NinjaDirectory);
 
-        //https://stackoverflow.com/questions/826777/how-to-have-an-auto-incrementing-version-number-visual-studio
-        public Version Version = Assembly.GetExecutingAssembly().GetName().Version;
+        GatherLeagueNames();
+        StartDataReload(Settings.LeagueList.Value, false);
 
-        public static Main Controller { get; set; }
+        // Enable Events
+        Settings.ReloadButton.OnPressed += () => StartDataReload(Settings.LeagueList.Value, true);
 
+        CustomItem.InitCustomItem(this);
 
-        public string CurrentLeague { get; set; }
+        return true;
+    }
 
-        public override bool Initialise()
+    public override void AreaChange(AreaInstance area)
+    {
+        if (GameController.Files.UniqueItemDescriptions.EntriesList.Count == 0)
         {
-            Name = "Ninja Price";
-            //base.InitializeSettingsMenu();
-            Controller = this;
-            BuildDate = new DateTime(2000, 1, 1).AddDays(Version.Build).AddSeconds(Version.Revision * 2);
-            PluginVersion = $"{Version}";
-            NinjaDirectory = DirectoryFullName + "\\NinjaData\\";
-            //LogMessage(DirectoryFullName, 50); // ????? i dont even understand why this is here.
-            // Make folder if it doesnt exist
-            var file = new FileInfo(NinjaDirectory);
-            file.Directory?.Create(); // If the directory already exists, this method does nothing.
-
-            GatherLeagueNames();
-            //DownloadChaosIcon();
-
-            if (Settings.FirstTime)
-            {
-                LoadJsonData();
-                UpdatePoeNinjaData();
-                Settings.FirstTime = true;
-            }
-            else
-            {
-                UpdatePoeNinjaData();
-            }
-
-            CurrentLeague = Settings.LeagueList.Value; //  Update selected league
-            // Enable Events
-            Settings.ReloadButton.OnPressed += LoadJsonData;
-
-            CustomItem.InitCustomItem(this);
-
-            return true;
+            GameController.Files.LoadFiles();
         }
+    }
 
-        public void LoadJsonData()
+    private void GatherLeagueNames()
+    {
+        List<string> leagueList;
+        try
         {
-            LogMessage($"Getting data for {CurrentLeague}", 5);
-            GetJsonData(CurrentLeague);
-            UpdatePoeNinjaData();
-        }
-
-        private void GatherLeagueNames()
-        {
-            var leagueListFromUrl = Api.DownloadFromUrl(PoeLeagueApiList);
+            var leagueListFromUrl = Api.DownloadFromUrl(PoeLeagueApiList).Result;
             var leagueData = JsonConvert.DeserializeObject<List<Leagues>>(leagueListFromUrl);
-            Api.Json.SaveSettingFile($"{NinjaDirectory}Leagues.json", leagueData);
-            var leagueList = (from league in leagueData where !league.Id.Contains("SSF") select league.Id).ToList();
-
-            // set wanted league
-            CurrentLeague = CurrentLeague == null ? leagueList[0] : Settings.LeagueList.Value;
-            // display default league in setting
-            if (Settings.LeagueList.Value == null)
-                Settings.LeagueList.Value = CurrentLeague;
-
-            Settings.LeagueList.SetListValues(leagueList);
+            leagueList = leagueData.Where(league => !league.Id.Contains("SSF")).Select(league => league.Id).ToList();
         }
+        catch (Exception ex)
+        {
+            LogError($"Failed to download the league list: {ex}");
+            leagueList = new List<string> { GameController.IngameState.ServerData.League };
+        }
+
+        if (!leagueList.Contains(Settings.LeagueList.Value))
+        {
+            Settings.LeagueList.Value = leagueList[0];
+        }
+
+        Settings.LeagueList.SetListValues(leagueList);
     }
 }

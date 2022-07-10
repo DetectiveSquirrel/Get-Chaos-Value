@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Ninja_Price.API.PoeNinja.Classes;
 
-public class Scarab
+public class Vials
 {
     public class RootObject
     {
@@ -28,7 +28,7 @@ public class Scarab
         public Uri Icon { get; set; }
         public long? MapTier { get; set; }
         public long? LevelRequired { get; set; }
-        public object BaseType { get; set; }
+        public string BaseType { get; set; }
         public long? StackSize { get; set; }
         public object Variant { get; set; }
         public object ProphecyText { get; set; }
@@ -44,7 +44,7 @@ public class Scarab
         public long? GemLevel { get; set; }
         public long? GemQuality { get; set; }
         public string ItemType { get; set; }
-        public long? ChaosValue { get; set; }
+        public double? ChaosValue { get; set; }
         public double? ExaltedValue { get; set; }
         public long? Count { get; set; }
         public string DetailsId { get; set; }
@@ -63,5 +63,4 @@ public class Scarab
         public List<double?> Data { get; set; }
         public double? TotalChange { get; set; }
     }
-
 }

@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Ninja_Price.Enums;
 
-namespace Ninja_Price.Enums
+class HaggleTypes
 {
-    class HaggleTypes
+    public enum HaggleType
     {
-        public enum HaggleType
-        {
-            None,       // None
-            Exchange,   // Dannig
-            Gamble,     // Gwennen
-            Deal,       // Rog
-            Haggle,     // Tujen
-        }
+        None,       // None
+        Exchange,   // Dannig
+        Gamble,     // Gwennen
+        Deal,       // Rog
+        Haggle,     // Tujen
     }
 }

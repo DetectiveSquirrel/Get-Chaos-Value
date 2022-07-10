@@ -1,205 +1,169 @@
-﻿using Ninja_Price.Enums;
+using Ninja_Price.Enums;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Net;
-using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Enums;
 using Ninja_Price.API.PoeNinja.Classes;
 using Color = SharpDX.Color;
-using RectangleF = SharpDX.RectangleF;
-using Vector4 = System.Numerics.Vector4;
 
-namespace Ninja_Price.Main
+namespace Ninja_Price.Main;
+
+public partial class Main
 {
-    public partial class Main
+    private double ExaltedPrice => CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb")?.ChaosEquivalent ?? throw new Exception("Exalt price is missing");
+
+    private List<NormalInventoryItem> GetInventoryItems()
     {
-        public List<NormalInventoryItem> GetInventoryItems()
+        var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel;
+        return !inventory.IsVisible ? null : inventory[InventoryIndex.PlayerInventory].VisibleInventoryItems.ToList();
+    }
+
+    private static List<CustomItem> FormatItems(IEnumerable<NormalInventoryItem> itemList)
+    {
+        return itemList.ToList().Where(x => x?.Item?.IsValid == true).Select(inventoryItem => new CustomItem(inventoryItem)).ToList();
+    }
+
+    private static string GetShardParent(string shardBaseName)
+    {
+        var name = "";
+        var orbsAndTheirRespectiveShards = new Dictionary<string, string>
         {
-            var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel;
-            return !inventory.IsVisible ? null : inventory[InventoryIndex.PlayerInventory].VisibleInventoryItems.ToList();
+            {"Transmutation Shard", "Orb of Transmutation"},
+            {"Alteration Shard", "Orb of Alteration"},
+            {"Annulment Shard", "Orb of Annulment"},
+            {"Exalted Shard", "Exalted Orb"},
+            {"Mirror Shard", "Mirror of Kalandra"},
+            {"Regal Shard", "Regal Orb"},
+            {"Alchemy Shard", "Orb of Alchemy"},
+            {"Chaos Shard", "Chaos Orb"},
+            {"Ancient Shard", "Ancient Orb"},
+            {"Engineer's Shard", "Engineer's Orb"},
+            {"Harbinger's Shard", "Harbinger's Orb"},
+            {"Horizon Shard", "Orb of Horizons"},
+            {"Binding Shard", "Orb of Binding"},
+            {"Scroll Fragment", "Scroll of Wisdom"},
+            {"Ritual Splinter", "Ritual Vessel"},
+            {"Crescent Splinter", "The Maven's Writ" }
+        };
+        try
+        {
+            name = orbsAndTheirRespectiveShards[shardBaseName];
+        }
+        catch
+        {
+            //LogMessage($"Couldn't find key with value: {shardBaseName}.", 1);
         }
 
-        public Vector4 ToImVector4(Vector4 vector)
+        return name;
+    }
+
+    private void GetHoveredItem()
+    {
+        try
         {
-            return new Vector4(vector.X, vector.Y, vector.Z, vector.W);
-        }
-
-        /// <summary>
-        ///     Used for converting SharpDX.Color into string #AARRGGBB.
-        /// </summary>
-        public static string HexConverter(Color c)
-        {
-            var rtn = string.Empty;
-            try
+            var uiHover = GameController.Game.IngameState.UIHover;
+            if (uiHover.AsObject<HoverItemIcon>().ToolTipType != ToolTipType.ItemInChat)
             {
-                rtn = "#" + c.A.ToString("X2") + c.R.ToString("X2") + c.G.ToString("X2") + c.B.ToString("X2");
-                return rtn;
-            }
-            catch
-            {
-                // ignored
-            }
-
-            return rtn;
-        }
-
-        public void DownloadChaosIcon()
-        {
-            // check if image exists, if it doesn't, download it.
-            var fileName = $"{DirectoryFullName}//images//Chaos_Orb_inventory_icon.png";
-            if (File.Exists(fileName)) return;
-            Directory.CreateDirectory($"{DirectoryFullName}//images//");
-            using (var client = new WebClient())
-            {
-                client.DownloadFile(new Uri("https://gamepedia.cursecdn.com/pathofexile_gamepedia/9/9c/Chaos_Orb_inventory_icon.png"), fileName);
-            }
-        }
-
-        public List<CustomItem> FormatItems(List<NormalInventoryItem> itemList)
-        {
-            return itemList.ToList().Select(inventoryItem => new CustomItem(inventoryItem)).ToList();
-        }
-
-        public string GetShardPartent(string shardBaseName)
-        {
-            var name = "";
-            var orbsAndTheirRespectiveShards = new Dictionary<string, string>
-            {
-                {"Transmutation Shard", "Orb of Transmutation"},
-                {"Alteration Shard", "Orb of Alteration"},
-                {"Annulment Shard", "Orb of Annulment"},
-                {"Exalted Shard", "Exalted Orb"},
-                {"Mirror Shard", "Mirror of Kalandra"},
-                {"Regal Shard", "Regal Orb"},
-                {"Alchemy Shard", "Orb of Alchemy"},
-                {"Chaos Shard", "Chaos Orb"},
-                {"Ancient Shard", "Ancient Orb"},
-                {"Engineer's Shard", "Engineer's Orb"},
-                {"Harbinger's Shard", "Harbinger's Orb"},
-                {"Horizon Shard", "Orb of Horizons"},
-                {"Binding Shard", "Orb of Binding"},
-                {"Scroll Fragment", "Scroll of Wisdom"},
-                {"Ritual Splinter", "Ritual Vessel"}
-            };
-            try
-            {
-                name = orbsAndTheirRespectiveShards[shardBaseName];
-            }
-            catch
-            {
-                //LogMessage($"Couldn't find key with value: {shardBaseName}.", 1);
-            }
-
-            return name;
-        }
-
-        /// <summary>
-        ///     Draws a plugin image to screen.
-        /// </summary>
-        /// <param name="rec"></param>
-        /// <param name="fileName">The full path including file, fx. C:\\image\\Carl.png</param>
-        /// <returns></returns>
-        private bool DrawImage(string fileName, RectangleF rec)
-        {
-            try
-            {
-                //Graphics.DrawPluginImage(fileName, rec);
-            }
-            catch
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public void GetHoveredItem()
-        {
-            try
-            {
-                var uiHover = GameController.Game.IngameState.UIHover;
-                if (uiHover.AsObject<HoverItemIcon>().ToolTipType != ToolTipType.ItemInChat)
+                var inventoryItemIcon = uiHover.AsObject<NormalInventoryItem>();
+                var tooltip = inventoryItemIcon.Tooltip;
+                var poeEntity = inventoryItemIcon.Item;
+                if (tooltip != null && poeEntity.Address != 0 && poeEntity.IsValid)
                 {
-                    var inventoryItemIcon = uiHover.AsObject<NormalInventoryItem>();
-                    var tooltip = inventoryItemIcon.Tooltip;
-                    var poeEntity = inventoryItemIcon.Item;
-                    if (tooltip != null && poeEntity.Address != 0 && poeEntity.IsValid)
+                    var item = inventoryItemIcon.Item;
+                    var baseItemType = GameController.Files.BaseItemTypes.Translate(item.Path);
+                    if (baseItemType != null)
                     {
-                        var item = inventoryItemIcon.Item;
-                        var baseItemType = GameController.Files.BaseItemTypes.Translate(item.Path);
-                        if (baseItemType != null)
-                        {
-                            Hovereditem = new CustomItem(inventoryItemIcon);
-                            if (Hovereditem.ItemType != ItemTypes.None)
-                                GetValue(Hovereditem);
-                        }
+                        HoveredItem = new CustomItem(inventoryItemIcon);
+                        if (HoveredItem.ItemType != ItemTypes.None)
+                            GetValue(HoveredItem);
                     }
                 }
             }
-            catch
-            {
-                // ignored
-                //LogError("Error in GetHoveredItem()", 10);
-            }
         }
-
-        public void GetValue(CustomItem item)
+        catch
         {
-            try
-            {
+            // ignored
+            //LogError("Error in GetHoveredItem()", 10);
+        }
+    }
 
-                item.PriceData.ExaltedPrice = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
+    private void GetValue(CustomItem item)
+    {
+        try
+        {
+            item.PriceData.ExaltedPrice = ExaltedPrice;
+            if(item.BaseName.Contains("Rogue's Marker"))
+            {
+                item.PriceData.MinChaosValue = 0;
+            }
+            else
+            {
                 switch (item.ItemType) // easier to get data for each item type and handle logic based on that
                 {
                     // TODO: Complete
                     case ItemTypes.Currency:
-                        if (item.BaseName.StartsWith("Chaos "))
+                        if (item.BaseName.StartsWith("Chaos ")) // Chaos Orb or Shard
                         {
                             switch (item.CurrencyInfo.IsShard)
                             {
                                 case false:
-                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize;
+                                    item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize;
                                     break;
                                 case true:
-                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize / 20.0;
+                                    item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize / 20.0;
                                     break;
                             }
+
                             break;
                         }
-                        switch (item.CurrencyInfo.IsShard)
+
+                        if (item.BaseName.Contains("Ritual Splinter")) // Ritual
                         {
-                            case false:
-                                var normalCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
-                                if (normalCurrencySearch != null)
-                                {
-                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)normalCurrencySearch.ChaosEquivalent;
-                                    item.PriceData.ChangeInLast7Days = (double)normalCurrencySearch.ReceiveSparkLine.TotalChange;
-                                }
+                            var shardParent = GetShardParent(item.BaseName);
+                            var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
+                            if (shardCurrencySearch != null)
+                            {
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (shardCurrencySearch.ChaosEquivalent ?? 0) / 100;
+                                item.PriceData.ChangeInLast7Days = shardCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                item.PriceData.DetailsId = shardCurrencySearch.DetailsId;
+                            }
 
-                                break;
-                            case true:
-                                var shardParent = GetShardPartent(item.BaseName);
-                                var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
-                                if (shardCurrencySearch != null)
-                                {
-                                    item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)shardCurrencySearch.ChaosEquivalent / (item.CurrencyInfo.MaxStackSize > 0 ? item.CurrencyInfo.MaxStackSize : 20);
-                                    item.PriceData.ChangeInLast7Days = (double)shardCurrencySearch.ReceiveSparkLine.TotalChange;
-                                }
-
-                                break;
+                            break;
                         }
+
+                        if (item.CurrencyInfo.IsShard)
+                        {
+                            var shardParent = GetShardParent(item.BaseName);
+                            var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
+                            if (shardCurrencySearch != null)
+                            {
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (shardCurrencySearch.ChaosEquivalent ?? 0) /
+                                                               (item.CurrencyInfo.MaxStackSize > 0 ? item.CurrencyInfo.MaxStackSize : 20);
+                                item.PriceData.ChangeInLast7Days = shardCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                item.PriceData.DetailsId = shardCurrencySearch.DetailsId;
+                            }
+                        }
+                        else
+                        {
+                            var normalCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                            if (normalCurrencySearch != null)
+                            {
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * normalCurrencySearch.ChaosEquivalent ?? 0;
+                                item.PriceData.ChangeInLast7Days = normalCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                item.PriceData.DetailsId = normalCurrencySearch.DetailsId;
+                            }
+                        }
+
                         break;
                     case ItemTypes.Catalyst:
                         var catalystSearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
                         if (catalystSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)catalystSearch.ChaosEquivalent;
-                            item.PriceData.ChangeInLast7Days = (double)catalystSearch.ReceiveSparkLine.TotalChange;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * catalystSearch.ChaosEquivalent ?? 0;
+                            item.PriceData.ChangeInLast7Days = catalystSearch.ReceiveSparkLine.TotalChange ?? 0;
+                            item.PriceData.DetailsId = catalystSearch.DetailsId;
                         }
 
                         break;
@@ -207,8 +171,9 @@ namespace Ninja_Price.Main
                         var divinationSearch = CollectedData.DivinationCards.Lines.Find(x => x.Name == item.BaseName);
                         if (divinationSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)divinationSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)divinationSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * divinationSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = divinationSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = divinationSearch.DetailsId;
                         }
 
                         break;
@@ -216,32 +181,61 @@ namespace Ninja_Price.Main
                         var essenceSearch = CollectedData.Essences.Lines.Find(x => x.Name == item.BaseName);
                         if (essenceSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)essenceSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)essenceSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * essenceSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = essenceSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = essenceSearch.DetailsId;
                         }
+
                         break;
                     case ItemTypes.Oil:
                         var oilSearch = CollectedData.Oils.Lines.Find(x => x.Name == item.BaseName);
                         if (oilSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)oilSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)oilSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * oilSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = oilSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = oilSearch.DetailsId;
                         }
                         break;
                     case ItemTypes.Artifact:
                         var artifactSearch = CollectedData.Artifacts.Lines.Find(x => x.Name == item.BaseName);
                         if (artifactSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)artifactSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)artifactSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * artifactSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = artifactSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = artifactSearch.DetailsId;
                         }
+
                         break;
                     case ItemTypes.Fragment:
                         var fragmentSearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
                         if (fragmentSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)fragmentSearch.ChaosEquivalent;
-                            item.PriceData.ChangeInLast7Days = (double)fragmentSearch.ReceiveSparkLine.TotalChange;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * fragmentSearch.ChaosEquivalent ?? 0;
+                            item.PriceData.ChangeInLast7Days = fragmentSearch.ReceiveSparkLine.TotalChange ?? 0;
+                            item.PriceData.DetailsId = fragmentSearch.DetailsId;
+                        }
+
+                        break;
+                    case ItemTypes.SkillGem:
+                        var displayText = item.QualityType == SkillGemQualityTypeE.Superior ? item.BaseName : $"{item.QualityType} {item.BaseName}";
+                        var fittingGems = CollectedData.SkillGems.Lines
+                           .Where(x => x.Name == displayText && x.GemLevel <= item.GemLevel).ToList();
+                        var gemSearch = MoreLinq.MoreEnumerable.MaxBy(fittingGems,
+                            x => (x.GemLevel == item.GemLevel,
+                                  x.Corrupted == item.IsCorrupted,
+                                  x.GemQuality == item.Quality,
+                                  x.GemQuality == item.Quality switch { > 15 and < 21 => 20, var o => o },
+                                  x.GemQuality <= item.Quality,
+                                  x.GemLevel + x.GemQuality)).ToList();
+
+                        if (gemSearch.Any())
+                        {
+                            var minValueRecord = gemSearch.MinBy(x => x.ChaosValue)!;
+                            item.PriceData.MinChaosValue = minValueRecord.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = minValueRecord.Sparkline.Data?.Any() == true
+                                                                   ? minValueRecord.Sparkline.TotalChange
+                                                                   : minValueRecord.LowConfidenceSparkline.TotalChange;
+                            item.PriceData.DetailsId = minValueRecord.DetailsId;
                         }
 
                         break;
@@ -249,8 +243,9 @@ namespace Ninja_Price.Main
                         var InvitationSearch = CollectedData.Invitations.Lines.Find(x => x.Name == item.BaseName);
                         if (InvitationSearch != null)
                         {
-                            item.PriceData.ChaosValue = (double)InvitationSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)InvitationSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = InvitationSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = InvitationSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = InvitationSearch.DetailsId;
                         }
 
                         break;
@@ -258,8 +253,19 @@ namespace Ninja_Price.Main
                         var deliriumOrbsSearch = CollectedData.DeliriumOrb.Lines.Find(x => x.Name == item.BaseName);
                         if (deliriumOrbsSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)deliriumOrbsSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)deliriumOrbsSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * deliriumOrbsSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = deliriumOrbsSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = deliriumOrbsSearch.DetailsId;
+                        }
+
+                        break;
+                    case ItemTypes.Vials:
+                        var vialCurrencySearch = CollectedData.Vials.Lines.Find(x => x.Name == item.BaseName);
+                        if (vialCurrencySearch != null)
+                        {
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * vialCurrencySearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = vialCurrencySearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = vialCurrencySearch.DetailsId;
                         }
 
                         break;
@@ -267,8 +273,9 @@ namespace Ninja_Price.Main
                         var incubatorSearch = CollectedData.Incubators.Lines.Find(x => x.Name == item.BaseName);
                         if (incubatorSearch != null)
                         {
-                            item.PriceData.ChaosValue = (double)incubatorSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)incubatorSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = incubatorSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = incubatorSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = incubatorSearch.DetailsId;
                         }
 
                         break;
@@ -276,89 +283,139 @@ namespace Ninja_Price.Main
                         var scarabSearch = CollectedData.Scarabs.Lines.Find(x => x.Name == item.BaseName);
                         if (scarabSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)scarabSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)scarabSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * scarabSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = scarabSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = scarabSearch.DetailsId;
                         }
 
                         break;
-                    case ItemTypes.Prophecy:
-                        var prophecySearch = CollectedData.Prophecies.Lines.Find(x => x.Name == item.Item.Item.GetComponent<Prophecy>().DatProphecy.Name);
-                        if (prophecySearch != null)
-                        {
-                            item.PriceData.ChaosValue = (double)prophecySearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)prophecySearch.Sparkline.TotalChange;
-                        }
-
-                        break;
-                    // TODO: add a quick function to turn known names into the correct name for poe.ninja - See old plugin code
                     case ItemTypes.UniqueAccessory:
-                        var uniqueAccessorieSearch = CollectedData.UniqueAccessories.Lines.Find(x => x.Name == item.UniqueName);
-                        if (uniqueAccessorieSearch != null)
+                        var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x =>
+                            (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
+                            !x.DetailsId.Contains("-relic"));
+                        if (uniqueAccessorySearch.Count == 1)
                         {
-                            item.PriceData.ChaosValue = (double)uniqueAccessorieSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)uniqueAccessorieSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = uniqueAccessorySearch[0].ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = uniqueAccessorySearch[0].Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = uniqueAccessorySearch[0].DetailsId;
                         }
+                        else if (uniqueAccessorySearch.Count > 1)
+                        {
+                            item.PriceData.MinChaosValue = uniqueAccessorySearch.Min(x => x.ChaosValue) ?? 0;
+                            item.PriceData.MaxChaosValue = uniqueAccessorySearch.Max(x => x.ChaosValue) ?? 0;
+                            item.PriceData.ChangeInLast7Days = 0;
+                            item.PriceData.DetailsId = uniqueAccessorySearch[0].DetailsId;
+                        }
+                        else
+                        {
+                            item.PriceData.MinChaosValue = 0;
+                            item.PriceData.ChangeInLast7Days = 0;
+                        }
+
                         break;
                     case ItemTypes.UniqueArmour:
-                        switch (item.LargestLink)
+                    {
+                        var allLinksLines = CollectedData.UniqueArmours.Lines.Where(x =>
+                            (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
+                            !x.DetailsId.Contains("-relic"));
+                        var uniqueArmourSearchLinks = item.LargestLink switch
                         {
-                            case 0:
-                            case 1:
-                            case 2:
-                            case 3:
-                            case 4:
-                                var uniqueArmourSearchLinks04 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && (x.Links <= 4 && x.Links >= 0 || x.Links == null));
-                                if (uniqueArmourSearchLinks04 != null)
-                                {
-                                    item.PriceData.ChaosValue = (double)uniqueArmourSearchLinks04.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = (double)uniqueArmourSearchLinks04.Sparkline.TotalChange;
-                                }
+                            < 5 => allLinksLines.Where(x => x.Links != 5 && x.Links != 6).ToList(),
+                            5 => allLinksLines.Where(x => x.Links == 5).ToList(),
+                            6 => allLinksLines.Where(x => x.Links == 6).ToList(),
+                            _ => new List<UniqueArmours.Line>()
+                        };
 
-                                break;
-                            case 5:
-                                var uniqueArmourSearch5 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5);
-                                if (uniqueArmourSearch5 != null)
-                                {
-                                    item.PriceData.ChaosValue = (double)uniqueArmourSearch5.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = (double)uniqueArmourSearch5.Sparkline.TotalChange;
-                                }
-
-                                break;
-                            case 6:
-                                var uniqueArmourSearch6 = CollectedData.UniqueArmours.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6);
-                                if (uniqueArmourSearch6 != null)
-                                {
-                                    item.PriceData.ChaosValue = (double)uniqueArmourSearch6.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = (double)uniqueArmourSearch6.Sparkline.TotalChange;
-                                }
-
-                                break;
+                        if (uniqueArmourSearchLinks.Count == 1)
+                        {
+                            item.PriceData.MinChaosValue = uniqueArmourSearchLinks[0].ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = uniqueArmourSearchLinks[0].Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = uniqueArmourSearchLinks[0].DetailsId;
                         }
-                        break;
-                    case ItemTypes.UniqueFlask:
-                        var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.Find(x => x.Name == item.UniqueName);
-                        if (uniqueFlaskSearch != null)
+                        else if (uniqueArmourSearchLinks.Count > 1)
                         {
-                            item.PriceData.ChaosValue = (double)uniqueFlaskSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)uniqueFlaskSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = uniqueArmourSearchLinks.Min(x => x.ChaosValue) ?? 0;
+                            item.PriceData.MaxChaosValue = uniqueArmourSearchLinks.Max(x => x.ChaosValue) ?? 0;
+                            item.PriceData.ChangeInLast7Days = 0;
+                            item.PriceData.DetailsId = uniqueArmourSearchLinks[0].DetailsId;
+                        }
+                        else
+                        {
+                            item.PriceData.MinChaosValue = 0;
+                            item.PriceData.ChangeInLast7Days = 0;
+                        }
+
+                        break;
+                    }
+                    case ItemTypes.UniqueFlask:
+                        var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.FindAll(x =>
+                            (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
+                            !x.DetailsId.Contains("-relic"));
+                        if (uniqueFlaskSearch.Count == 1)
+                        {
+                            item.PriceData.MinChaosValue = uniqueFlaskSearch[0].ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = uniqueFlaskSearch[0].Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = uniqueFlaskSearch[0].DetailsId;
+                        }
+                        else if (uniqueFlaskSearch.Count > 1)
+                        {
+                            item.PriceData.MinChaosValue = uniqueFlaskSearch.Min(x => x.ChaosValue) ?? 0;
+                            item.PriceData.MaxChaosValue = uniqueFlaskSearch.Max(x => x.ChaosValue) ?? 0;
+                            item.PriceData.ChangeInLast7Days = 0;
+                            item.PriceData.DetailsId = uniqueFlaskSearch[0].DetailsId;
+                        }
+                        else
+                        {
+                            item.PriceData.MinChaosValue = 0;
+                            item.PriceData.ChangeInLast7Days = 0;
                         }
 
                         break;
                     case ItemTypes.UniqueJewel:
-                        var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.Find(x => x.Name == item.UniqueName);
-                        if (uniqueJewelSearch != null)
+                        var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x =>
+                            (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
+                            !x.DetailsId.Contains("-relic"));
+                        if (uniqueJewelSearch.Count == 1)
                         {
-                            item.PriceData.ChaosValue = (double)uniqueJewelSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)uniqueJewelSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = uniqueJewelSearch[0].ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = uniqueJewelSearch[0].Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = uniqueJewelSearch[0].DetailsId;
+                        }
+                        else if (uniqueJewelSearch.Count > 1)
+                        {
+                            item.PriceData.MinChaosValue = uniqueJewelSearch.Min(x => x.ChaosValue) ?? 0;
+                            item.PriceData.MaxChaosValue = uniqueJewelSearch.Max(x => x.ChaosValue) ?? 0;
+                            item.PriceData.ChangeInLast7Days = 0;
+                            item.PriceData.DetailsId = uniqueJewelSearch[0].DetailsId;
+                        }
+                        else
+                        {
+                            item.PriceData.MinChaosValue = 0;
+                            item.PriceData.ChangeInLast7Days = 0;
                         }
 
                         break;
                     case ItemTypes.UniqueMap:
-                        var uniqueMapSearch = CollectedData.UniqueMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier);
-                        if (uniqueMapSearch != null)
+                        var uniqueMapSearch = CollectedData.UniqueMaps.Lines.FindAll(x =>
+                            (x.BaseType == item.UniqueName || item.UniqueNameCandidates.Contains(x.BaseType)) &&
+                            item.MapInfo.MapTier == x.MapTier);
+                        if (uniqueMapSearch.Count == 1)
                         {
-                            item.PriceData.ChaosValue = (double)uniqueMapSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)uniqueMapSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = uniqueMapSearch[0].ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = uniqueMapSearch[0].Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = uniqueMapSearch[0].DetailsId;
+                        }
+                        else if (uniqueMapSearch.Count > 1)
+                        {
+                            item.PriceData.MinChaosValue = uniqueMapSearch.Min(x => x.ChaosValue) ?? 0;
+                            item.PriceData.MaxChaosValue = uniqueMapSearch.Max(x => x.ChaosValue) ?? 0;
+                            item.PriceData.ChangeInLast7Days = 0;
+                            item.PriceData.DetailsId = uniqueMapSearch[0].DetailsId;
+                        }
+                        else
+                        {
+                            item.PriceData.MinChaosValue = 0;
+                            item.PriceData.ChangeInLast7Days = 0;
                         }
 
                         break;
@@ -366,8 +423,9 @@ namespace Ninja_Price.Main
                         var resonatorSearch = CollectedData.Resonators.Lines.Find(x => x.Name == item.BaseName);
                         if (resonatorSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)resonatorSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)resonatorSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * resonatorSearch.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = resonatorSearch.Sparkline.TotalChange;
+                            item.PriceData.DetailsId = resonatorSearch.DetailsId;
                         }
 
                         break;
@@ -375,330 +433,250 @@ namespace Ninja_Price.Main
                         var fossilSearch = CollectedData.Fossils.Lines.Find(x => x.Name == item.BaseName);
                         if (fossilSearch != null)
                         {
-                            item.PriceData.ChaosValue = item.CurrencyInfo.StackSize * (double)fossilSearch.ChaosValue;
-                            item.PriceData.ChangeInLast7Days = (double)fossilSearch.Sparkline.TotalChange;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * fossilSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = fossilSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = fossilSearch.DetailsId;
                         }
 
                         break;
                     case ItemTypes.UniqueWeapon:
-                        switch (item.LargestLink)
+                    {
+                        var allLinksLines = CollectedData.UniqueWeapons.Lines.Where(x =>
+                            (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
+                            !x.DetailsId.Contains("-relic"));
+                        var uniqueArmourSearchLinks = item.LargestLink switch
                         {
-                            case 0:
-                            case 1:
-                            case 2:
-                            case 3:
-                            case 4:
-                                var uniqueWeaponSearch04 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && (x.Links <= 4 && x.Links >= 0 || x.Links == null));
-                                if (uniqueWeaponSearch04 != null)
-                                {
-                                    item.PriceData.ChaosValue = (double)uniqueWeaponSearch04.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch04.Sparkline.TotalChange;
-                                }
-
-                                break;
-                            case 5:
-                                var uniqueWeaponSearch5 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 5);
-                                if (uniqueWeaponSearch5 != null)
-                                {
-                                    item.PriceData.ChaosValue = (double)uniqueWeaponSearch5.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch5.Sparkline.TotalChange;
-                                }
-
-                                break;
-                            case 6:
-                                var uniqueWeaponSearch6 = CollectedData.UniqueWeapons.Lines.Find(x => x.Name == item.UniqueName && x.Links == 6);
-                                if (uniqueWeaponSearch6 != null)
-                                {
-                                    item.PriceData.ChaosValue = (double)uniqueWeaponSearch6.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = (double)uniqueWeaponSearch6.Sparkline.TotalChange;
-                                }
-
-                                break;
+                            < 5 => allLinksLines.Where(x => x.Links != 5 && x.Links != 6).ToList(),
+                            5 => allLinksLines.Where(x => x.Links == 5).ToList(),
+                            6 => allLinksLines.Where(x => x.Links == 6).ToList(),
+                            _ => new List<UniqueWeapons.Line>()
+                        };
+                        if (uniqueArmourSearchLinks.Count == 1)
+                        {
+                            item.PriceData.MinChaosValue = uniqueArmourSearchLinks[0].ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = uniqueArmourSearchLinks[0].Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = uniqueArmourSearchLinks[0].DetailsId;
                         }
+                        else if (uniqueArmourSearchLinks.Count > 1)
+                        {
+                            item.PriceData.MinChaosValue = uniqueArmourSearchLinks.Min(x => x.ChaosValue) ?? 0;
+                            item.PriceData.MaxChaosValue = uniqueArmourSearchLinks.Max(x => x.ChaosValue) ?? 0;
+                            item.PriceData.ChangeInLast7Days = 0;
+                            item.PriceData.DetailsId = uniqueArmourSearchLinks[0].DetailsId;
+                        }
+                        else
+                        {
+                            item.PriceData.MinChaosValue = 0;
+                            item.PriceData.ChangeInLast7Days = 0;
+                        }
+
                         break;
-                    case ItemTypes.NormalMap:
-                        // TODO: Deal with old maps, this is literally the last thing i will do as it has next to no gain for having this information
+                    }
+                    case ItemTypes.Map:
                         switch (item.MapInfo.MapType)
                         {
                             case MapTypes.Blighted:
-                                WhiteMaps.Line normalBlightedMapSearch;
 
-                                if (Settings.MapVariant.Value)
-                                    normalBlightedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Blighted {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value);
-                                else
-                                    normalBlightedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Blighted {item.BaseName}" && item.MapInfo.MapTier == x.MapTier);
+                                var blightedBaseName = $"Blighted {item.BaseName}";
+                                var normalBlightedMapSearch = Settings.MapVariant.Value
+                                                                  ? CollectedData.WhiteMaps.Lines.Find(x =>
+                                                                      x.BaseType == blightedBaseName && item.MapInfo.MapTier == x.MapTier &&
+                                                                      x.Variant == Settings.LeagueList.Value)
+                                                                  : CollectedData.WhiteMaps.Lines.Find(x =>
+                                                                      x.BaseType == blightedBaseName && item.MapInfo.MapTier == x.MapTier);
 
                                 if (normalBlightedMapSearch != null)
                                 {
-                                    item.PriceData.ChaosValue = (double)normalBlightedMapSearch.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = (double)normalBlightedMapSearch.Sparkline.TotalChange;
+                                    item.PriceData.MinChaosValue = normalBlightedMapSearch.ChaosValue ?? 0;
+                                    item.PriceData.ChangeInLast7Days = normalBlightedMapSearch.Sparkline.TotalChange ?? 0;
+                                    item.PriceData.DetailsId = normalBlightedMapSearch.DetailsId;
                                 }
 
                                 break;
-                        // TODO: Poe.Ninja can not recognized Shaped and Elder maps, so i think no price - is better than count price equal no influence map.
-                                /*
-                            case MapTypes.Shaped:
-                                var normalSharpedMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == $"Shaped {item.BaseName}" && item.MapInfo.MapTier == x.MapTier && x.Variant == "Harvest");
-                                if (normalSharpedMapSearch != null)
-                                {
-                                    item.PriceData.ChaosValue = (double)normalSharpedMapSearch.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = (double)normalSharpedMapSearch.Sparkline.TotalChange;
-                                }
+                            case MapTypes.None:
 
-                                break;
-                                */
-                            case  MapTypes.None:
-                                WhiteMaps.Line normalMapSearch;
-
-                                if (Settings.MapVariant.Value)
-                                    normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value);
-                                else
-                                    normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x => x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier);
+                                var normalMapSearch = Settings.MapVariant.Value
+                                                          ? CollectedData.WhiteMaps.Lines.Find(x =>
+                                                              x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value)
+                                                          : CollectedData.WhiteMaps.Lines.Find(x =>
+                                                              x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier);
 
                                 if (normalMapSearch != null)
                                 {
-                                    item.PriceData.ChaosValue = (double)normalMapSearch.ChaosValue;
-                                    item.PriceData.ChangeInLast7Days = (double)normalMapSearch.Sparkline.TotalChange;
+                                    item.PriceData.MinChaosValue = normalMapSearch.ChaosValue ?? 0;
+                                    item.PriceData.ChangeInLast7Days = normalMapSearch.Sparkline.TotalChange ?? 0;
+                                    item.PriceData.DetailsId = normalMapSearch.DetailsId;
                                 }
 
                                 break;
                         }
+
                         break;
                 }
             }
-            catch (Exception e)
+        }
+        catch (Exception)
+        {
+            if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.GetValue()", 5, Color.Red); }
+        }
+        finally
+        {
+            if (item.PriceData.MaxChaosValue == 0)
             {
-                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.GetValue() Error that i dont understand", 5, Color.Red); }
+                item.PriceData.MaxChaosValue = item.PriceData.MinChaosValue;
             }
         }
+    }
 
-        public void GetValueHaggle(CustomItem item)
+    private void GetValueHaggle(CustomItem item)
+    {
+        try
         {
-            try
+            item.PriceData.ExaltedPrice = ExaltedPrice;
+            switch (item.ItemTypeGamble) // easier to get data for each item type and handle logic based on that
             {
-                item.PriceData.ExaltedPrice = (double)CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb").ChaosEquivalent;
-                switch (item.ItemTypeGamble) // easier to get data for each item type and handle logic based on that
-                {
-                    case ItemTypes.UniqueArmour:
-                        var uniqueArmourSearch = CollectedData.UniqueArmours.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));
-                        if (uniqueArmourSearch.Count > 0)
-                        {
-
-                            foreach (var result in uniqueArmourSearch)
-                            {
-                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
-                            }
-                        }
-                        break;
-                    case ItemTypes.UniqueWeapon:
-                        var uniqueWeaponSearch = CollectedData.UniqueWeapons.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));
-                        if (uniqueWeaponSearch.Count > 0)
-                        {
-
-                            foreach (var result in uniqueWeaponSearch)
-                            {
-                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
-                            }
-                        }
-                        break;
-                    case ItemTypes.UniqueAccessory:
-                        var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica "));
-                        if (uniqueAccessorySearch.Count > 0)
-                        {
-
-                            foreach (var result in uniqueAccessorySearch)
-                            {
-                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
-                            }
-                        }
-                        break;
-                    case ItemTypes.UniqueJewel:
-                        var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x => x.DetailsId.Contains(item.BaseName.ToLower().Replace(" ", "-")) && !x.Name.StartsWith("Replica "));
-                        if (uniqueJewelSearch.Count > 0)
-                        {
-
-                            foreach (var result in uniqueJewelSearch)
-                            {
-                                item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
-                            }
-                        }
-                        break;
-                }
-            }
-            catch (Exception e)
-            {
-                if (Settings.Debug)
-                {
-                    LogMessage($"{GetCurrentMethod()}.GetValueHaggle() Error that i dont understand, Item: {item.BaseName}", 5, Color.Red);
-                    LogMessage($"{GetCurrentMethod()}.GetValueHaggle() {e.Message}", 5, Color.Red);
-                }
-            }
-        }
-
-        public bool ShouldUpdateValues()
-        {
-            if (ValueUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
-            {
-                ValueUpdateTimer.Restart();
-                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
-            }
-            else
-            {
-                return false;
-            }
-            // TODO: Get inventory items and not just stash tab items, this will be done at a later date
-            try
-            {
-                if (!Settings.VisibleStashValue.Value || !GameController.Game.IngameState.IngameUi.StashElement.IsVisible)
-                {
-                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Stash is not visable", 5, Color.DarkGray); }
-                    return false;
-                }
-
-                // Dont continue if the stash page isnt even open
-                if (GameController.Game.IngameState.IngameUi.StashElement.VisibleStash.VisibleInventoryItems == null)
-                {
-                    if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Items == null", 5, Color.DarkGray);
-                    return false;
-                }
-            }
-            catch (Exception)
-            {
-                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Error that i need to fucking fix", 5, Color.DarkGray);
-                return false;
-            }
-
-            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
-            return true;
-        }
-
-        public bool ShouldUpdateValuesInventory()
-        {
-            if (ValueUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
-            {
-                ValueUpdateTimer.Restart();
-                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
-            }
-            else
-            {
-                return false;
-            }
-            // TODO: Get inventory items and not just stash tab items, this will be done at a later date
-            try
-            {
-                if (!Settings.VisibleInventoryValue.Value || !GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
-                {
-                    if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Inventory is not visable", 5, Color.DarkGray); }
-                    return false;
-                }
-
-                // Dont continue if the stash page isnt even open
-                if (GameController.Game.IngameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory].VisibleInventoryItems == null)
-                {
-                    if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Items == null", 5, Color.DarkGray);
-                    return false;
-                }
-            }
-            catch (Exception)
-            {
-                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Error that i need to fucking fix", 5, Color.DarkGray);
-                return false;
-            }
-
-            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
-            return true;
-        }
-
-
-        private double? GetProphecyValues(string ProphName)
-        {
-            var item = CollectedData.Prophecies.Lines.Find(x => x.Name == ProphName);
-            if (item == null) return NotFound;
-            var value = item.ChaosValue;
-            return value;
-        }
-        
-        private CustomItem GetHelmetEnchantValue(string EnchantName)
-        {
-            if (string.IsNullOrWhiteSpace(EnchantName))
-                return null;
-
-            var enchantSearch = CollectedData.HelmetEnchants.lines.Find(x => x.name.ToLower().Contains(EnchantName.ToLower()));
-            return enchantSearch == null
-                ? null
-                : new CustomItem
-                {
-                    PriceData = new ReleventPriceData
+                case ItemTypes.UniqueArmour:
+                    var uniqueArmourSearch = CollectedData.UniqueArmours.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));
+                    if (uniqueArmourSearch.Count > 0)
                     {
-                        ChaosValue = enchantSearch.chaosValue, ExaltedPrice = enchantSearch.exaltedValue,
-                        ItemType = ItemTypes.None, ChangeInLast7Days = enchantSearch.sparkline.totalChange
-                    },
-                    BaseName = enchantSearch.name
-                };
+                        foreach (var result in uniqueArmourSearch)
+                        {
+                            item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                        }
+                    }
+                    break;
+                case ItemTypes.UniqueWeapon:
+                    var uniqueWeaponSearch = CollectedData.UniqueWeapons.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));
+                    if (uniqueWeaponSearch.Count > 0)
+                    {
+                        foreach (var result in uniqueWeaponSearch)
+                        {
+                            item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                        }
+                    }
+                    break;
+                case ItemTypes.UniqueAccessory:
+                    var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica "));
+                    if (uniqueAccessorySearch.Count > 0)
+                    {
+                        foreach (var result in uniqueAccessorySearch)
+                        {
+                            item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                        }
+                    }
+                    break;
+                case ItemTypes.UniqueJewel:
+                    var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x => x.DetailsId.Contains(item.BaseName.ToLower().Replace(" ", "-")) && !x.Name.StartsWith("Replica "));
+                    if (uniqueJewelSearch.Count > 0)
+                    {
+                        foreach (var result in uniqueJewelSearch)
+                        {
+                            item.PriceData.ItemBasePrices.Add((double)result.ChaosValue);
+                        }
+                    }
+                    break;
+            }
         }
-
-        private Vector4 ToImVector4(SharpDX.Vector4 vector)
+        catch (Exception e)
         {
-            return new Vector4(vector.X, vector.Y, vector.Z, vector.W);
+            if (Settings.Debug)
+            {
+                LogMessage($"{GetCurrentMethod()}.GetValueHaggle() Error that i dont understand, Item: {item.BaseName}", 5, Color.Red);
+                LogMessage($"{GetCurrentMethod()}.GetValueHaggle() {e.Message}", 5, Color.Red);
+            }
+        }
+    }
+
+    private bool ShouldUpdateValues()
+    {
+        if (StashUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
+        {
+            StashUpdateTimer.Restart();
+            if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
+        }
+        else
+        {
+            return false;
+        }
+        // TODO: Get inventory items and not just stash tab items, this will be done at a later date
+        try
+        {
+            if (!Settings.VisibleStashValue.Value || !GameController.Game.IngameState.IngameUi.StashElement.IsVisible)
+            {
+                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Stash is not visible", 5, Color.DarkGray); }
+                return false;
+            }
+
+            // Dont continue if the stash page isnt even open
+            if (GameController.Game.IngameState.IngameUi.StashElement.VisibleStash?.VisibleInventoryItems == null)
+            {
+                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Items == null", 5, Color.DarkGray);
+                return false;
+            }
+        }
+        catch (Exception)
+        {
+            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues()", 5, Color.DarkGray);
+            return false;
         }
 
-        /*
-         * format is as follows
-         * To change color of the string surround hex codes with {} Example: "Uncolored {#AARRGGBB}Colored"
-         * having a blank {} will make it go back to default imgui text color, Example: "Uncolored {#AARRGGBB}Colored {}Back to orig color"
-         */
-        //public void Coloredtext(string TextIn)
-        //{
-        //    try
-        //    {
-        //        var accumulatedText = "";
-        //        var startColor = ImGui.GetStyle().GetColor(ColorTarget.Text);
-        //        var hexCode = "";
-        //        var sameLine = false;
-        //        var nextColor = startColor;
-        //        for (var i = 0; i < TextIn.Length; i++)
-        //        {
-        //            if (TextIn[i] == '{')
-        //            {
-        //                var foundBracketStart = TextIn.Substring(i + 1);
-        //                for (var j = 0; j < foundBracketStart.Length; j++)
-        //                {
-        //                    i++;
-        //                    if (foundBracketStart[j] == '}')
-        //                        break;
-        //                    hexCode += foundBracketStart[j];
-        //                }
+        if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
+        return true;
+    }
 
-        //                if (sameLine)
-        //                    ImGui.SameLine(0f, 0f);
-        //                ImGui.Text(accumulatedText);
-        //                if (TextIn[i - 1] == '{')
-        //                    nextColor = startColor;
-        //                accumulatedText = "";
-        //                sameLine = true;
-        //                if (hexCode != "")
-        //                {
-        //                    var tempColor = ColorTranslator.FromHtml(hexCode);
-        //                    var tempColor2 = new Color(tempColor.R, tempColor.G, tempColor.B, tempColor.A).ToVector4();
-        //                    nextColor = new Vector4(tempColor2.X, tempColor2.Y, tempColor2.Z, tempColor2.W);
-        //                }
+    private bool ShouldUpdateValuesInventory()
+    {
+        if (InventoryUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
+        {
+            InventoryUpdateTimer.Restart();
+            if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
+        }
+        else
+        {
+            return false;
+        }
+        // TODO: Get inventory items and not just stash tab items, this will be done at a later date
+        try
+        {
+            if (!Settings.VisibleInventoryValue.Value || !GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
+            {
+                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() Inventory is not visible", 5, Color.DarkGray); }
+                return false;
+            }
 
-        //                i++;
-        //                hexCode = "";
-        //            }
+            // Dont continue if the stash page isnt even open
+            if (GameController.Game.IngameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory].VisibleInventoryItems == null)
+            {
+                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() Items == null", 5, Color.DarkGray);
+                return false;
+            }
+        }
+        catch (Exception)
+        {
+            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory()", 5, Color.DarkGray);
+            return false;
+        }
 
-        //            accumulatedText += TextIn[i];
-        //        }
+        if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() == True", 5, Color.LimeGreen);
+        return true;
+    }
+        
+    private CustomItem GetHelmetEnchantValue(string EnchantName)
+    {
+        if (string.IsNullOrWhiteSpace(EnchantName))
+            return null;
 
-        //        if (sameLine)
-        //            ImGui.SameLine(0f, 0f);
-        //        ImGui.Text(accumulatedText);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // This spams all the time even tho nothing seems broken so it can fuck riiiiiiiight off
-        //        //LogError("ColorText: Incorrect hex format \n" + e, 15);
-        //    }
-        //}
+        var enchantSearch = CollectedData.HelmetEnchants.lines.Find(x => x.name.ToLower().Contains(EnchantName.ToLower()));
+        return enchantSearch == null
+                   ? null
+                   : new CustomItem
+                   {
+                       PriceData = new RelevantPriceData
+                       {
+                           MinChaosValue = enchantSearch.chaosValue, ExaltedPrice = enchantSearch.exaltedValue,
+                           ItemType = ItemTypes.None, ChangeInLast7Days = enchantSearch.sparkline.totalChange
+                       },
+                       BaseName = enchantSearch.name
+                   };
     }
 }

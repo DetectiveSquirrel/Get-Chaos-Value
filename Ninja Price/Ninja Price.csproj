@@ -1,123 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F65A35B8-85F4-4A43-B19A-4A7E09F0CB99}</ProjectGuid>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Ninja_Price</RootNamespace>
     <AssemblyName>Ninja Pricer</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>false</DebugSymbols>
-    <DebugType>none</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\..\Compiled\Ninja Pricer\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ExileCore">
-      <HintPath>..\..\..\..\ExileCore.dll</HintPath>
+      <HintPath>$(exapiPackage)\ExileCore.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="ImGui.NET">
-      <HintPath>..\..\..\..\ImGui.NET.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SharpDX.Desktop, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.Desktop.4.2.0\lib\net45\SharpDX.Desktop.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D9, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.Direct3D9.4.0.1\lib\net45\SharpDX.Direct3D9.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpDX.Mathematics.4.2.0\lib\net45\SharpDX.Mathematics.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\PoeNinja\API.cs" />
-    <Compile Include="API\PoeNinja\Classes\Artifacts.cs" />
-    <Compile Include="API\PoeNinja\Classes\Fossils.cs" />
-    <Compile Include="API\PoeNinja\Classes\Invitations.cs" />
-    <Compile Include="API\PoeNinja\Classes\Incubators.cs" />
-    <Compile Include="API\PoeNinja\Classes\Resonators.cs" />
-    <Compile Include="API\PoeNinja\Classes\Currency.cs" />
-    <Compile Include="API\PoeNinja\Classes\DivinationCards.cs" />
-    <Compile Include="API\PoeNinja\Classes\Essences.cs" />
-    <Compile Include="API\PoeNinja\Classes\Fragments.cs" />
-    <Compile Include="API\PoeNinja\Classes\HelmetEnchants.cs" />
-    <Compile Include="API\PoeNinja\Classes\Leagues.cs" />
-    <Compile Include="API\PoeNinja\Classes\Prophecies.cs" />
-    <Compile Include="API\PoeNinja\Classes\Scarab.cs" />
-    <Compile Include="API\PoeNinja\Classes\Seeds.cs" />
-    <Compile Include="API\PoeNinja\Classes\SkillGems.cs" />
-    <Compile Include="API\PoeNinja\Classes\UniqueAccessories.cs" />
-    <Compile Include="API\PoeNinja\Classes\Oils.cs" />
-    <Compile Include="API\PoeNinja\Classes\UniqueArmours.cs" />
-    <Compile Include="API\PoeNinja\Classes\UniqueFlasks.cs" />
-    <Compile Include="API\PoeNinja\Classes\UniqueJewels.cs" />
-    <Compile Include="API\PoeNinja\Classes\UniqueMaps.cs" />
-    <Compile Include="API\PoeNinja\Classes\DeliriumOrb.cs" />
-    <Compile Include="API\PoeNinja\Classes\UniqueWeapons.cs" />
-    <Compile Include="API\PoeNinja\Classes\WhiteMaps.cs" />
-    <Compile Include="Enums\HaggleTypes.cs" />
-    <Compile Include="Enums\MapTypes.cs" />
-    <Compile Include="Main\CollectiveAPIData.cs" />
-    <Compile Include="Main\CustomItem.cs" />
-    <Compile Include="Main\DownloadJSONItems.cs" />
-    <Compile Include="Main\Main.cs" />
-    <Compile Include="Main\ReleventPriceData.cs" />
-    <Compile Include="Main\Render.cs" />
-    <Compile Include="Methods\Logging.cs" />
-    <Compile Include="Methods\Methods.cs" />
-    <Compile Include="Settings\Settings.cs" />
-    <Compile Include="Enums\ItemTypes.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <PackageReference Include="ImGui.NET" Version="1.86.0" />
+    <PackageReference Include="morelinq" Version="3.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
