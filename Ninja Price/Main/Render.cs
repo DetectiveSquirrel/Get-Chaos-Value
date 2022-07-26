@@ -223,7 +223,7 @@ public partial class Main
 
             var priceInExalts = HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice;
             var priceInExaltsText = priceInExalts.FormatNumber(2);
-            var minPriceText = HoveredItem.PriceData.MinChaosValue.FormatNumber(2);
+            var minPriceText = HoveredItem.PriceData.MinChaosValue.FormatNumber(2, Settings.MaximalValueForFractionalDisplay);
             AddSection();
             switch (HoveredItem.ItemType)
             {
@@ -246,7 +246,7 @@ public partial class Main
                                     ? $"\nExalt: {priceInExaltsText}ex ({priceInExaltsPerOne.FormatNumber(2)}ex per one)"
                                     : $"\nExalt: {priceInExaltsText}ex");
                     }
-                    AddText($"\nChaos: {minPriceText}c ({(HoveredItem.PriceData.MinChaosValue / HoveredItem.CurrencyInfo.StackSize).FormatNumber(2)}c per one)");
+                    AddText($"\nChaos: {minPriceText}c ({(HoveredItem.PriceData.MinChaosValue / HoveredItem.CurrencyInfo.StackSize).FormatNumber(2, Settings.MaximalValueForFractionalDisplay)}c per one)");
                     break;
                 case ItemTypes.UniqueAccessory:
                 case ItemTypes.UniqueArmour:
@@ -270,7 +270,7 @@ public partial class Main
                                     : $"\nExalt: {priceInExaltsText}ex");
                     }
 
-                    var maxPriceText = HoveredItem.PriceData.MaxChaosValue.FormatNumber(2);
+                    var maxPriceText = HoveredItem.PriceData.MaxChaosValue.FormatNumber(2, Settings.MaximalValueForFractionalDisplay);
                     AddText(minPriceText != maxPriceText 
                                 ? $"\nChaos: {minPriceText}c - {maxPriceText}c" 
                                 : $"\nChaos: {minPriceText}c");

@@ -40,6 +40,9 @@ public class Settings : ISettings
     [Menu("Hovered Item", "This shows your prices oon items you hover over.", 567766)]
     public ToggleNode HoveredItem { get; set; } = new ToggleNode(true);
 
+    [Menu(null, "Set to 0 to disable")]
+    public RangeNode<float> MaximalValueForFractionalDisplay { get; set; } = new RangeNode<float>(0.2f, 0, 1);
+
     #region Visible Stash Value
 
     [Menu("Visible Stash Value", "Calculate value (in chaos) for the current visible stash tab.", 4)]
