@@ -6,6 +6,8 @@ namespace Ninja_Price.API.PoeNinja;
 
 public class Currency
 {
+    public record SearchResult(double ChaosEquivalent, double PriceChange, string DetailsId);
+
     public class RootObject
     {
         [JsonProperty("lines", NullValueHandling = NullValueHandling.Ignore)]
@@ -13,6 +15,27 @@ public class Currency
 
         [JsonProperty("currencyDetails", NullValueHandling = NullValueHandling.Ignore)]
         public List<CurrencyDetail> CurrencyDetails { get; set; }
+
+        public SearchResult FindLine(string name)
+        {
+            var line = Lines.Find(x => x.CurrencyTypeName == name);
+            if (line == null)
+            {
+                return null;
+            }
+
+            var value = line.ChaosEquivalent;
+            if ((line.Pay is { Count: < 5 } || value == null) &&
+                line.Receive != null &&
+                line.Receive.Count > (line.Pay?.Count ?? 0) &&
+                line.Receive.Value is {} receiveValue &&
+                CurrencyDetails.Find(x => x.Id == line.Receive.PayCurrencyId)?.TradeId == "chaos")
+            {
+                value = receiveValue;
+            }
+
+            return new SearchResult(value ?? 0, line.ReceiveSparkLine.TotalChange ?? 0, line.DetailsId);
+        }
     }
 
     public class CurrencyDetail
@@ -26,8 +49,8 @@ public class Currency
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
 
-        [JsonProperty("poeTradeId", NullValueHandling = NullValueHandling.Ignore)]
-        public long? PoeTradeId { get; set; }
+        [JsonProperty("tradeId", NullValueHandling = NullValueHandling.Ignore)]
+        public string TradeId { get; set; }
     }
 
     public class Line

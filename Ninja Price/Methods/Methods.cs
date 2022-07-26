@@ -122,11 +122,11 @@ public partial class Main
                         if (item.BaseName.Contains("Ritual Splinter")) // Ritual
                         {
                             var shardParent = GetShardParent(item.BaseName);
-                            var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
+                            var shardCurrencySearch = CollectedData.Currency.FindLine(shardParent);
                             if (shardCurrencySearch != null)
                             {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (shardCurrencySearch.ChaosEquivalent ?? 0) / 100;
-                                item.PriceData.ChangeInLast7Days = shardCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent / 100;
+                                item.PriceData.ChangeInLast7Days = shardCurrencySearch.PriceChange;
                                 item.PriceData.DetailsId = shardCurrencySearch.DetailsId;
                             }
 
@@ -136,33 +136,33 @@ public partial class Main
                         if (item.CurrencyInfo.IsShard)
                         {
                             var shardParent = GetShardParent(item.BaseName);
-                            var shardCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == shardParent);
+                            var shardCurrencySearch = CollectedData.Currency.FindLine(shardParent);
                             if (shardCurrencySearch != null)
                             {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (shardCurrencySearch.ChaosEquivalent ?? 0) /
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent /
                                                                (item.CurrencyInfo.MaxStackSize > 0 ? item.CurrencyInfo.MaxStackSize : 20);
-                                item.PriceData.ChangeInLast7Days = shardCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                item.PriceData.ChangeInLast7Days = shardCurrencySearch.PriceChange;
                                 item.PriceData.DetailsId = shardCurrencySearch.DetailsId;
                             }
                         }
                         else
                         {
-                            var normalCurrencySearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                            var normalCurrencySearch = CollectedData.Currency.FindLine(item.BaseName);
                             if (normalCurrencySearch != null)
                             {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * normalCurrencySearch.ChaosEquivalent ?? 0;
-                                item.PriceData.ChangeInLast7Days = normalCurrencySearch.ReceiveSparkLine.TotalChange ?? 0;
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * normalCurrencySearch.ChaosEquivalent;
+                                item.PriceData.ChangeInLast7Days = normalCurrencySearch.PriceChange;
                                 item.PriceData.DetailsId = normalCurrencySearch.DetailsId;
                             }
                         }
 
                         break;
                     case ItemTypes.Catalyst:
-                        var catalystSearch = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                        var catalystSearch = CollectedData.Currency.FindLine(item.BaseName);
                         if (catalystSearch != null)
                         {
-                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * catalystSearch.ChaosEquivalent ?? 0;
-                            item.PriceData.ChangeInLast7Days = catalystSearch.ReceiveSparkLine.TotalChange ?? 0;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * catalystSearch.ChaosEquivalent;
+                            item.PriceData.ChangeInLast7Days = catalystSearch.PriceChange;
                             item.PriceData.DetailsId = catalystSearch.DetailsId;
                         }
 
