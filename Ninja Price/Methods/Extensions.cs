@@ -11,7 +11,17 @@ public static class Extensions
             return "NaN";
         }
 
-        if (number < maxInvertValue)
+        if (number == 0)
+        {
+            return "0";
+        }
+
+        if (Math.Abs(number) <= 1e-10)
+        {
+            return "~0";
+        }
+
+        if (Math.Abs(number) < maxInvertValue)
         {
             return $"1/{Math.Round((decimal)(1 / number), 1):#.#}";
         }
