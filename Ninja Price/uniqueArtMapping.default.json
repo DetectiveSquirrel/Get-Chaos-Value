@@ -2,6 +2,9 @@
   "Art/2DItems/Rings/DemigodsBand.dds": [
     "Demigod's Eye"
   ],
+  "Art/2DItems/Rings/MirrorRing.dds": [
+    "Kalandra's Touch"
+  ],
   "Art/2DItems/Amulets/TalismanoftheVictor.dds": [
     "Talisman of the Victor"
   ],
@@ -3683,5 +3686,44 @@
   ],
   "Art/2DItems/Jewels/SublimeVision.dds": [
     "Sublime Vision"
+  ],
+  "Art/2DItems/Armours/Gloves/KaomsSpirit.dds": [
+    "Kaom's Spirit"
+  ],
+  "Art/2DItems/Armours/BodyArmours/Ghostweave.dds": [
+    "Ghostwrithe"
+  ],
+  "Art/2DItems/Armours/Helmets/HelmofWar.dds": [
+    "Thrillsteel"
+  ],
+  "Art/2DItems/Armours/Helmets/Wildcall.dds": [
+    "Elevore"
+  ],
+  "Art/2DItems/Quivers/PrismaticGleam.dds": [
+    "The Poised Prism"
+  ],
+  "Art/2DItems/Maps/TrialmasterMap.dds": [
+    "The Tower of Ordeals"
+  ],
+  "Art/2DItems/Armours/Gloves/SoulAscension.dds": [
+    "Soul Ascension"
+  ],
+  "Art/2DItems/Jewels/GrandSpectrum2_red.dds": [
+    "Grand Spectrum"
+  ],
+  "Art/2DItems/Jewels/GrandSpectrum2_Green.dds": [
+    "Grand Spectrum"
+  ],
+  "Art/2DItems/Jewels/GrandSpectrum2_blue.dds": [
+    "Grand Spectrum"
+  ],
+  "Art/2DItems/Jewels/GrandSpectrum3_Red.dds": [
+    "Grand Spectrum"
+  ],
+  "Art/2DItems/Jewels/GrandSpectrum3_Green.dds": [
+    "Grand Spectrum"
+  ],
+  "Art/2DItems/Jewels/GrandSpectrum3_Blue.dds": [
+    "Grand Spectrum"
   ]
 }
