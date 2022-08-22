@@ -533,7 +533,7 @@ public partial class Main
         try
         {
             item.PriceData.ExaltedPrice = ExaltedPrice;
-            switch (item.ItemTypeGamble) // easier to get data for each item type and handle logic based on that
+            switch (item.ItemType) // easier to get data for each item type and handle logic based on that
             {
                 case ItemTypes.UniqueArmour:
                     var uniqueArmourSearch = CollectedData.UniqueArmours.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));

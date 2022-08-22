@@ -14,36 +14,33 @@ public class CustomItem
 {
     public static Main Core;
     public string BaseName;
-    public string ClassName;
-    public int Height;
-    public bool IsElder;
-    public bool IsIdentified;
-    public bool IsCorrupted;
-    public bool IsRgb;
-    public bool IsShaper;
-    public bool IsWeapon;
-    public bool IsHovered;
-    public Element Element;
-    public int ItemLevel;
-    public int LargestLink { get; set; } = 0;
-    public string Path;
-    public int Quality;
-    public SkillGemQualityTypeE QualityType;
-    public int GemLevel;
-    public ItemRarity Rarity;
-    public int Sockets;
-    public string UniqueName;
-    public List<string> UniqueNameCandidates;
-    public int Width;
-    public ItemTypes ItemType;
-    public ItemTypes ItemTypeGamble;
+    public readonly string ClassName;
+    public readonly bool IsElder;
+    public readonly bool IsIdentified;
+    public readonly bool IsCorrupted;
+    public readonly bool IsRgb;
+    public readonly bool IsShaper;
+    public readonly bool IsWeapon;
+    public readonly bool IsHovered;
+    public readonly Element Element;
+    public readonly int ItemLevel;
+    public readonly int LargestLink = 0;
+    public readonly string Path;
+    public readonly int Quality;
+    public readonly SkillGemQualityTypeE QualityType;
+    public readonly int GemLevel;
+    public readonly ItemRarity Rarity;
+    public readonly int Sockets;
+    public readonly string UniqueName;
+    public readonly List<string> UniqueNameCandidates;
+    public readonly ItemTypes ItemType;
     public MapData MapInfo { get; set; } =  new MapData();
     public CurrencyData CurrencyInfo { get; set; } =  new CurrencyData();
     public Main.RelevantPriceData PriceData { get; set; } = new Main.RelevantPriceData();
 
-    public static void InitCustomItem(Main _core)
+    public static void InitCustomItem(Main core)
     {
-        Core = _core;
+        Core = core;
     }
 
     public class MapData
@@ -78,8 +75,6 @@ public class CustomItem
             var baseItemType = Core.GameController.Files.BaseItemTypes.Translate(itemEntity.Path);
             ClassName = baseItemType.ClassName;
             BaseName = baseItemType.BaseName;
-            Width = baseItemType.Width;
-            Height = baseItemType.Height;
             var weaponClass = new List<string>
             {
                 "One Hand Mace",
