@@ -28,6 +28,7 @@ public class SkillGems
         public int GemQuality { get; set; }
         public double ChaosValue { get; set; }
         public double ExaltedValue { get; set; }
+        public double? DivineValue { get; set; }
         public int Count { get; set; }
         public string DetailsId { get; set; }
         public int ListingCount { get; set; }

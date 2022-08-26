@@ -63,6 +63,9 @@ public class Invitations
         [JsonProperty("exaltedValue", Required = Required.DisallowNull, NullValueHandling = NullValueHandling.Ignore)]
         public double? ExaltedValue { get; set; }
 
+        [JsonProperty("divineValue", NullValueHandling = NullValueHandling.Ignore)]
+        public double? DivineValue { get; set; }
+
         [JsonProperty("count", Required = Required.DisallowNull, NullValueHandling = NullValueHandling.Ignore)]
         public long? Count { get; set; }
 

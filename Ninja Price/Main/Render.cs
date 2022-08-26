@@ -26,7 +26,7 @@ public partial class Main
     public Stopwatch InventoryUpdateTimer = Stopwatch.StartNew();
     public double StashTabValue { get; set; }
     public double InventoryTabValue { get; set; }
-    public double? ExaltedValue { get; set; }
+    public double? DivineDalue { get; set; }
     public List<NormalInventoryItem> ItemList { get; set; } = new List<NormalInventoryItem>();
     public List<CustomItem> FormattedItemList { get; set; } = new List<CustomItem>();
 
@@ -221,8 +221,8 @@ public partial class Main
                 AddText(changeText);
             }
 
-            var priceInExalts = HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.ExaltedPrice;
-            var priceInExaltsText = priceInExalts.FormatNumber(2);
+            var priceInDivines = HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.DivinePrice;
+            var priceInDivinesText = priceInDivines.FormatNumber(2);
             var minPriceText = HoveredItem.PriceData.MinChaosValue.FormatNumber(2, Settings.MaximalValueForFractionalDisplay);
             AddSection();
             switch (HoveredItem.ItemType)
@@ -239,12 +239,12 @@ public partial class Main
                 case ItemTypes.DeliriumOrbs:
                 case ItemTypes.Vials:
                 case ItemTypes.DivinationCard:
-                    if (priceInExalts >= 0.1)
+                    if (priceInDivines >= 0.1)
                     {
-                        var priceInExaltsPerOne = priceInExalts / HoveredItem.CurrencyInfo.StackSize;
-                        AddText(priceInExaltsPerOne >= 0.1
-                                    ? $"\nExalt: {priceInExaltsText}ex ({priceInExaltsPerOne.FormatNumber(2)}ex per one)"
-                                    : $"\nExalt: {priceInExaltsText}ex");
+                        var priceInDivinessPerOne = priceInDivines / HoveredItem.CurrencyInfo.StackSize;
+                        AddText(priceInDivinessPerOne >= 0.1
+                                    ? $"\nDivine: {priceInDivinesText}d ({priceInDivinessPerOne.FormatNumber(2)}d per one)"
+                                    : $"\nDivine: {priceInDivinesText}d");
                     }
                     AddText($"\nChaos: {minPriceText}c ({(HoveredItem.PriceData.MinChaosValue / HoveredItem.CurrencyInfo.StackSize).FormatNumber(2, Settings.MaximalValueForFractionalDisplay)}c per one)");
                     break;
@@ -262,12 +262,12 @@ public partial class Main
                     }
 
                     AddSection();
-                    if (priceInExalts >= 0.1)
+                    if (priceInDivines >= 0.1)
                     {
-                        var maxExaltPriceText = (HoveredItem.PriceData.MaxChaosValue / HoveredItem.PriceData.ExaltedPrice).FormatNumber(2);
-                        AddText(priceInExaltsText != maxExaltPriceText 
-                                    ? $"\nExalt: {priceInExaltsText}ex - {maxExaltPriceText}ex" 
-                                    : $"\nExalt: {priceInExaltsText}ex");
+                        var maxDivinePriceText = (HoveredItem.PriceData.MaxChaosValue / HoveredItem.PriceData.DivinePrice).FormatNumber(2);
+                        AddText(priceInDivinesText != maxDivinePriceText 
+                                    ? $"\nDivine: {priceInDivinesText}d - {maxDivinePriceText}d" 
+                                    : $"\nDivine: {priceInDivinesText}d");
                     }
 
                     var maxPriceText = HoveredItem.PriceData.MaxChaosValue.FormatNumber(2, Settings.MaximalValueForFractionalDisplay);
@@ -280,9 +280,9 @@ public partial class Main
                 case ItemTypes.Incubator:
                 case ItemTypes.MavenInvitation:
                 case ItemTypes.SkillGem:
-                    if (priceInExalts >= 0.1)
+                    if (priceInDivines >= 0.1)
                     {
-                        AddText($"\nExalt: {priceInExaltsText}ex");
+                        AddText($"\nDivine: {priceInDivinesText}d");
                     }
 
                     AddText($"\nChaos: {minPriceText}c");
@@ -394,8 +394,8 @@ public partial class Main
     private void DrawWorthWidget(double chaosValue, Vector2 pos, int significantDigits, Color textColor, bool drawBackground)
     {
         var text = $"Chaos: {chaosValue.FormatNumber(significantDigits)}" +
-                    (ExaltedValue != null
-                         ? $"\nExalt: {(chaosValue / ExaltedValue.Value).FormatNumber(significantDigits)}"
+                    (DivineDalue != null
+                         ? $"\nDivine: {(chaosValue / DivineDalue.Value).FormatNumber(significantDigits)}"
                          : "");
         var box = Graphics.DrawText(text, pos, textColor);
         if (drawBackground)
@@ -718,8 +718,8 @@ public partial class Main
             var drawBox = new RectangleF(box.X + box.Width, box.Y - 2, 65, box.Height);
             var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - 7);
 
-            var textColor = data.PriceData.ExaltedPrice >= 1 ? Color.Black : Color.White;
-            var bgColor = data.PriceData.ExaltedPrice >= 1 ? Color.Goldenrod : Color.Black;
+            var textColor = data.PriceData.DivinePrice >= 1 ? Color.Black : Color.White;
+            var bgColor = data.PriceData.DivinePrice >= 1 ? Color.Goldenrod : Color.Black;
             Graphics.DrawText($"{data.PriceData.MinChaosValue.FormatNumber(2)}c", position, textColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, bgColor);
             Graphics.DrawFrame(drawBox, Color.Black, 1);

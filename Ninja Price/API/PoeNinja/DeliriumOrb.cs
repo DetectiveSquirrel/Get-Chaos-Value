@@ -46,6 +46,7 @@ public class DeliriumOrb
         public string ItemType { get; set; }
         public double? ChaosValue { get; set; }
         public double? ExaltedValue { get; set; }
+        public double? DivineValue { get; set; }
         public long? Count { get; set; }
         public string DetailsId { get; set; }
         public object TradeInfo { get; set; }

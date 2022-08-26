@@ -40,7 +40,7 @@ public class HelmetEnchants
         public int gemQuality { get; set; }
         public string itemType { get; set; }
         public double chaosValue { get; set; }
-        public double exaltedValue { get; set; }
+        public double divinePrice { get; set; }
         public int count { get; set; }
     }
 

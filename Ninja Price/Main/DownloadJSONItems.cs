@@ -89,7 +89,7 @@ public partial class Main
 
                 LogMessage("Finished Gathering Data from Poe.Ninja.", 5);
                 CollectedData = newData;
-                ExaltedValue = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb")?.ChaosEquivalent;
+                DivineDalue = CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Divine Orb")?.ChaosEquivalent;
                 LogMessage("Updated CollectedData.", 5);
             }
             finally

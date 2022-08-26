@@ -99,6 +99,9 @@ public class Resonators
         [JsonProperty("exaltedValue")]
         public double ExaltedValue { get; set; }
 
+        [JsonProperty("divineValue")]
+        public double? DivineValue { get; set; }
+
         [JsonProperty("count")]
         public long Count { get; set; }
 

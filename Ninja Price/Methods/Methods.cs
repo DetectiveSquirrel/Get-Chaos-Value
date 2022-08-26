@@ -12,7 +12,7 @@ namespace Ninja_Price.Main;
 
 public partial class Main
 {
-    private double ExaltedPrice => CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Exalted Orb")?.ChaosEquivalent ?? throw new Exception("Exalt price is missing");
+    private double DivinePrice => CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Divine Orb")?.ChaosEquivalent ?? throw new Exception("Divine price is missing");
 
     private List<NormalInventoryItem> GetInventoryItems()
     {
@@ -93,7 +93,7 @@ public partial class Main
     {
         try
         {
-            item.PriceData.ExaltedPrice = ExaltedPrice;
+            item.PriceData.DivinePrice = DivinePrice;
             if(item.BaseName.Contains("Rogue's Marker"))
             {
                 item.PriceData.MinChaosValue = 0;
@@ -532,7 +532,7 @@ public partial class Main
     {
         try
         {
-            item.PriceData.ExaltedPrice = ExaltedPrice;
+            item.PriceData.DivinePrice = DivinePrice;
             switch (item.ItemType) // easier to get data for each item type and handle logic based on that
             {
                 case ItemTypes.UniqueArmour:
@@ -673,7 +673,7 @@ public partial class Main
                    {
                        PriceData = new RelevantPriceData
                        {
-                           MinChaosValue = enchantSearch.chaosValue, ExaltedPrice = enchantSearch.exaltedValue,
+                           MinChaosValue = enchantSearch.chaosValue, DivinePrice = enchantSearch.divinePrice,
                            ItemType = ItemTypes.None, ChangeInLast7Days = enchantSearch.sparkline.totalChange
                        },
                        BaseName = enchantSearch.name
