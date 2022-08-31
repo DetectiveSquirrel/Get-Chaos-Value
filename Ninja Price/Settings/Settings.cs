@@ -44,43 +44,9 @@ public class Settings : ISettings
     public RangeNode<float> MaximalValueForFractionalDisplay { get; set; } = new RangeNode<float>(0.2f, 0, 1);
 
     #region Visible Stash Value
-
-    [Menu("Visible Stash Value", "Calculate value (in chaos) for the current visible stash tab.", 4)]
-    public ToggleNode VisibleStashValue { get; set; } = new ToggleNode(true);
-
-    [Menu("X", "Horizontal position of where the value in chaos should be drawn.", 41, 4)]
-    public RangeNode<int> StashValueX { get; set; } = new RangeNode<int>(100, 0, 5000);
-
-    [Menu("Y", "Horizontal position of where the value in chaos should be drawn.", 42, 4)]
-    public RangeNode<int> StashValueY { get; set; } = new RangeNode<int>(800, 0, 5000);
-
-    [Menu("Significant Digits", 45, 4)]
-    public RangeNode<int> StashValueSignificantDigits { get; set; } = new RangeNode<int>(2, 0, 2);
-
-
-    [Menu("Currency Tab Overlay", 23452, 4)]
-    public EmptyNode CurrencyTabSpecific { get; set; }
-
-    [Menu("Show Overlay", 75465, 23452)]
-    public ToggleNode CurrencyTabSpecificToggle { get; set; } = new ToggleNode(true);
-
-    [Menu("Do Not Draw Currency Tab Overlay While Any Item Is Hovered", 75466, 23452)]
-    public ToggleNode DoNotDrawCurrencyTabSpecificWhileItemHovered { get; set; } = new ToggleNode(true);
-
-    [Menu("Value Font Size", 57, 23452)]
-    public RangeNode<int> CurrencyTabFontSize { get; set; } = new RangeNode<int>(14, 5, 50);
-
-    [Menu("Significant Digits Per Currency", 58, 23452)]
-    public RangeNode<int> CurrencyTabSigDigits { get; set; } = new RangeNode<int>(2, 0, 2);
-
-    [Menu("Box Height", 59, 23452)]
-    public RangeNode<int> CurrencyTabBoxHeight { get; set; } = new RangeNode<int>(15, 0, 100);
-
-    [Menu("Font Color", 60, 23452)]
-    public ColorNode CurrencyTabFontColor { get; set; } = new Color(216, 216, 216, 255);
-
-    [Menu("Background Color", 61, 23452)]
-    public ColorNode CurrencyTabBackgroundColor { get; set; } = new Color(0, 0, 0, 255);
+    
+    [JsonProperty("visibleStashValue2")]
+    public StashValueSettings VisibleStashValue { get; set; } = new StashValueSettings();
 
     #endregion
 
@@ -161,4 +127,34 @@ public class UniqueIdentificationSettings
     public ColorNode ValuableUniqueItemNameTextColor { get; set; } = new ColorNode(new Color(175, 96, 37));
 
     public ColorNode ValuableUniqueItemNameBackgroundColor { get; set; } = new ColorNode(Color.White);
+}
+
+[Submenu]
+public class StashValueSettings
+{
+    [Menu(null, "Calculate value (in chaos) for the current visible stash tab.")]
+    public ToggleNode Show { get; set; } = new ToggleNode(true);
+
+    [Menu("X", "Horizontal position of where the value should be drawn.")]
+    public RangeNode<int> PositionX { get; set; } = new RangeNode<int>(100, 0, 5000);
+
+    [Menu("Y", "Horizontal position of where the value should be drawn.")]
+    public RangeNode<int> PositionY { get; set; } = new RangeNode<int>(100, 0, 5000);
+
+    public RangeNode<int> SignificantDigits { get; set; } = new RangeNode<int>(2, 0, 2);
+    public RangeNode<int> TopValuedItemCount { get; set; } = new RangeNode<int>(3, 0, 10);
+    public ToggleNode EnableBackground { get; set; } = new ToggleNode(true);
+    public CurrencyTabSettings CurrencyTabSettings { get; set; } = new CurrencyTabSettings();
+}
+
+[Submenu]
+public class CurrencyTabSettings
+{
+    public ToggleNode ShowItemOverlay { get; set; } = new ToggleNode(true);
+    public ToggleNode DoNotDrawWhileAnItemIsHovered { get; set; } = new ToggleNode(true);
+    public RangeNode<int> FontSize { get; set; } = new RangeNode<int>(14, 5, 50);
+    public RangeNode<int> SignificantDigits { get; set; } = new RangeNode<int>(2, 0, 2);
+    public RangeNode<int> BoxHeight { get; set; } = new RangeNode<int>(15, 0, 100);
+    public ColorNode FontColor { get; set; } = new Color(216, 216, 216, 255);
+    public ColorNode BackgroundColor { get; set; } = new Color(0, 0, 0, 255);
 }

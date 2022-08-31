@@ -4,7 +4,7 @@ namespace Ninja_Price.Main;
 
 public static class Extensions
 {
-    public static string FormatNumber(this double number, int significantDigits, double maxInvertValue = 0)
+    public static string FormatNumber(this double number, int significantDigits, double maxInvertValue = 0, bool forceDecimals = false)
     {
         if (double.IsNaN(number))
         {
@@ -26,6 +26,6 @@ public static class Extensions
             return $"1/{Math.Round((decimal)(1 / number), 1):#.#}";
         }
 
-        return Math.Round((decimal)number, significantDigits).ToString("#,##0.##");
+        return Math.Round((decimal)number, significantDigits).ToString($"#,##0.{new string(forceDecimals ? '0' : '#', significantDigits)}");
     }
 }

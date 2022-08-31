@@ -601,7 +601,7 @@ public partial class Main
         // TODO: Get inventory items and not just stash tab items, this will be done at a later date
         try
         {
-            if (!Settings.VisibleStashValue.Value || !GameController.Game.IngameState.IngameUi.StashElement.IsVisible)
+            if (!Settings.VisibleStashValue.Show.Value || !GameController.Game.IngameState.IngameUi.StashElement.IsVisible)
             {
                 if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Stash is not visible", 5, Color.DarkGray); }
                 return false;

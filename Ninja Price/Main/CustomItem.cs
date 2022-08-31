@@ -294,4 +294,9 @@ public class CustomItem
         }
 
     }
+
+    public override string ToString()
+    {
+        return string.IsNullOrWhiteSpace(UniqueName) ? BaseName : UniqueName;
+    }
 }

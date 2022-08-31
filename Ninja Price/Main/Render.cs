@@ -336,8 +336,8 @@ public partial class Main
             {
                 if (customItem.ItemType == ItemTypes.None) continue;
 
-                if (Settings.CurrencyTabSpecificToggle &&
-                    (!Settings.DoNotDrawCurrencyTabSpecificWhileItemHovered || HoveredItem == null))
+                if (Settings.VisibleStashValue.CurrencyTabSettings.ShowItemOverlay &&
+                    (!Settings.VisibleStashValue.CurrencyTabSettings.DoNotDrawWhileAnItemIsHovered || HoveredItem == null))
                 {
                     switch (tabType)
                     {
@@ -373,11 +373,13 @@ public partial class Main
     {
         try
         {
-            if (!Settings.VisibleStashValue.Value || !StashPanel.IsVisible) return;
+            if (!Settings.VisibleStashValue.Show || !StashPanel.IsVisible) return;
             {
-                var pos = new Vector2(Settings.StashValueX.Value, Settings.StashValueY.Value);
+                var pos = new Vector2(Settings.VisibleStashValue.PositionX.Value, Settings.VisibleStashValue.PositionY.Value);
                 var chaosValue = StashTabValue;
-                DrawWorthWidget(chaosValue, pos, Settings.StashValueSignificantDigits.Value, Settings.UniTextColor, false);
+                DrawWorthWidget(chaosValue, pos, Settings.VisibleStashValue.SignificantDigits.Value, Settings.UniTextColor, Settings.VisibleStashValue.EnableBackground,
+                    ItemsToDrawList.Where(x => x.PriceData.MinChaosValue != 0).OrderByDescending(x => x.PriceData.MinChaosValue).Take(Settings.VisibleStashValue.TopValuedItemCount.Value)
+                        .ToList());
             }
         }
         catch (Exception e)
@@ -391,12 +393,19 @@ public partial class Main
         }
     }
 
-    private void DrawWorthWidget(double chaosValue, Vector2 pos, int significantDigits, Color textColor, bool drawBackground)
+    private void DrawWorthWidget(double chaosValue, Vector2 pos, int significantDigits, Color textColor, bool drawBackground, List<CustomItem> topValueItems)
     {
         var text = $"Chaos: {chaosValue.FormatNumber(significantDigits)}" +
-                    (DivineDalue != null
-                         ? $"\nDivine: {(chaosValue / DivineDalue.Value).FormatNumber(significantDigits)}"
-                         : "");
+                   (DivineDalue != null
+                       ? $"\nDivine: {(chaosValue / DivineDalue.Value).FormatNumber(significantDigits)}"
+                       : "");
+        if (topValueItems.Count > 0)
+        {
+            var maxChaosValueLength = topValueItems.Max(x => x.PriceData.MinChaosValue.FormatNumber(2, forceDecimals: true).Length);
+            var topValuedTexts = string.Join("\n", topValueItems.Select(x => $"{x.PriceData.MinChaosValue.FormatNumber(2, forceDecimals: true).PadLeft(maxChaosValueLength)}: {x}"));
+            text += $"\nTop value:\n{topValuedTexts}";
+        }
+
         var box = Graphics.DrawText(text, pos, textColor);
         if (drawBackground)
         {
@@ -412,7 +421,7 @@ public partial class Main
             if (!Settings.VisibleInventoryValue.Value || !inventory.IsVisible) return;
             {
                 var pos = new Vector2(Settings.InventoryValueX.Value, Settings.InventoryValueY.Value);
-                DrawWorthWidget(InventoryTabValue, pos, Settings.StashValueSignificantDigits.Value, Settings.UniTextColor, false);
+                DrawWorthWidget(InventoryTabValue, pos, Settings.VisibleStashValue.SignificantDigits.Value, Settings.UniTextColor, false, new List<CustomItem>());
             }
         }
         catch (Exception e)
@@ -430,27 +439,27 @@ public partial class Main
     private void PriceBoxOverItem(CustomItem item)
     {
         var box = item.Element.GetClientRect();
-        var drawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.CurrencyTabBoxHeight);
-        var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.CurrencyTabFontSize.Value / 2);
+        var drawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.VisibleStashValue.CurrencyTabSettings.BoxHeight);
+        var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.VisibleStashValue.CurrencyTabSettings.FontSize.Value / 2);
            
-        Graphics.DrawText(item.PriceData.MinChaosValue.FormatNumber(Settings.CurrencyTabSigDigits.Value), position, Settings.CurrencyTabFontColor, FontAlign.Center);
-        Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
+        Graphics.DrawText(item.PriceData.MinChaosValue.FormatNumber(Settings.VisibleStashValue.CurrencyTabSettings.SignificantDigits.Value), position, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Center);
+        Graphics.DrawBox(drawBox, Settings.VisibleStashValue.CurrencyTabSettings.BackgroundColor);
     }
 
     private void PriceBoxOverItemHaggle(CustomItem item)
     {
         var box = item.Element.GetClientRect();
-        var drawBox = new RectangleF(box.X, box.Y + 2, box.Width, +Settings.CurrencyTabBoxHeight);
-        var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.CurrencyTabFontSize.Value / 2);
+        var drawBox = new RectangleF(box.X, box.Y + 2, box.Width, +Settings.VisibleStashValue.CurrencyTabSettings.BoxHeight);
+        var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.VisibleStashValue.CurrencyTabSettings.FontSize.Value / 2);
 
         if (item.PriceData.ItemBasePrices.Count == 0)
             return;
 
         if (Settings.Debug)
-            Graphics.DrawText(string.Join(",", item.PriceData.ItemBasePrices), position, Settings.CurrencyTabFontColor, FontAlign.Center);
+            Graphics.DrawText(string.Join(",", item.PriceData.ItemBasePrices), position, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Center);
 
-        Graphics.DrawText(item.PriceData.ItemBasePrices.Max().FormatNumber(Settings.CurrencyTabSigDigits.Value), position, Settings.CurrencyTabFontColor, FontAlign.Center);
-        Graphics.DrawBox(drawBox, Settings.CurrencyTabBackgroundColor);
+        Graphics.DrawText(item.PriceData.ItemBasePrices.Max().FormatNumber(Settings.VisibleStashValue.CurrencyTabSettings.SignificantDigits.Value), position, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Center);
+        Graphics.DrawBox(drawBox, Settings.VisibleStashValue.CurrencyTabSettings.BackgroundColor);
     }
 
     private void ProcessExpeditionWindow()
@@ -515,7 +524,7 @@ public partial class Main
                     {
                         if (customItem.PriceData.MinChaosValue > 0)
                         {
-                            Graphics.DrawText(customItem.PriceData.MinChaosValue.FormatNumber(2), box.TopRight, Settings.CurrencyTabFontColor, FontAlign.Right);
+                            Graphics.DrawText(customItem.PriceData.MinChaosValue.FormatNumber(2), box.TopRight, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Right);
                         }
 
                         if (Settings.ArtifactChaosPrices && TryGetArtifactPrice(customItem, out var amount, out var artifactName))
@@ -527,7 +536,7 @@ public partial class Main
                             var textSize = Graphics.MeasureText(text);
                             var leftTop = box.BottomLeft - new Vector2(0, textSize.Y);
                             Graphics.DrawBox(leftTop, leftTop + textSize.TranslateToNum(), Color.Black);
-                            Graphics.DrawText(text, leftTop, Settings.CurrencyTabFontColor);
+                            Graphics.DrawText(text, leftTop, Settings.VisibleStashValue.CurrencyTabSettings.FontColor);
                         }
                     }
                 }
@@ -563,12 +572,12 @@ public partial class Main
         var theirTradeWindowValue = theirFormatterItems.Sum(x => x.PriceData.MinChaosValue);
         var textPosition = new Vector2(element.GetClientRectCache.Right, element.GetClientRectCache.Center.Y - ImGui.GetTextLineHeight() * 3) 
                          + new Vector2(Settings.TradeWindowValueOffsetX, Settings.TradeWindowValueOffsetY);
-        DrawWorthWidget(theirTradeWindowValue, textPosition, 2, Settings.UniTextColor, true);
+        DrawWorthWidget(theirTradeWindowValue, textPosition, 2, Settings.UniTextColor, true, new List<CustomItem>());
         textPosition.Y += ImGui.GetTextLineHeight() * 2;
         var diff = theirTradeWindowValue - yourTradeWindowValue;
-        DrawWorthWidget(diff, textPosition, 2, diff switch { > 0 => Color.Green, 0 => Settings.UniTextColor, < 0 => Color.Red, double.NaN => Color.Purple }, true);
+        DrawWorthWidget(diff, textPosition, 2, diff switch { > 0 => Color.Green, 0 => Settings.UniTextColor, < 0 => Color.Red, double.NaN => Color.Purple }, true, new List<CustomItem>());
         textPosition.Y += ImGui.GetTextLineHeight() * 2;
-        DrawWorthWidget(yourTradeWindowValue, textPosition, 2, Settings.UniTextColor, true);
+        DrawWorthWidget(yourTradeWindowValue, textPosition, 2, Settings.UniTextColor, true, new List<CustomItem>());
     }
 
     private void ProcessItemsOnGround()
@@ -605,7 +614,7 @@ public partial class Main
                                     s += $"-{item.PriceData.MaxChaosValue.FormatNumber(2)}";
                                 }
 
-                                Graphics.DrawText(s, box.TopRight, Settings.CurrencyTabFontColor, FontAlign.Right);
+                                Graphics.DrawText(s, box.TopRight, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Right);
                             }
                         }
 
@@ -655,8 +664,8 @@ public partial class Main
                             }
 
                             var backgroundSize = Graphics.MeasureText(s).Mult(-1).TranslateToNum();
-                            Graphics.DrawBox(box.TopRight, box.TopRight + backgroundSize, Settings.CurrencyTabBackgroundColor);
-                            Graphics.DrawText(s, box.TopRight, Settings.CurrencyTabFontColor, FontAlign.Right);
+                            Graphics.DrawBox(box.TopRight, box.TopRight + backgroundSize, Settings.VisibleStashValue.CurrencyTabSettings.BackgroundColor);
+                            Graphics.DrawText(s, box.TopRight, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Right);
                         }
                     }
 
