@@ -43,6 +43,9 @@ public class Settings : ISettings
     [Menu(null, "Set to 0 to disable")]
     public RangeNode<float> MaximalValueForFractionalDisplay { get; set; } = new RangeNode<float>(0.2f, 0, 1);
 
+    [Menu(null, "ChaosEquivalent is not used by poe.ninja itself and can have weird values. If you like it better, try it")]
+    public ToggleNode UseChaosEquivalentDataForCurrency { get; set; } = new ToggleNode(false);
+
     #region Visible Stash Value
     
     [JsonProperty("visibleStashValue2")]

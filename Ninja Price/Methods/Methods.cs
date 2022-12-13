@@ -122,7 +122,7 @@ public partial class Main
                         if (item.BaseName.Contains("Ritual Splinter")) // Ritual
                         {
                             var shardParent = GetShardParent(item.BaseName);
-                            var shardCurrencySearch = CollectedData.Currency.FindLine(shardParent);
+                            var shardCurrencySearch = CollectedData.Currency.FindLine(shardParent, Settings.UseChaosEquivalentDataForCurrency);
                             if (shardCurrencySearch != null)
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent / 100;
@@ -136,7 +136,7 @@ public partial class Main
                         if (item.CurrencyInfo.IsShard)
                         {
                             var shardParent = GetShardParent(item.BaseName);
-                            var shardCurrencySearch = CollectedData.Currency.FindLine(shardParent);
+                            var shardCurrencySearch = CollectedData.Currency.FindLine(shardParent, Settings.UseChaosEquivalentDataForCurrency);
                             if (shardCurrencySearch != null)
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent /
@@ -147,7 +147,7 @@ public partial class Main
                         }
                         else
                         {
-                            var normalCurrencySearch = CollectedData.Currency.FindLine(item.BaseName);
+                            var normalCurrencySearch = CollectedData.Currency.FindLine(item.BaseName, Settings.UseChaosEquivalentDataForCurrency);
                             if (normalCurrencySearch != null)
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * normalCurrencySearch.ChaosEquivalent;
@@ -158,7 +158,7 @@ public partial class Main
 
                         break;
                     case ItemTypes.Catalyst:
-                        var catalystSearch = CollectedData.Currency.FindLine(item.BaseName);
+                        var catalystSearch = CollectedData.Currency.FindLine(item.BaseName, Settings.UseChaosEquivalentDataForCurrency);
                         if (catalystSearch != null)
                         {
                             item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * catalystSearch.ChaosEquivalent;

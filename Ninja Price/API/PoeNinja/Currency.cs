@@ -16,7 +16,7 @@ public class Currency
         [JsonProperty("currencyDetails", NullValueHandling = NullValueHandling.Ignore)]
         public List<CurrencyDetail> CurrencyDetails { get; set; }
 
-        public SearchResult FindLine(string name)
+        public SearchResult FindLine(string name, bool useChaosEquivalent)
         {
             var line = Lines.Find(x => x.CurrencyTypeName == name);
             if (line == null)
@@ -25,10 +25,8 @@ public class Currency
             }
 
             var value = line.ChaosEquivalent;
-            if ((line.Pay is { Count: < 5 } || value == null) &&
-                line.Receive != null &&
-                line.Receive.Count > (line.Pay?.Count ?? 0) &&
-                line.Receive.Value is {} receiveValue &&
+            if (!useChaosEquivalent &&
+                line.Receive?.Value is { } receiveValue &&
                 CurrencyDetails.Find(x => x.Id == line.Receive.PayCurrencyId)?.TradeId == "chaos")
             {
                 value = receiveValue;
