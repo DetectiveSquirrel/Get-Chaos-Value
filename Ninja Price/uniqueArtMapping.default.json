@@ -1525,10 +1525,12 @@
     "Malicious Intent"
   ],
   "Art/2DItems/Jewels/RedJewel2.dds": [
-    "Brawn"
+    "Brawn",
+    "Immutable Force"
   ],
   "Art/2DItems/Jewels/unique13.dds": [
-    "Clear Mind"
+    "Clear Mind",
+    "Witchbane"
   ],
   "Art/2DItems/Jewels/INTtoSTR.dds": [
     "Efficient Training"
@@ -1638,7 +1640,8 @@
     "Demigod's Dominance"
   ],
   "Art/2DItems/Jewels/RedJewel7.dds": [
-    "Might in All Forms"
+    "Might in All Forms",
+    "Firesong"
   ],
   "Art/2DItems/Armours/BodyArmours/Kingsguard.dds": [
     "Kingsguard"
@@ -2038,7 +2041,8 @@
     "Glitterdisc"
   ],
   "Art/2DItems/Jewels/GreenJewel2.dds": [
-    "Hair Trigger"
+    "Hair Trigger",
+    "Stormshroud"
   ],
   "Art/2DItems/Weapons/TwoHandWeapons/Bows/NurosPurifyingHarp.dds": [
     "Nuro's Harp"
@@ -3699,14 +3703,56 @@
   "Art/2DItems/Armours/Helmets/Wildcall.dds": [
     "Elevore"
   ],
+  "Art/2DItems/Armours/Boots/UberSearingExarchBoot.dds": [
+    "Annihilation's Approach"
+  ],
   "Art/2DItems/Quivers/PrismaticGleam.dds": [
     "The Poised Prism"
+  ],
+  "Art/2DItems/Flasks/UberMavenFlask.dds": [
+    "Progenesis"
+  ],
+  "Art/2DItems/Rings/UberEaterofWorlds.dds": [
+    "Nimis"
+  ],
+  "Art/2DItems/Armours/Gloves/UberShaperGloves.dds": [
+    "Entropic Devastation"
+  ],
+  "Art/2DItems/Flasks/UberSirusFlask.dds": [
+    "Oriath's End"
+  ],
+  "Art/2DItems/Amulets/AnwensAmulet.dds": [
+    "Eternal Damnation"
+  ],
+  "Art/2DItems/Armours/Helmets/WilmasRequital.dds": [
+    "Wilma's Requital"
+  ],
+  "Art/2DItems/Weapons/TwoHandWeapons/Staves/AnwensStaff.dds": [
+    "The Winds of Fate"
+  ],
+  "Art/2DItems/Rings/UniqueCurseRing.dds": [
+    "Anathema"
+  ],
+  "Art/2DItems/Amulets/DoedresTongue.dds": [
+    "Doedre's Tongue"
+  ],
+  "Art/2DItems/Weapons/TwoHandWeapons/TwoHandSwords/CosmicForge.dds": [
+    "Echoforge"
+  ],
+  "Art/2DItems/Jewels/unique19.dds": [
+    "The Balance of Terror"
+  ],
+  "Art/2DItems/Armours/Helmets/AnwensTiara.dds": [
+    "Sandstorm Visage"
   ],
   "Art/2DItems/Maps/TrialmasterMap.dds": [
     "The Tower of Ordeals"
   ],
   "Art/2DItems/Armours/Gloves/SoulAscension.dds": [
     "Soul Ascension"
+  ],
+  "Art/2DItems/Armours/Boots/InfectiousConstruct.dds": [
+    "Dawnstrider"
   ],
   "Art/2DItems/Jewels/GrandSpectrum2_red.dds": [
     "Grand Spectrum"
@@ -3725,5 +3771,8 @@
   ],
   "Art/2DItems/Jewels/GrandSpectrum3_Blue.dds": [
     "Grand Spectrum"
+  ],
+  "Art/2DItems/Jewels/UberCortexJewel.dds": [
+    "Rational Doctrine"
   ]
 }
