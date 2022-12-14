@@ -12,7 +12,7 @@ public class UniqueAccessories
         public List<Line> Lines { get; set; }
     }
 
-    public class Line
+    public class Line : INameAndDetailsId
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public long? Id { get; set; }

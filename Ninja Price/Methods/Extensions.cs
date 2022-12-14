@@ -1,4 +1,5 @@
 using System;
+using Ninja_Price.API.PoeNinja;
 
 namespace Ninja_Price.Main;
 
@@ -27,5 +28,11 @@ public static class Extensions
         }
 
         return Math.Round((decimal)number, significantDigits).ToString($"#,##0.{new string(forceDecimals ? '0' : '#', significantDigits)}");
+    }
+
+    public static bool IsChanceable(this INameAndDetailsId item)
+    {
+        return !item.Name.StartsWith("Replica ", StringComparison.Ordinal) && 
+               !item.DetailsId.EndsWith("-relic", StringComparison.Ordinal);
     }
 }

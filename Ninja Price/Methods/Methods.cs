@@ -536,7 +536,7 @@ public partial class Main
             switch (item.ItemType) // easier to get data for each item type and handle logic based on that
             {
                 case ItemTypes.UniqueArmour:
-                    var uniqueArmourSearch = CollectedData.UniqueArmours.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));
+                    var uniqueArmourSearch = CollectedData.UniqueArmours.Lines.FindAll(x => x.BaseType == item.BaseName && x.IsChanceable() && (x.Links < 5 || x.Links == null));
                     if (uniqueArmourSearch.Count > 0)
                     {
                         foreach (var result in uniqueArmourSearch)
@@ -546,7 +546,7 @@ public partial class Main
                     }
                     break;
                 case ItemTypes.UniqueWeapon:
-                    var uniqueWeaponSearch = CollectedData.UniqueWeapons.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica ") && (x.Links < 5 || x.Links == null));
+                    var uniqueWeaponSearch = CollectedData.UniqueWeapons.Lines.FindAll(x => x.BaseType == item.BaseName && x.IsChanceable() && (x.Links < 5 || x.Links == null));
                     if (uniqueWeaponSearch.Count > 0)
                     {
                         foreach (var result in uniqueWeaponSearch)
@@ -556,7 +556,7 @@ public partial class Main
                     }
                     break;
                 case ItemTypes.UniqueAccessory:
-                    var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x => x.BaseType == item.BaseName && !x.Name.StartsWith("Replica "));
+                    var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x => x.BaseType == item.BaseName && x.IsChanceable());
                     if (uniqueAccessorySearch.Count > 0)
                     {
                         foreach (var result in uniqueAccessorySearch)
@@ -566,7 +566,7 @@ public partial class Main
                     }
                     break;
                 case ItemTypes.UniqueJewel:
-                    var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x => x.DetailsId.Contains(item.BaseName.ToLower().Replace(" ", "-")) && !x.Name.StartsWith("Replica "));
+                    var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x => x.DetailsId.Contains(item.BaseName.ToLower().Replace(" ", "-")) && x.IsChanceable());
                     if (uniqueJewelSearch.Count > 0)
                     {
                         foreach (var result in uniqueJewelSearch)
