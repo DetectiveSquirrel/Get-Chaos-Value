@@ -747,13 +747,13 @@ public partial class Main
             if (element == null || string.IsNullOrWhiteSpace(str))
                 return null;
 
-            if (element.Text?.Contains(str) == true)
+            if (element.Text?.Trim() == str)
                 return element;
 
             return element.Children.Select(c => GetElementByString(c, str)).FirstOrDefault(e => e != null);
         }
 
-        var costElement = GetElementByString(item.Element?.AsObject<HoverItemIcon>()?.Tooltip, "Cost");
+        var costElement = GetElementByString(item.Element?.AsObject<HoverItemIcon>()?.Tooltip, "Cost:");
         if (costElement?.Parent == null || 
             costElement.Parent.ChildCount < 2 ||
             costElement.Parent.GetChildAtIndex(1).ChildCount < 3)
