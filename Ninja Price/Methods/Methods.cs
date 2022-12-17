@@ -219,13 +219,14 @@ public partial class Main
                     case ItemTypes.SkillGem:
                         var displayText = item.QualityType == SkillGemQualityTypeE.Superior ? item.BaseName : $"{item.QualityType} {item.BaseName}";
                         var fittingGems = CollectedData.SkillGems.Lines
-                           .Where(x => x.Name == displayText && x.GemLevel <= item.GemLevel).ToList();
+                           .Where(x => x.Name == displayText).ToList();
                         var gemSearch = MoreLinq.MoreEnumerable.MaxBy(fittingGems,
                             x => (x.GemLevel == item.GemLevel,
                                   x.Corrupted == item.IsCorrupted,
                                   x.GemQuality == item.Quality,
                                   x.GemQuality == item.Quality switch { > 15 and < 21 => 20, var o => o },
                                   x.GemQuality <= item.Quality,
+                                  x.GemLevel > item.GemLevel ? -x.GemLevel : 0,
                                   x.GemLevel + x.GemQuality)).ToList();
 
                         if (gemSearch.Any())
