@@ -181,8 +181,10 @@ public class CustomItem
             {
                 CurrencyInfo.StackSize = itemEntity.GetComponent<Stack>().Size;
                 CurrencyInfo.MaxStackSize = itemEntity.GetComponent<Stack>().Info.MaxStackSize;
-                if (BaseName.EndsWith(" Shard") || BaseName.EndsWith(" Fragment") ||
-                    BaseName.EndsWith("Ritual Splinter"))
+                if (BaseName.EndsWith(" Shard") || 
+                    BaseName.EndsWith(" Fragment") ||
+                    BaseName.EndsWith(" Splinter") ||
+                    BaseName.StartsWith("Splinter of"))
                     CurrencyInfo.IsShard = true;
             }
 

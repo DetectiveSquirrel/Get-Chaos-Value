@@ -12,7 +12,6 @@ using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.Shared.Cache;
 using ExileCore.Shared.Enums;
 using ExileCore.Shared.Helpers;
-using ExileCore.Shared.Nodes;
 using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
 using ImGuiNET;
@@ -519,25 +518,28 @@ public partial class Main
                 var tooltipRect = HoveredItem?.Element.AsObject<HoverItemIcon>()?.Tooltip?.GetClientRect() ?? new RectangleF(0, 0, 0, 0);
                 foreach (var customItem in formattedItemList)
                 {
-                    var box = customItem.Element.GetClientRect();
-                    if (!tooltipRect.Intersects(box))
+                    var box = customItem.Element.GetClientRectCache;
+                    if (tooltipRect.Intersects(box))
                     {
-                        if (customItem.PriceData.MinChaosValue > 0)
-                        {
-                            Graphics.DrawText(customItem.PriceData.MinChaosValue.FormatNumber(2), box.TopRight, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Right);
-                        }
+                        continue;
+                    }
 
-                        if (Settings.ArtifactChaosPrices && TryGetArtifactPrice(customItem, out var amount, out var artifactName))
-                        {
-                            var text = $"[{artifactName.Substring(0, 3)}]\n" +
-                                       (customItem.PriceData.MinChaosValue > 0
-                                            ? (customItem.PriceData.MinChaosValue / amount * 100).FormatNumber(2)
-                                            : "");
-                            var textSize = Graphics.MeasureText(text);
-                            var leftTop = box.BottomLeft - new Vector2(0, textSize.Y);
-                            Graphics.DrawBox(leftTop, leftTop + textSize.TranslateToNum(), Color.Black);
-                            Graphics.DrawText(text, leftTop, Settings.VisibleStashValue.CurrencyTabSettings.FontColor);
-                        }
+                    if (customItem.PriceData.MinChaosValue > 0)
+                    {
+                        Graphics.DrawText(customItem.PriceData.MinChaosValue.FormatNumber(2), box.TopRight, Settings.VisibleStashValue.CurrencyTabSettings.FontColor,
+                            FontAlign.Right);
+                    }
+
+                    if (Settings.ArtifactChaosPrices && TryGetArtifactPrice(customItem, out var amount, out var artifactName))
+                    {
+                        var text = $"[{artifactName[..3]}]\n" +
+                                   (customItem.PriceData.MinChaosValue > 0
+                                       ? (customItem.PriceData.MinChaosValue / amount * 100).FormatNumber(2)
+                                       : "");
+                        var textSize = Graphics.MeasureText(text);
+                        var leftTop = box.BottomLeft - new Vector2(0, textSize.Y);
+                        Graphics.DrawBox(leftTop, leftTop + textSize.TranslateToNum(), Color.Black);
+                        Graphics.DrawText(text, leftTop, Settings.VisibleStashValue.CurrencyTabSettings.FontColor);
                     }
                 }
             }
@@ -766,7 +768,7 @@ public partial class Main
             return false;
         if (costElement.Text.Equals("Cost:")) // Tujen haggling
         {
-            if (!int.TryParse(amountText.TrimEnd('x'), NumberStyles.Integer, CultureInfo.InvariantCulture, out var amountInt))
+            if (!int.TryParse(amountText.TrimEnd('x').Replace(".", null), NumberStyles.Integer, CultureInfo.InvariantCulture, out var amountInt))
             {
                 return false;
             }

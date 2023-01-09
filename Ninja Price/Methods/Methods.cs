@@ -12,6 +12,37 @@ namespace Ninja_Price.Main;
 
 public partial class Main
 {
+    private static readonly Dictionary<string, string> ShardMapping = new()
+    {
+        { "Transmutation Shard", "Orb of Transmutation" },
+        { "Alteration Shard", "Orb of Alteration" },
+        { "Annulment Shard", "Orb of Annulment" },
+        { "Exalted Shard", "Exalted Orb" },
+        { "Mirror Shard", "Mirror of Kalandra" },
+        { "Regal Shard", "Regal Orb" },
+        { "Alchemy Shard", "Orb of Alchemy" },
+        { "Chaos Shard", "Chaos Orb" },
+        { "Ancient Shard", "Ancient Orb" },
+        { "Engineer's Shard", "Engineer's Orb" },
+        { "Harbinger's Shard", "Harbinger's Orb" },
+        { "Horizon Shard", "Orb of Horizons" },
+        { "Binding Shard", "Orb of Binding" },
+        { "Scroll Fragment", "Scroll of Wisdom" },
+        { "Ritual Splinter", "Ritual Vessel" },
+        { "Crescent Splinter", "The Maven's Writ" },
+        { "Timeless Vaal Splinter", "Timeless Vaal Emblem" },
+        { "Timeless Templar Splinter", "Timeless Templar Emblem" },
+        { "Timeless Eternal Empire Splinter", "Timeless Eternal Emblem" },
+        { "Timeless Maraketh Splinter", "Timeless Maraketh Emblem" },
+        { "Timeless Karui Splinter", "Timeless Karui Emblem" },
+        { "Splinter of Xoph", "Xoph's Breachstone" },
+        { "Splinter of Tul", "Tul's Breachstone" },
+        { "Splinter of Esh", "Esh's Breachstone" },
+        { "Splinter of Uul-Netol", "Uul-Netol's Breachstone" },
+        { "Splinter of Chayula", "Chayula's Breachstone" },
+        { "Simulacrum Splinter", "Simulacrum" },
+    };
+
     private double DivinePrice => CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Divine Orb")?.ChaosEquivalent ?? throw new Exception("Divine price is missing");
 
     private List<NormalInventoryItem> GetInventoryItems()
@@ -25,38 +56,9 @@ public partial class Main
         return itemList.ToList().Where(x => x?.Item?.IsValid == true).Select(inventoryItem => new CustomItem(inventoryItem)).ToList();
     }
 
-    private static string GetShardParent(string shardBaseName)
+    private static bool TryGetShardParent(string shardBaseName, out string shardParent)
     {
-        var name = "";
-        var orbsAndTheirRespectiveShards = new Dictionary<string, string>
-        {
-            {"Transmutation Shard", "Orb of Transmutation"},
-            {"Alteration Shard", "Orb of Alteration"},
-            {"Annulment Shard", "Orb of Annulment"},
-            {"Exalted Shard", "Exalted Orb"},
-            {"Mirror Shard", "Mirror of Kalandra"},
-            {"Regal Shard", "Regal Orb"},
-            {"Alchemy Shard", "Orb of Alchemy"},
-            {"Chaos Shard", "Chaos Orb"},
-            {"Ancient Shard", "Ancient Orb"},
-            {"Engineer's Shard", "Engineer's Orb"},
-            {"Harbinger's Shard", "Harbinger's Orb"},
-            {"Horizon Shard", "Orb of Horizons"},
-            {"Binding Shard", "Orb of Binding"},
-            {"Scroll Fragment", "Scroll of Wisdom"},
-            {"Ritual Splinter", "Ritual Vessel"},
-            {"Crescent Splinter", "The Maven's Writ" }
-        };
-        try
-        {
-            name = orbsAndTheirRespectiveShards[shardBaseName];
-        }
-        catch
-        {
-            //LogMessage($"Couldn't find key with value: {shardBaseName}.", 1);
-        }
-
-        return name;
+        return ShardMapping.TryGetValue(shardBaseName, out shardParent);
     }
 
     private void GetHoveredItem()
@@ -104,6 +106,7 @@ public partial class Main
                 {
                     // TODO: Complete
                     case ItemTypes.Currency:
+                    {
                         if (item.BaseName.StartsWith("Chaos ")) // Chaos Orb or Shard
                         {
                             switch (item.CurrencyInfo.IsShard)
@@ -119,44 +122,19 @@ public partial class Main
                             break;
                         }
 
-                        if (item.BaseName.Contains("Ritual Splinter")) // Ritual
+                        var (pricedStack, pricedItem) = item.CurrencyInfo.IsShard && TryGetShardParent(item.BaseName, out var shardParent)
+                            ? (item.CurrencyInfo.MaxStackSize > 0 ? item.CurrencyInfo.MaxStackSize : 20, shardParent)
+                            : (1, item.BaseName);
+                        var shardCurrencySearch = CollectedData.Currency.FindLine(pricedItem, Settings.UseChaosEquivalentDataForCurrency);
+                        if (shardCurrencySearch != null)
                         {
-                            var shardParent = GetShardParent(item.BaseName);
-                            var shardCurrencySearch = CollectedData.Currency.FindLine(shardParent, Settings.UseChaosEquivalentDataForCurrency);
-                            if (shardCurrencySearch != null)
-                            {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent / 100;
-                                item.PriceData.ChangeInLast7Days = shardCurrencySearch.PriceChange;
-                                item.PriceData.DetailsId = shardCurrencySearch.DetailsId;
-                            }
-
-                            break;
-                        }
-
-                        if (item.CurrencyInfo.IsShard)
-                        {
-                            var shardParent = GetShardParent(item.BaseName);
-                            var shardCurrencySearch = CollectedData.Currency.FindLine(shardParent, Settings.UseChaosEquivalentDataForCurrency);
-                            if (shardCurrencySearch != null)
-                            {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent /
-                                                               (item.CurrencyInfo.MaxStackSize > 0 ? item.CurrencyInfo.MaxStackSize : 20);
-                                item.PriceData.ChangeInLast7Days = shardCurrencySearch.PriceChange;
-                                item.PriceData.DetailsId = shardCurrencySearch.DetailsId;
-                            }
-                        }
-                        else
-                        {
-                            var normalCurrencySearch = CollectedData.Currency.FindLine(item.BaseName, Settings.UseChaosEquivalentDataForCurrency);
-                            if (normalCurrencySearch != null)
-                            {
-                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * normalCurrencySearch.ChaosEquivalent;
-                                item.PriceData.ChangeInLast7Days = normalCurrencySearch.PriceChange;
-                                item.PriceData.DetailsId = normalCurrencySearch.DetailsId;
-                            }
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent / pricedStack;
+                            item.PriceData.ChangeInLast7Days = shardCurrencySearch.PriceChange;
+                            item.PriceData.DetailsId = shardCurrencySearch.DetailsId;
                         }
 
                         break;
+                    }
                     case ItemTypes.Catalyst:
                         var catalystSearch = CollectedData.Currency.FindLine(item.BaseName, Settings.UseChaosEquivalentDataForCurrency);
                         if (catalystSearch != null)
@@ -207,15 +185,20 @@ public partial class Main
 
                         break;
                     case ItemTypes.Fragment:
-                        var fragmentSearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == item.BaseName);
+                    {
+                        var (pricedStack, pricedItem) = item.CurrencyInfo.IsShard && TryGetShardParent(item.BaseName, out var shardParent)
+                            ? (item.CurrencyInfo.MaxStackSize > 0 ? item.CurrencyInfo.MaxStackSize : 20, shardParent)
+                            : (1, item.BaseName);
+                        var fragmentSearch = CollectedData.Fragments.Lines.Find(x => x.CurrencyTypeName == pricedItem);
                         if (fragmentSearch != null)
                         {
-                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * fragmentSearch.ChaosEquivalent ?? 0;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * (fragmentSearch.ChaosEquivalent ?? 0) / pricedStack;
                             item.PriceData.ChangeInLast7Days = fragmentSearch.ReceiveSparkLine.TotalChange ?? 0;
                             item.PriceData.DetailsId = fragmentSearch.DetailsId;
                         }
 
                         break;
+                    }
                     case ItemTypes.SkillGem:
                         var displayText = item.QualityType == SkillGemQualityTypeE.Superior ? item.BaseName : $"{item.QualityType} {item.BaseName}";
                         var fittingGems = CollectedData.SkillGems.Lines
