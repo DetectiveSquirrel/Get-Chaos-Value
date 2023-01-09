@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using ExileCore;
+using ExileCore.PoEMemory.MemoryObjects;
 using Newtonsoft.Json;
 using Ninja_Price.API.PoeNinja.Classes;
 
@@ -44,6 +45,12 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         Settings.SyncCurrentLeague.OnValueChanged += (_, _) => SyncCurrentLeague();
         CustomItem.InitCustomItem(this);
 
+        GameController.PluginBridge.SaveMethod("NinjaPrice.GetValue", (Entity e) =>
+        {
+            var customItem = new CustomItem(e, null);
+            GetValue(customItem);
+            return customItem.PriceData.MinChaosValue;
+        });
         return true;
     }
 
