@@ -47,7 +47,7 @@ public class Settings : ISettings
     public ToggleNode UseChaosEquivalentDataForCurrency { get; set; } = new ToggleNode(false);
 
     #region Visible Stash Value
-    
+
     [JsonProperty("visibleStashValue2")]
     public StashValueSettings VisibleStashValue { get; set; } = new StashValueSettings();
 
@@ -61,6 +61,8 @@ public class Settings : ISettings
 
     [Menu("Helmet Enchant Prices", "Display helmet enchant prices while in the laboratory.).", 6)]
     public ToggleNode HelmetEnchantPrices { get; set; } = new ToggleNode(true);
+
+    public ToggleNode DisplayExpeditionVendorOverlay { get; set; } = new ToggleNode(false);
 
     [Menu("Artifact Chaos Prices", "Display chaos equivalent price for items with artifact costs.).", 7)]
     public ToggleNode ArtifactChaosPrices { get; set; } = new ToggleNode(true);
@@ -85,8 +87,7 @@ public class Settings : ISettings
 
     #endregion
 
-    public ToggleNode PriceHeistRewards { get; set; } = new ToggleNode(true);
-
+    public GroundItemSettings GroundItemSettings { get; set; } = new GroundItemSettings();
     public UniqueIdentificationSettings UniqueIdentificationSettings { get; set; } = new UniqueIdentificationSettings();
 
     [Menu(null, index = 290)]
@@ -105,15 +106,19 @@ public class Settings : ISettings
 }
 
 [Submenu]
-public class UniqueIdentificationSettings
+public class GroundItemSettings
 {
-    [JsonIgnore]
-    public ButtonNode RebuildUniqueItemArtMappingBackup { get; set; } = new ButtonNode();
+    public ToggleNode PriceHeistRewards { get; set; } = new ToggleNode(true);
+    public ToggleNode PriceItemsOnGround { get; set; } = new ToggleNode(true);
 
-    [Menu(null, "Use if you want to ignore what's in game memory and rely only on your custom/builtin file")]
-    public ToggleNode IgnoreGameUniqueArtMapping { get; set; } = new ToggleNode(false);
+    [ConditionalDisplay(nameof(PriceItemsOnGround))]
+    public RangeNode<float> GroundPriceTextScale { get; set; } = new RangeNode<float>(2, 0, 10);
 
-    public ToggleNode PriceUniquesOnGround { get; set; } = new ToggleNode(true);
+    [ConditionalDisplay(nameof(PriceItemsOnGround))]
+    public ColorNode GroundPriceTextColor { get; set; } = new ColorNode(Color.White);
+
+    [ConditionalDisplay(nameof(PriceItemsOnGround))]
+    public ColorNode GroundPriceBackgroundColor { get; set; } = new ColorNode(Color.Black);
 
     public ToggleNode DisplayRealUniqueNameOnGround { get; set; } = new ToggleNode(true);
 
@@ -130,6 +135,16 @@ public class UniqueIdentificationSettings
     public ColorNode ValuableUniqueItemNameTextColor { get; set; } = new ColorNode(new Color(175, 96, 37));
 
     public ColorNode ValuableUniqueItemNameBackgroundColor { get; set; } = new ColorNode(Color.White);
+}
+
+[Submenu]
+public class UniqueIdentificationSettings
+{
+    [JsonIgnore]
+    public ButtonNode RebuildUniqueItemArtMappingBackup { get; set; } = new ButtonNode();
+
+    [Menu(null, "Use if you want to ignore what's in game memory and rely only on your custom/builtin file")]
+    public ToggleNode IgnoreGameUniqueArtMapping { get; set; } = new ToggleNode(false);
 }
 
 [Submenu]

@@ -25,4 +25,5 @@ public enum ItemTypes
     MavenInvitation,
     Artifact,
     SkillGem,
+    ClusterJewel,
 }

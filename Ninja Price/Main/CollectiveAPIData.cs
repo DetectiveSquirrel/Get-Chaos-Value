@@ -26,4 +26,5 @@ public class CollectiveApiData
     public Invitations.RootObject Invitations { get; set; } = new Invitations.RootObject();
     public Artifacts.RootObject Artifacts { get; set; } = new Artifacts.RootObject();
     public SkillGems.RootObject SkillGems { get; set; } = new SkillGems.RootObject();
+    public ClusterJewelNinjaData ClusterJewels { get; set; } = new ClusterJewelNinjaData();
 }

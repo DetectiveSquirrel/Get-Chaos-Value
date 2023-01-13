@@ -95,7 +95,6 @@ public partial class Main
     {
         try
         {
-            item.PriceData.DivinePrice = DivinePrice;
             if(item.BaseName.Contains("Rogue's Marker"))
             {
                 item.PriceData.MinChaosValue = 0;
@@ -220,6 +219,23 @@ public partial class Main
                                                                    ? minValueRecord.Sparkline.TotalChange
                                                                    : minValueRecord.LowConfidenceSparkline.TotalChange;
                             item.PriceData.DetailsId = minValueRecord.DetailsId;
+                        }
+
+                        break;
+                    case ItemTypes.ClusterJewel:
+                        var passivesText = $"{item.ClusterJewelData.PassiveCount} passives";
+                        var fittingJewels = CollectedData.ClusterJewels.Lines.Where(x =>
+                            x.Name == item.ClusterJewelData.Name &&
+                            x.Variant == passivesText &&
+                            x.LevelRequired <= item.ItemLevel).ToList();
+                        if (fittingJewels.Any())
+                        {
+                            var bestFit = fittingJewels.MinBy(x => x.LevelRequired);
+                            item.PriceData.MinChaosValue = bestFit.ChaosValue;
+                            item.PriceData.ChangeInLast7Days = bestFit.Sparkline.Data?.Any() == true
+                                ? bestFit.Sparkline.TotalChange
+                                : bestFit.LowConfidenceSparkline.TotalChange;
+                            item.PriceData.DetailsId = bestFit.DetailsId;
                         }
 
                         break;
@@ -516,7 +532,6 @@ public partial class Main
     {
         try
         {
-            item.PriceData.DivinePrice = DivinePrice;
             switch (item.ItemType) // easier to get data for each item type and handle logic based on that
             {
                 case ItemTypes.UniqueArmour:
@@ -657,8 +672,9 @@ public partial class Main
                    {
                        PriceData = new RelevantPriceData
                        {
-                           MinChaosValue = enchantSearch.chaosValue, DivinePrice = enchantSearch.divinePrice,
-                           ItemType = ItemTypes.None, ChangeInLast7Days = enchantSearch.sparkline.totalChange
+                           MinChaosValue = enchantSearch.chaosValue, 
+                           ItemType = ItemTypes.None, 
+                           ChangeInLast7Days = enchantSearch.sparkline.totalChange
                        },
                        BaseName = enchantSearch.name
                    };

@@ -10,8 +10,13 @@ using Ninja_Price.Enums;
 
 namespace Ninja_Price.Main;
 
+public record ClusterJewelData(string Name, int PassiveCount);
+
 public class CustomItem
 {
+    //because inlining is weird
+    private static readonly GameStat ClusterJewelPassiveCountStat = Enum.Parse<GameStat>(nameof(GameStat.LocalJewelExpansionPassiveNodeCount));
+
     public static Main Core;
     public string BaseName;
     public readonly string ClassName;
@@ -34,6 +39,7 @@ public class CustomItem
     public readonly string UniqueName;
     public readonly List<string> UniqueNameCandidates;
     public readonly ItemTypes ItemType;
+    public readonly ClusterJewelData ClusterJewelData;
     public MapData MapInfo { get; set; } =  new MapData();
     public CurrencyData CurrencyInfo { get; set; } =  new CurrencyData();
     public Main.RelevantPriceData PriceData { get; set; } = new Main.RelevantPriceData();
@@ -189,7 +195,7 @@ public class CustomItem
             }
 
 
-            IsHovered = Core.GameController.Game.IngameState.UIHover.AsObject<NormalInventoryItem>().Address == Element.Address;
+            IsHovered = Core.GameController.Game.IngameState.UIHover.AsObject<NormalInventoryItem>().Address == Element?.Address;
 
             // sort items into types to use correct json data later from poe.ninja
             // This might need tweaking since if this catches anything other than currency.
@@ -266,10 +272,22 @@ public class CustomItem
             {
                 ItemType = ItemTypes.SkillGem;
             }
+            else if (Rarity != ItemRarity.Unique && BaseName is
+                         "Large Cluster Jewel" or
+                         "Medium Cluster Jewel" or
+                         "Small Cluster Jewel")
+            {
+                ItemType = ItemTypes.ClusterJewel;
+                var passiveCount = itemEntity.GetComponent<LocalStats>()?.StatDictionary.GetValueOrDefault(ClusterJewelPassiveCountStat) ?? 0;
+                const string namePrefix = "Added Small Passive Skills grant: ";
+                var name = itemEntity.GetComponent<Mods>()?.EnchantedStats.FirstOrDefault(x => x.StartsWith(namePrefix))?.Replace(namePrefix, null)?.Replace("\n", ", ");
+                ClusterJewelData = new ClusterJewelData(name, passiveCount);
+            }
             else
+            {
                 switch (Rarity) // Unique information
                 {
-                    case ItemRarity.Unique or ItemRarity.Normal when ClassName == "Amulet" || ClassName == "Ring" || ClassName == "Belt":
+                    case ItemRarity.Unique or ItemRarity.Normal when ClassName is "Amulet" or "Ring" or "Belt":
                         ItemType = ItemTypes.UniqueAccessory;
                         break;
                     case ItemRarity.Unique or ItemRarity.Normal when itemEntity.HasComponent<Armour>() || ClassName == "Quiver":
@@ -288,11 +306,12 @@ public class CustomItem
                         ItemType = ItemTypes.UniqueWeapon;
                         break;
                 }
+            }
         }
         catch (Exception exception)
         {
             if (Core.Settings.Debug)
-                Core.LogError($"Ninja Pricer.CustomItem Error:{Environment.NewLine}{exception}");
+                Core.LogError($"Ninja Pricer.CustomItem Error:\n{exception}");
         }
 
     }

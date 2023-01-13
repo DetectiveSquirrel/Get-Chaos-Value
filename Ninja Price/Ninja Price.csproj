@@ -7,6 +7,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <DebugType>embedded</DebugType>
     <PathMap>$(MSBuildProjectDirectory)=$(MSBuildProjectName)</PathMap>
+    <EmbedAllSources>true</EmbedAllSources>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="uniqueArtMapping.default.json" LogicalName="uniqueArtMapping.default.json">

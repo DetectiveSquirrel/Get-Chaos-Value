@@ -1,10 +1,10 @@
 using Ninja_Price.Enums;
-using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
@@ -55,9 +55,7 @@ public partial class Main
         {
             var item = labelOnGround.ItemOnGround;
             if (item.TryGetComponent<WorldItem>(out var worldItem) &&
-                worldItem.ItemEntity is { IsValid: true } groundItemEntity &&
-                groundItemEntity.TryGetComponent<Mods>(out var mods) &&
-                mods.ItemRarity == ItemRarity.Unique)
+                worldItem.ItemEntity is { IsValid: true } groundItemEntity)
             {
                 result.Add((new CustomItem(groundItemEntity, labelOnGround.Label), GroundItemProcessingType.WorldItem));
             }
@@ -220,7 +218,7 @@ public partial class Main
                 AddText(changeText);
             }
 
-            var priceInDivines = HoveredItem.PriceData.MinChaosValue / HoveredItem.PriceData.DivinePrice;
+            var priceInDivines = HoveredItem.PriceData.MinChaosValue / DivinePrice;
             var priceInDivinesText = priceInDivines.FormatNumber(2);
             var minPriceText = HoveredItem.PriceData.MinChaosValue.FormatNumber(2, Settings.MaximalValueForFractionalDisplay);
             AddSection();
@@ -263,7 +261,7 @@ public partial class Main
                     AddSection();
                     if (priceInDivines >= 0.1)
                     {
-                        var maxDivinePriceText = (HoveredItem.PriceData.MaxChaosValue / HoveredItem.PriceData.DivinePrice).FormatNumber(2);
+                        var maxDivinePriceText = (HoveredItem.PriceData.MaxChaosValue / DivinePrice).FormatNumber(2);
                         AddText(priceInDivinesText != maxDivinePriceText 
                                     ? $"\nDivine: {priceInDivinesText}d - {maxDivinePriceText}d" 
                                     : $"\nDivine: {priceInDivinesText}d");
@@ -279,6 +277,7 @@ public partial class Main
                 case ItemTypes.Incubator:
                 case ItemTypes.MavenInvitation:
                 case ItemTypes.SkillGem:
+                case ItemTypes.ClusterJewel:
                     if (priceInDivines >= 0.1)
                     {
                         AddText($"\nDivine: {priceInDivinesText}d");
@@ -463,84 +462,83 @@ public partial class Main
 
     private void ProcessExpeditionWindow()
     {
-        if (!HagglePanel.IsVisible) return;
+        if (!Settings.DisplayExpeditionVendorOverlay || !HagglePanel.IsVisible) return;
+
+        // Return Haggle Window Type
+        var haggleText = HagglePanel.GetChildFromIndices(6, 2, 0)?.Text;
+
+        var haggleType = haggleText switch
         {
-            // Return Haggle Window Type
-            var haggleText = HagglePanel.GetChildFromIndices(6, 2, 0)?.Text;
+            "Exchange" => Exchange,
+            "Gamble" => Gamble,
+            "Deal" => Deal,
+            "Haggle" => Haggle,
+            _ => None
+        };
 
-            var haggleType = haggleText switch
+        var inventory = HagglePanel.GetChildFromIndices(8, 1, 0, 0);
+        var itemList = inventory?.GetChildrenAs<NormalInventoryItem>().Skip(1).ToList() ?? new List<NormalInventoryItem>();
+        if (haggleType == Gamble)
+        {
+            if (Settings.Debug)
             {
-                "Exchange" => Exchange,
-                "Gamble" => Gamble,
-                "Deal" => Deal,
-                "Haggle" => Haggle,
-                _ => None
-            };
-
-            var inventory = HagglePanel.GetChildFromIndices(8, 1, 0, 0);
-            var itemList = inventory?.GetChildrenAs<NormalInventoryItem>().Skip(1).ToList() ?? new List<NormalInventoryItem>();
-            if (haggleType == Gamble)
-            {
-                if (Settings.Debug)
+                foreach (var (item, index) in itemList.Select((item, index) => (item, index)))
                 {
-                    foreach (var (item, index) in itemList.Select((item, index) => (item, index)))
-                    {
-                        LogMessage(
-                            $"Haggle Item[{index}]: {GameController.Files.BaseItemTypes.Translate(item.Item.Path).BaseName}");
-                    }
-                }
-
-                var formattedItemList = FormatItems(itemList);
-
-                foreach (var customItem in formattedItemList)
-                {
-                    GetValueHaggle(customItem);
-                    try
-                    {
-                        PriceBoxOverItemHaggle(customItem);
-                    }
-                    catch (Exception e)
-                    {
-                        // ignored
-                        if (Settings.Debug)
-                        {
-                            LogMessage("Error in: ExpeditionGamble, restart PoEHUD.", 5, Color.Red);
-                            LogMessage(e.ToString(), 5, Color.Orange);
-                        }
-                    }
+                    LogMessage(
+                        $"Haggle Item[{index}]: {GameController.Files.BaseItemTypes.Translate(item.Item.Path).BaseName}");
                 }
             }
 
-            if (haggleType == Haggle)
+            var formattedItemList = FormatItems(itemList);
+
+            foreach (var customItem in formattedItemList)
             {
-                var formattedItemList = FormatItems(itemList);
-                formattedItemList.ForEach(GetValue);
-                var tooltipRect = HoveredItem?.Element.AsObject<HoverItemIcon>()?.Tooltip?.GetClientRect() ?? new RectangleF(0, 0, 0, 0);
-                foreach (var customItem in formattedItemList)
+                GetValueHaggle(customItem);
+                try
                 {
-                    var box = customItem.Element.GetClientRectCache;
-                    if (tooltipRect.Intersects(box))
+                    PriceBoxOverItemHaggle(customItem);
+                }
+                catch (Exception e)
+                {
+                    // ignored
+                    if (Settings.Debug)
                     {
-                        continue;
+                        LogMessage("Error in: ExpeditionGamble, restart PoEHUD.", 5, Color.Red);
+                        LogMessage(e.ToString(), 5, Color.Orange);
                     }
+                }
+            }
+        }
 
-                    if (customItem.PriceData.MinChaosValue > 0)
-                    {
-                        Graphics.DrawText(customItem.PriceData.MinChaosValue.FormatNumber(2), box.TopRight, Settings.VisibleStashValue.CurrencyTabSettings.FontColor,
-                            FontAlign.Right);
-                    }
+        if (haggleType == Haggle)
+        {
+            var formattedItemList = FormatItems(itemList);
+            formattedItemList.ForEach(GetValue);
+            var tooltipRect = HoveredItem?.Element.AsObject<HoverItemIcon>()?.Tooltip?.GetClientRect() ?? new RectangleF(0, 0, 0, 0);
+            foreach (var customItem in formattedItemList)
+            {
+                var box = customItem.Element.GetClientRectCache;
+                if (tooltipRect.Intersects(box))
+                {
+                    continue;
+                }
 
-                    if (Settings.ArtifactChaosPrices && TryGetArtifactPrice(customItem, out var amount, out var artifactName))
-                    {
-                        var text = $"[{artifactName[..3]}]\n" +
-                                   (customItem.PriceData.MinChaosValue > 0
-                                       ? (customItem.PriceData.MinChaosValue / amount * 100).FormatNumber(2)
-                                       : "");
-                        var textSize = Graphics.MeasureText(text);
-                        var leftTop = box.BottomLeft - new Vector2(0, textSize.Y);
-                        Graphics.DrawBox(leftTop, leftTop + textSize.TranslateToNum(), Color.Black);
-                        Graphics.DrawText(text, leftTop, Settings.VisibleStashValue.CurrencyTabSettings.FontColor);
-                    }
+                if (customItem.PriceData.MinChaosValue > 0)
+                {
+                    Graphics.DrawText(customItem.PriceData.MinChaosValue.FormatNumber(2), box.TopRight, Settings.VisibleStashValue.CurrencyTabSettings.FontColor,
+                        FontAlign.Right);
+                }
+
+                if (Settings.ArtifactChaosPrices && TryGetArtifactPrice(customItem, out var amount, out var artifactName))
+                {
+                    var text = $"[{artifactName[..3]}]\n" +
+                               (customItem.PriceData.MinChaosValue > 0
+                                   ? (customItem.PriceData.MinChaosValue / amount * 100).FormatNumber(2)
+                                   : "");
+                    var textSize = Graphics.MeasureText(text);
+                    var leftTop = box.BottomLeft.ToVector2Num() - new Vector2(0, textSize.Y);
+                    Graphics.DrawBox(leftTop, leftTop + textSize, Color.Black);
+                    Graphics.DrawText(text, leftTop, Settings.VisibleStashValue.CurrencyTabSettings.FontColor);
                 }
             }
         }
@@ -584,7 +582,7 @@ public partial class Main
 
     private void ProcessItemsOnGround()
     {
-        if (!Settings.UniqueIdentificationSettings.PriceUniquesOnGround && !Settings.UniqueIdentificationSettings.DisplayRealUniqueNameOnGround && !Settings.PriceHeistRewards) return;
+        if (!Settings.GroundItemSettings.PriceItemsOnGround && !Settings.GroundItemSettings.DisplayRealUniqueNameOnGround && !Settings.GroundItemSettings.PriceHeistRewards) return;
         //this window allows us to change the size of the text we draw to the background list
         //yeah, it's weird
         ImGui.Begin("lmao",
@@ -606,7 +604,7 @@ public partial class Main
                 {
                     if (!tooltipRect.Intersects(box) && !leftPanelRect.Intersects(box) && !rightPanelRect.Intersects(box))
                     {
-                        if (Settings.UniqueIdentificationSettings.PriceUniquesOnGround)
+                        if (Settings.GroundItemSettings.PriceItemsOnGround)
                         {
                             if (item.PriceData.MinChaosValue > 0)
                             {
@@ -616,26 +614,32 @@ public partial class Main
                                     s += $"-{item.PriceData.MaxChaosValue.FormatNumber(2)}";
                                 }
 
-                                Graphics.DrawText(s, box.TopRight, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Right);
+                                using (Graphics.SetTextScale(Settings.GroundItemSettings.GroundPriceTextScale))
+                                {
+                                    var textSize = Graphics.MeasureText(s);
+                                    var textPos = new Vector2(box.Right - textSize.X, box.Top);
+                                    Graphics.DrawBox(textPos, new Vector2(box.Right, box.Top + textSize.Y), Settings.GroundItemSettings.GroundPriceBackgroundColor);
+                                    Graphics.DrawText(s, textPos, Settings.GroundItemSettings.GroundPriceTextColor);
+                                }
                             }
                         }
 
-                        if (Settings.UniqueIdentificationSettings.DisplayRealUniqueNameOnGround && !item.IsIdentified && item.UniqueNameCandidates.Any())
+                        if (Settings.GroundItemSettings.DisplayRealUniqueNameOnGround && !item.IsIdentified && item.UniqueNameCandidates.Any())
                         {
                             float GetRatio(string text)
                             {
                                 var textSize = Graphics.MeasureText(text);
-                                return Math.Min(box.Width * Settings.UniqueIdentificationSettings.UniqueLabelSize / textSize.X, (box.Height - 2) / textSize.Y);
+                                return Math.Min(box.Width * Settings.GroundItemSettings.UniqueLabelSize / textSize.X, (box.Height - 2) / textSize.Y);
                             }
 
-                            var isValuable = item.PriceData.MaxChaosValue >= Settings.UniqueIdentificationSettings.ValuableUniqueOnGroundValueThreshold;
-                            if (Settings.UniqueIdentificationSettings.OnlyDisplayRealUniqueNameForValuableUniques && !isValuable)
+                            var isValuable = item.PriceData.MaxChaosValue >= Settings.GroundItemSettings.ValuableUniqueOnGroundValueThreshold;
+                            if (Settings.GroundItemSettings.OnlyDisplayRealUniqueNameForValuableUniques && !isValuable)
                             {
                                 continue;
                             }
 
-                            var textColor = isValuable ? Settings.UniqueIdentificationSettings.ValuableUniqueItemNameTextColor : Settings.UniqueIdentificationSettings.UniqueItemNameTextColor;
-                            var backgroundColor = isValuable ? Settings.UniqueIdentificationSettings.ValuableUniqueItemNameBackgroundColor : Settings.UniqueIdentificationSettings.UniqueItemNameBackgroundColor;
+                            var textColor = isValuable ? Settings.GroundItemSettings.ValuableUniqueItemNameTextColor : Settings.GroundItemSettings.UniqueItemNameTextColor;
+                            var backgroundColor = isValuable ? Settings.GroundItemSettings.ValuableUniqueItemNameBackgroundColor : Settings.GroundItemSettings.UniqueItemNameBackgroundColor;
                             var (text, ratio) = Enumerable.Range(1, item.UniqueNameCandidates.Count).Select(perOneLine =>
                                     string.Join('\n', MoreLinq.Extensions.BatchExtension.Batch(item.UniqueNameCandidates, perOneLine)
                                        .Select(onLine => string.Join(" / ", onLine))))
@@ -645,8 +649,8 @@ public partial class Main
                             ImGui.SetWindowFontScale(ratio);
                             var newTextSize = ImGui.CalcTextSize(text);
                             var textPosition = box.Center.ToVector2Num() - newTextSize / 2;
-                            var rectPosition = new System.Numerics.Vector2(textPosition.X, box.Top + 1);
-                            drawList.AddRectFilled(rectPosition, rectPosition + new System.Numerics.Vector2(newTextSize.X, box.Height - 2), backgroundColor.Value.ToImgui());
+                            var rectPosition = new Vector2(textPosition.X, box.Top + 1);
+                            drawList.AddRectFilled(rectPosition, rectPosition + new Vector2(newTextSize.X, box.Height - 2), backgroundColor.Value.ToImgui());
                             drawList.AddText(textPosition, textColor.Value.ToImgui(), text);
                             ImGui.SetWindowFontScale(1);
                         }
@@ -655,7 +659,7 @@ public partial class Main
                 }
                 case GroundItemProcessingType.HeistReward:
                 {
-                    if (Settings.PriceHeistRewards && !leftPanelRect.Contains(box.TopRight) && !rightPanelRect.Contains(box.TopRight))
+                    if (Settings.GroundItemSettings.PriceHeistRewards && !leftPanelRect.Contains(box.TopRight) && !rightPanelRect.Contains(box.TopRight))
                     {
                         if (item.PriceData.MinChaosValue > 0)
                         {
@@ -665,9 +669,13 @@ public partial class Main
                                 s += $"-{item.PriceData.MaxChaosValue.FormatNumber(2)}";
                             }
 
-                            var backgroundSize = Graphics.MeasureText(s).Mult(-1).TranslateToNum();
-                            Graphics.DrawBox(box.TopRight, box.TopRight + backgroundSize, Settings.VisibleStashValue.CurrencyTabSettings.BackgroundColor);
-                            Graphics.DrawText(s, box.TopRight, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Right);
+                            using (Graphics.SetTextScale(Settings.GroundItemSettings.GroundPriceTextScale))
+                            {
+                                var textSize = Graphics.MeasureText(s);
+                                var textPos = new Vector2(box.Top - textSize.X, box.Right);
+                                Graphics.DrawBox(textPos, new Vector2(box.Right, box.Top + textSize.Y), Settings.GroundItemSettings.GroundPriceBackgroundColor);
+                                Graphics.DrawText(s, textPos, Settings.GroundItemSettings.GroundPriceTextColor);
+                            }
                         }
                     }
 
@@ -729,8 +737,8 @@ public partial class Main
             var drawBox = new RectangleF(box.X + box.Width, box.Y - 2, 65, box.Height);
             var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - 7);
 
-            var textColor = data.PriceData.DivinePrice >= 1 ? Color.Black : Color.White;
-            var bgColor = data.PriceData.DivinePrice >= 1 ? Color.Goldenrod : Color.Black;
+            var textColor = data.PriceData.MinChaosValue >= DivinePrice ? Color.Black : Color.White;
+            var bgColor = data.PriceData.MinChaosValue >= DivinePrice ? Color.Goldenrod : Color.Black;
             Graphics.DrawText($"{data.PriceData.MinChaosValue.FormatNumber(2)}c", position, textColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, bgColor);
             Graphics.DrawFrame(drawBox, Color.Black, 1);
