@@ -252,7 +252,7 @@ public class CustomItem
             {
                 ItemType = ItemTypes.Resonator;
             }
-            else if (ClassName == "Incubator")
+            else if (ClassName is "Incubator" or "IncubatorStackable")
             {
                 ItemType = ItemTypes.Incubator;
             }
