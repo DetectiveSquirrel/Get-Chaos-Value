@@ -97,9 +97,8 @@ public class CustomItem
                 "Staff",
                 "Wand"
             };
-            if (itemEntity.HasComponent<Quality>())
+            if (itemEntity.TryGetComponent<Quality>(out var quality))
             {
-                var quality = itemEntity.GetComponent<Quality>();
                 Quality = quality.ItemQuality;
             }
 
@@ -109,17 +108,15 @@ public class CustomItem
                 GemLevel = skillGem.Level;
             }
 
-            if (itemEntity.HasComponent<Base>())
+            if (itemEntity.TryGetComponent<Base>(out var @base))
             {
-                var @base = itemEntity.GetComponent<Base>();
                 IsElder = @base.isElder;
                 IsShaper = @base.isShaper;
                 IsCorrupted = @base.isCorrupted;
             }
 
-            if (itemEntity.HasComponent<Mods>())
+            if (itemEntity.TryGetComponent<Mods>(out var mods))
             {
-                var mods = itemEntity.GetComponent<Mods>();
                 Rarity = mods.ItemRarity;
                 IsIdentified = mods.Identified;
                 ItemLevel = mods.ItemLevel;
@@ -139,11 +136,10 @@ public class CustomItem
 
             UniqueNameCandidates ??= new List<string>();
 
-            if (itemEntity.HasComponent<Sockets>())
+            if (itemEntity.TryGetComponent<Sockets>(out var sockets))
             {
                 try
                 {
-                    var sockets = itemEntity.GetComponent<Sockets>();
                     IsRgb = sockets.IsRGB;
                     Sockets = sockets.NumberOfSockets;
                     LargestLink = sockets.LargestLinkSize;
@@ -156,7 +152,7 @@ public class CustomItem
             if (weaponClass.Any(ClassName.Equals))
                 IsWeapon = true;
 
-            MapInfo.MapTier = itemEntity.HasComponent<Map>() ? itemEntity.GetComponent<Map>().Tier : 0;
+            MapInfo.MapTier = itemEntity.TryGetComponent<Map>(out var map) ? map.Tier : 0;
             MapInfo.IsMap = MapInfo.MapTier > 0;
 
             if (Rarity != ItemRarity.Unique && MapInfo.IsMap)
@@ -183,10 +179,10 @@ public class CustomItem
                 }
             }
 
-            if (itemEntity.HasComponent<Stack>())
+            if (itemEntity.TryGetComponent<Stack>(out var stack))
             {
-                CurrencyInfo.StackSize = itemEntity.GetComponent<Stack>().Size;
-                CurrencyInfo.MaxStackSize = itemEntity.GetComponent<Stack>().Info.MaxStackSize;
+                CurrencyInfo.StackSize = stack.Size;
+                CurrencyInfo.MaxStackSize = stack.Info.MaxStackSize;
                 if (BaseName.EndsWith(" Shard") || 
                     BaseName.EndsWith(" Fragment") ||
                     BaseName.EndsWith(" Splinter") ||

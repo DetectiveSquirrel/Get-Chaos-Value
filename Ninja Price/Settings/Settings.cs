@@ -112,6 +112,9 @@ public class GroundItemSettings
     public ToggleNode PriceItemsOnGround { get; set; } = new ToggleNode(true);
 
     [ConditionalDisplay(nameof(PriceItemsOnGround))]
+    public ToggleNode OnlyPriceUniquesOnGround { get; set; } = new ToggleNode(true);
+
+    [ConditionalDisplay(nameof(PriceItemsOnGround))]
     public RangeNode<float> GroundPriceTextScale { get; set; } = new RangeNode<float>(2, 0, 10);
 
     [ConditionalDisplay(nameof(PriceItemsOnGround))]

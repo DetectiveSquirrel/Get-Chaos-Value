@@ -604,7 +604,8 @@ public partial class Main
                 {
                     if (!tooltipRect.Intersects(box) && !leftPanelRect.Intersects(box) && !rightPanelRect.Intersects(box))
                     {
-                        if (Settings.GroundItemSettings.PriceItemsOnGround)
+                        if (Settings.GroundItemSettings.PriceItemsOnGround && 
+                            (!Settings.GroundItemSettings.OnlyPriceUniquesOnGround || item.Rarity == ItemRarity.Unique))
                         {
                             if (item.PriceData.MinChaosValue > 0)
                             {
