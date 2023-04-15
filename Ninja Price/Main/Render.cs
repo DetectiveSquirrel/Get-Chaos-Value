@@ -673,8 +673,8 @@ public partial class Main
                             using (Graphics.SetTextScale(Settings.GroundItemSettings.GroundPriceTextScale))
                             {
                                 var textSize = Graphics.MeasureText(s);
-                                var textPos = new Vector2(box.Top - textSize.X, box.Right);
-                                Graphics.DrawBox(textPos, new Vector2(box.Right, box.Top + textSize.Y), Settings.GroundItemSettings.GroundPriceBackgroundColor);
+                                var textPos = new Vector2(box.Right - textSize.X, box.Top);
+                                Graphics.DrawBox(textPos, textPos + textSize, Settings.GroundItemSettings.GroundPriceBackgroundColor);
                                 Graphics.DrawText(s, textPos, Settings.GroundItemSettings.GroundPriceTextColor);
                             }
                         }
