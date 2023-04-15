@@ -3733,6 +3733,12 @@
   "Art/2DItems/Rings/UniqueCurseRing.dds": [
     "Anathema"
   ],
+  "Art/2DItems/Rings/SanctumSpecialUniqueRing.dds": [
+    "Original Sin"
+  ],
+  "Art/2DItems/Armours/Helmets/BloodPriceHelmUnique.dds": [
+    "Blood Price"
+  ],
   "Art/2DItems/Amulets/DoedresTongue.dds": [
     "Doedre's Tongue"
   ],
@@ -3753,6 +3759,51 @@
   ],
   "Art/2DItems/Armours/Boots/InfectiousConstruct.dds": [
     "Dawnstrider"
+  ],
+  "Art/2DItems/Amulets/TaintedPact.dds": [
+    "Tainted Pact"
+  ],
+  "Art/2DItems/Jewels/PristineConditioning.dds": [
+    "Ancestral Vision"
+  ],
+  "Art/2DItems/Armours/Gloves/StormseekerGloves.dds": [
+    "Stormseeker"
+  ],
+  "Art/2DItems/Weapons/TwoHandWeapons/Bows/WidowhailBow.dds": [
+    "Widowhail"
+  ],
+  "Art/2DItems/Belts/UnhealthyBurden.dds": [
+    "Chain of Endurance"
+  ],
+  "Art/2DItems/Armours/Gloves/GorefistGloves.dds": [
+    "Tanu Ahi"
+  ],
+  "Art/2DItems/Armours/Boots/RuggedStepBoots.dds": [
+    "Orbala's Stand"
+  ],
+  "Art/2DItems/Jewels/IgnorePain.dds": [
+    "Bloodnotch"
+  ],
+  "Art/2DItems/Armours/BodyArmours/ClericsSanctuary.dds": [
+    "The Fourth Vow"
+  ],
+  "Art/2DItems/Rings/BondedLife.dds": [
+    "Soulbound"
+  ],
+  "Art/2DItems/Amulets/BloodSoaked_Medallion.dds": [
+    "Bloodsoaked Medallion"
+  ],
+  "Art/2DItems/Belts/LinkmastersCoil.dds": [
+    "Ceinture of Benevolence"
+  ],
+  "Art/2DItems/Armours/Helmets/CrucibleHelm.dds": [
+    "El'Abin's Visage"
+  ],
+  "Art/2DItems/Weapons/TwoHandWeapons/Staves/CrucibleStaff.dds": [
+    "The Geomantic Gyre"
+  ],
+  "Art/2DItems/Weapons/OneHandWeapons/OneHandSwords/CrucibleSword.dds": [
+    "The Redblade"
   ],
   "Art/2DItems/Jewels/GrandSpectrum2_red.dds": [
     "Grand Spectrum"
