@@ -230,7 +230,7 @@ public partial class Main
                             x.LevelRequired <= item.ItemLevel).ToList();
                         if (fittingJewels.Any())
                         {
-                            var bestFit = fittingJewels.MinBy(x => x.LevelRequired);
+                            var bestFit = fittingJewels.MaxBy(x => x.LevelRequired);
                             item.PriceData.MinChaosValue = bestFit.ChaosValue;
                             item.PriceData.ChangeInLast7Days = bestFit.Sparkline.Data?.Any() == true
                                 ? bestFit.Sparkline.TotalChange
