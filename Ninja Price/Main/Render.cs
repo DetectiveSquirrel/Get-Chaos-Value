@@ -236,6 +236,7 @@ public partial class Main
                 case ItemTypes.DeliriumOrbs:
                 case ItemTypes.Vials:
                 case ItemTypes.DivinationCard:
+                case ItemTypes.Incubator:
                     if (priceInDivines >= 0.1)
                     {
                         var priceInDivinessPerOne = priceInDivines / HoveredItem.CurrencyInfo.StackSize;
@@ -274,7 +275,6 @@ public partial class Main
 
                     break;
                 case ItemTypes.Map:
-                case ItemTypes.Incubator:
                 case ItemTypes.MavenInvitation:
                 case ItemTypes.SkillGem:
                 case ItemTypes.ClusterJewel:
@@ -375,9 +375,21 @@ public partial class Main
             {
                 var pos = new Vector2(Settings.VisibleStashValue.PositionX.Value, Settings.VisibleStashValue.PositionY.Value);
                 var chaosValue = StashTabValue;
+                var topValueItems = ItemsToDrawList
+                    .Where(x => x.PriceData.MinChaosValue != 0)
+                    .GroupBy(x => (x.PriceData.DetailsId, x.BaseName, x.UniqueName))
+                    .Select(group => new CustomItem
+                    {
+                        PriceData = { MinChaosValue = group.Sum(i => i.PriceData.MinChaosValue) },
+                        CurrencyInfo = { StackSize = group.Sum(i => i.CurrencyInfo.StackSize) },
+                        BaseName = group.Key.BaseName,
+                        UniqueName = group.Key.UniqueName,
+                    })
+                    .OrderByDescending(x => x.PriceData.MinChaosValue)
+                    .Take(Settings.VisibleStashValue.TopValuedItemCount.Value)
+                    .ToList();
                 DrawWorthWidget(chaosValue, pos, Settings.VisibleStashValue.SignificantDigits.Value, Settings.UniTextColor, Settings.VisibleStashValue.EnableBackground,
-                    ItemsToDrawList.Where(x => x.PriceData.MinChaosValue != 0).OrderByDescending(x => x.PriceData.MinChaosValue).Take(Settings.VisibleStashValue.TopValuedItemCount.Value)
-                        .ToList());
+                    topValueItems);
             }
         }
         catch (Exception e)
@@ -400,7 +412,9 @@ public partial class Main
         if (topValueItems.Count > 0)
         {
             var maxChaosValueLength = topValueItems.Max(x => x.PriceData.MinChaosValue.FormatNumber(2, forceDecimals: true).Length);
-            var topValuedTexts = string.Join("\n", topValueItems.Select(x => $"{x.PriceData.MinChaosValue.FormatNumber(2, forceDecimals: true).PadLeft(maxChaosValueLength)}: {x}"));
+            var topValuedTexts = string.Join("\n",
+                topValueItems.Select(x => $"{x.PriceData.MinChaosValue.FormatNumber(2, forceDecimals: true).PadLeft(maxChaosValueLength)}: {x}" +
+                                          (x.CurrencyInfo.StackSize > 0 ? $" ({x.CurrencyInfo.StackSize})" : null)));
             text += $"\nTop value:\n{topValuedTexts}";
         }
 

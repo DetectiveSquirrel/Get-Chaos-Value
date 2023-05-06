@@ -19,6 +19,7 @@ public class CustomItem
 
     public static Main Core;
     public string BaseName;
+    public string UniqueName;
     public readonly string ClassName;
     public readonly bool IsElder;
     public readonly bool IsIdentified;
@@ -36,7 +37,6 @@ public class CustomItem
     public readonly int GemLevel;
     public readonly ItemRarity Rarity;
     public readonly int Sockets;
-    public readonly string UniqueName;
     public readonly List<string> UniqueNameCandidates;
     public readonly ItemTypes ItemType;
     public readonly ClusterJewelData ClusterJewelData;

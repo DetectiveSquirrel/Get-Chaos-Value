@@ -273,7 +273,7 @@ public partial class Main
                         var incubatorSearch = CollectedData.Incubators.Lines.Find(x => x.Name == item.BaseName);
                         if (incubatorSearch != null)
                         {
-                            item.PriceData.MinChaosValue = incubatorSearch.ChaosValue ?? 0;
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * incubatorSearch.ChaosValue ?? 0;
                             item.PriceData.ChangeInLast7Days = incubatorSearch.Sparkline.TotalChange ?? 0;
                             item.PriceData.DetailsId = incubatorSearch.DetailsId;
                         }
