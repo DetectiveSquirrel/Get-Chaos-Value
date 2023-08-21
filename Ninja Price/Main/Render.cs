@@ -9,6 +9,7 @@ using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
+using ExileCore.PoEMemory.MemoryObjects.Ancestor;
 using ExileCore.Shared.Cache;
 using ExileCore.Shared.Enums;
 using ExileCore.Shared.Helpers;
@@ -202,7 +203,7 @@ public partial class Main
         ProcessExpeditionWindow();
         ProcessItemsOnGround();
         ProcessTradeWindow();
-
+        ProcessAncestorFightRewards();
         // Hovered Item
         if (HoveredItem != null && HoveredItem.ItemType != ItemTypes.None && Settings.HoveredItem.Value)
         {
@@ -347,7 +348,7 @@ public partial class Main
                         case InventoryType.DeliriumStash:
                         case InventoryType.MetamorphStash:
                         case InventoryType.BlightStash:
-                            PriceBoxOverItem(customItem);
+                            PriceBoxOverItem(customItem, null);
                             break;
                     }
                 }
@@ -450,14 +451,19 @@ public partial class Main
         }
     }
 
-    private void PriceBoxOverItem(CustomItem item)
+    private void PriceBoxOverItem(CustomItem item, RectangleF? containerBox)
     {
         var box = item.Element.GetClientRect();
         var drawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.VisibleStashValue.CurrencyTabSettings.BoxHeight);
-        var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.VisibleStashValue.CurrencyTabSettings.FontSize.Value / 2);
-           
-        Graphics.DrawText(item.PriceData.MinChaosValue.FormatNumber(Settings.VisibleStashValue.CurrencyTabSettings.SignificantDigits.Value), position, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Center);
-        Graphics.DrawBox(drawBox, Settings.VisibleStashValue.CurrencyTabSettings.BackgroundColor);
+
+        (containerBox ?? default).Contains(ref drawBox, out var contains);
+        if (containerBox == null || contains)
+        {
+            Graphics.DrawBox(drawBox, Settings.VisibleStashValue.CurrencyTabSettings.BackgroundColor);
+            var textPosition = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.VisibleStashValue.CurrencyTabSettings.FontSize.Value / 2);
+            Graphics.DrawText(item.PriceData.MinChaosValue.FormatNumber(Settings.VisibleStashValue.CurrencyTabSettings.SignificantDigits.Value), textPosition,
+                Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Center);
+        }
     }
 
     private void PriceBoxOverItemHaggle(CustomItem item)
@@ -469,11 +475,10 @@ public partial class Main
         if (item.PriceData.ItemBasePrices.Count == 0)
             return;
 
+        Graphics.DrawBox(drawBox, Settings.VisibleStashValue.CurrencyTabSettings.BackgroundColor);
+        Graphics.DrawText(item.PriceData.ItemBasePrices.Max().FormatNumber(Settings.VisibleStashValue.CurrencyTabSettings.SignificantDigits.Value), position, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Center);
         if (Settings.Debug)
             Graphics.DrawText(string.Join(",", item.PriceData.ItemBasePrices), position, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Center);
-
-        Graphics.DrawText(item.PriceData.ItemBasePrices.Max().FormatNumber(Settings.VisibleStashValue.CurrencyTabSettings.SignificantDigits.Value), position, Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Center);
-        Graphics.DrawBox(drawBox, Settings.VisibleStashValue.CurrencyTabSettings.BackgroundColor);
     }
 
     private void ProcessExpeditionWindow()
@@ -594,6 +599,28 @@ public partial class Main
         DrawWorthWidget(diff, textPosition, 2, diff switch { > 0 => Color.Green, 0 => Settings.UniTextColor, < 0 => Color.Red, double.NaN => Color.Purple }, true, new List<CustomItem>());
         textPosition.Y += ImGui.GetTextLineHeight() * 2;
         DrawWorthWidget(yourTradeWindowValue, textPosition, 2, Settings.UniTextColor, true, new List<CustomItem>());
+    }
+
+    private void ProcessAncestorFightRewards()
+    {
+        if ((!Settings.VisibleStashValue.CurrencyTabSettings.DoNotDrawWhileAnItemIsHovered || HoveredItem == null) &&
+            GameController.IngameState.IngameUi.AncestorFightSelectionWindow is { IsVisible: true, Options: { Count: > 0 } options } window)
+        {
+            var containerBounds = window.TableContainer.GetClientRectCache;
+            foreach (var x in options)
+            {
+                try
+                {
+                    var customItem = new CustomItem(x.Reward, x.RewardElement);
+                    GetValue(customItem);
+                    PriceBoxOverItem(customItem, containerBounds);
+                }
+                catch (Exception ex)
+                {
+                    LogError(ex.ToString());
+                }
+            }
+        }
     }
 
     private void ProcessItemsOnGround()
@@ -756,9 +783,9 @@ public partial class Main
 
             var textColor = data.PriceData.MinChaosValue >= DivinePrice ? Color.Black : Color.White;
             var bgColor = data.PriceData.MinChaosValue >= DivinePrice ? Color.Goldenrod : Color.Black;
-            Graphics.DrawText($"{data.PriceData.MinChaosValue.FormatNumber(2)}c", position, textColor, FontAlign.Center);
             Graphics.DrawBox(drawBox, bgColor);
             Graphics.DrawFrame(drawBox, Color.Black, 1);
+            Graphics.DrawText($"{data.PriceData.MinChaosValue.FormatNumber(2)}c", position, textColor, FontAlign.Center);
         }
     }
 
