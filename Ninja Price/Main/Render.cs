@@ -348,7 +348,7 @@ public partial class Main
                         case InventoryType.DeliriumStash:
                         case InventoryType.MetamorphStash:
                         case InventoryType.BlightStash:
-                            PriceBoxOverItem(customItem, null);
+                            PriceBoxOverItem(customItem, null, Settings.VisibleStashValue.CurrencyTabSettings.FontColor);
                             break;
                     }
                 }
@@ -451,7 +451,7 @@ public partial class Main
         }
     }
 
-    private void PriceBoxOverItem(CustomItem item, RectangleF? containerBox)
+    private void PriceBoxOverItem(CustomItem item, RectangleF? containerBox, Color textColor)
     {
         var box = item.Element.GetClientRect();
         var drawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.VisibleStashValue.CurrencyTabSettings.BoxHeight);
@@ -462,7 +462,7 @@ public partial class Main
             Graphics.DrawBox(drawBox, Settings.VisibleStashValue.CurrencyTabSettings.BackgroundColor);
             var textPosition = new Vector2(drawBox.Center.X, drawBox.Center.Y - Settings.VisibleStashValue.CurrencyTabSettings.FontSize.Value / 2);
             Graphics.DrawText(item.PriceData.MinChaosValue.FormatNumber(Settings.VisibleStashValue.CurrencyTabSettings.SignificantDigits.Value), textPosition,
-                Settings.VisibleStashValue.CurrencyTabSettings.FontColor, FontAlign.Center);
+                textColor, FontAlign.Center);
         }
     }
 
@@ -613,7 +613,10 @@ public partial class Main
                 {
                     var customItem = new CustomItem(x.Reward, x.RewardElement);
                     GetValue(customItem);
-                    PriceBoxOverItem(customItem, containerBounds);
+                    PriceBoxOverItem(customItem, containerBounds,
+                        customItem.PriceData.MinChaosValue >= Settings.AncestorSettings.SpecialRewardValueThreshold
+                            ? Settings.AncestorSettings.SpecialRewardColor
+                            : Settings.AncestorSettings.DefaultRewardColor);
                 }
                 catch (Exception ex)
                 {

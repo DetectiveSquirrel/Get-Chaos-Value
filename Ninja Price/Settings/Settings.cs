@@ -102,7 +102,17 @@ public class Settings : ISettings
     [Menu(null, parentIndex = 290)]
     public RangeNode<int> TradeWindowValueOffsetY { get; set; } = new RangeNode<int>(0, -2000, 2000);
 
+    public AncestorSettings AncestorSettings { get; set; } = new AncestorSettings();
+
     public ToggleNode Enable { get; set; } = new ToggleNode(true);
+}
+
+[Submenu]
+public class AncestorSettings
+{
+    public RangeNode<float> SpecialRewardValueThreshold { get; set; } = new RangeNode<float>(50, 0, 1000);
+    public ColorNode SpecialRewardColor { get; set; } = new ColorNode(Color.Violet);
+    public ColorNode DefaultRewardColor { get; set; } = new ColorNode(Color.White);
 }
 
 [Submenu]
