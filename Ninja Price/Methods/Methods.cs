@@ -415,7 +415,7 @@ public partial class Main
                         break;
                     case ItemTypes.UniqueMap:
                         var uniqueMapSearch = CollectedData.UniqueMaps.Lines.FindAll(x =>
-                            (x.BaseType == item.UniqueName || item.UniqueNameCandidates.Contains(x.BaseType)) &&
+                            (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
                             item.MapInfo.MapTier == x.MapTier);
                         if (uniqueMapSearch.Count == 1)
                         {
