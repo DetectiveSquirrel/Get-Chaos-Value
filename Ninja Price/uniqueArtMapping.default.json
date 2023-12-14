@@ -125,14 +125,16 @@
     "Eye of Chayula"
   ],
   "Art/2DItems/Armours/BodyArmours/BodyDex3CUnique.dds": [
-    "Hyrri's Ire"
+    "Hyrri's Ire",
+    "Replica Hyrri's Ire"
   ],
   "Art/2DItems/Armours/Helmets/FairgravesTricorne.dds": [
     "Fairgraves' Tricorne"
   ],
   "Art/2DItems/Armours/Helmets/Heatshiver.dds": [
     "Heatshiver",
-    "Frostferno"
+    "Frostferno",
+    "Replica Heatshiver"
   ],
   "Art/2DItems/Armours/Helmets/CrownofThorns.dds": [
     "Crown of Thorns",
@@ -396,7 +398,8 @@
     "The Supreme Truth"
   ],
   "Art/2DItems/Armours/BodyArmours/Embrace.dds": [
-    "The Covenant"
+    "The Covenant",
+    "Replica Covenant"
   ],
   "Art/2DItems/Armours/BodyArmours/Infernalmantle.dds": [
     "Infernal Mantle"
@@ -1598,13 +1601,16 @@
     "Brittle Barrier"
   ],
   "Art/2DItems/Jewels/GreenCorrupt6.dds": [
-    "Pacifism"
+    "Pacifism",
+    "Replica Pacifism"
   ],
   "Art/2DItems/Jewels/RedCorrupt6.dds": [
-    "Fragility"
+    "Fragility",
+    "Replica Fragility"
   ],
   "Art/2DItems/Jewels/BlueCorrupt6.dds": [
-    "Powerlessness"
+    "Powerlessness",
+    "Replica Powerlessness"
   ],
   "Art/2DItems/Rings/Brotherhood.dds": [
     "Call of the Brotherhood"
@@ -2103,7 +2109,8 @@
     "Mind of the Council"
   ],
   "Art/2DItems/Amulets/HinekorasSight.dds": [
-    "Hinekora's Sight"
+    "Hinekora's Sight",
+    "Replica Hinekora's Sight"
   ],
   "Art/2DItems/Armours/Helmets/KitavasThirst.dds": [
     "Kitava's Thirst"
@@ -2241,7 +2248,8 @@
     "The Warden's Brand"
   ],
   "Art/2DItems/Flasks/WitchFireBrew.dds": [
-    "Witchfire Brew"
+    "Witchfire Brew",
+    "Replica Witchfire Brew"
   ],
   "Art/2DItems/Flasks/ShapersFlask.dds": [
     "Dying Sun"
@@ -3052,6 +3060,9 @@
   "Art/2DItems/Jewels/ElementalHitFire.dds": [
     "Combat Focus"
   ],
+  "Art/2DItems/Amulets/Malachai's BrillianceAmulet.dds": [
+    "Replica Dragonfang's Flight"
+  ],
   "Art/2DItems/Jewels/UnnaturalInstinct.dds": [
     "Unnatural Instinct"
   ],
@@ -3299,7 +3310,8 @@
     "Rotting Legion"
   ],
   "Art/2DItems/Amulets/AssassinUnique.dds": [
-    "Badge of the Brotherhood"
+    "Badge of the Brotherhood",
+    "Replica Badge of the Brotherhood"
   ],
   "Art/2DItems/Belts/85482.dds": [
     "Siegebreaker",
@@ -3804,6 +3816,78 @@
   ],
   "Art/2DItems/Weapons/OneHandWeapons/OneHandSwords/CrucibleSword.dds": [
     "The Redblade"
+  ],
+  "Art/2DItems/Armours/Boots/KahuturoaBoots.dds": [
+    "Kahuturoa's Certainty"
+  ],
+  "Art/2DItems/Belts/KaomBelt.dds": [
+    "Kaom's Binding"
+  ],
+  "Art/2DItems/Armours/Helmets/AkoyaMask.dds": [
+    "Akoya's Gaze"
+  ],
+  "Art/2DItems/Weapons/TwoHandWeapons/TwoHandSwords/RakiataSword.dds": [
+    "Rakiata's Dance"
+  ],
+  "Art/2DItems/Quivers/AhuanaQuiver.dds": [
+    "Ahuana's Bite"
+  ],
+  "Art/2DItems/Armours/Shields/KiloavaShield.dds": [
+    "Kiloava's Bluster"
+  ],
+  "Art/2DItems/Rings/TawhanukuRing.dds": [
+    "Tawhanuku's Timing"
+  ],
+  "Art/2DItems/Amulets/IkiahoAmulet.dds": [
+    "Arohongui's Tending"
+  ],
+  "Art/2DItems/Weapons/OneHandWeapons/Scepters/MaataSceptre.dds": [
+    "Maata's Teaching"
+  ],
+  "Art/2DItems/Armours/BodyArmours/UtalaBodyArmour.dds": [
+    "Kitava's Hunger"
+  ],
+  "Art/2DItems/Belts/HinekoraBelt.dds": [
+    "Bound Fate"
+  ],
+  "Art/2DItems/Amulets/HinekoraAmulet.dds": [
+    "Defiance of Destiny"
+  ],
+  "Art/2DItems/Rings/HinekoraRing.dds": [
+    "Honoured Alliance"
+  ],
+  "Art/2DItems/Jewels/HinekoraJewel.dds": [
+    "Warrior's Tale"
+  ],
+  "Art/2DItems/Jewels/TrialmasterJew.dds": [
+    "The Adorned"
+  ],
+  "Art/2DItems/Amulets/StringOfRings.dds": [
+    "The Untouched Soul"
+  ],
+  "Art/2DItems/Armours/BodyArmours/GreeneyesArmour.dds": [
+    "Pragmatism"
+  ],
+  "Art/2DItems/Weapons/TwoHandWeapons/Staves/VoodooKingStaff.dds": [
+    "The Burden of Shadows"
+  ],
+  "Art/2DItems/Jewels/AfflictionJewel.dds": [
+    "That Which Was Taken"
+  ],
+  "Art/2DItems/Armours/Helmets/AzmeriHelmet.dds": [
+    "The Trickster's Smile"
+  ],
+  "Art/2DItems/Weapons/OneHandWeapons/OneHandSwords/AfflictionSword.dds": [
+    "Nametaker"
+  ],
+  "Art/2DItems/Armours/Shields/AfflictionShield.dds": [
+    "The Flawed Refuge"
+  ],
+  "Art/2DItems/Rings/AltBreach.dds": [
+    "Ixchel's Temptation"
+  ],
+  "Art/2DItems/Armours/Boots/UltimatumBoots.dds": [
+    "Gamblesprint"
   ],
   "Art/2DItems/Jewels/GrandSpectrum2_red.dds": [
     "Grand Spectrum"
