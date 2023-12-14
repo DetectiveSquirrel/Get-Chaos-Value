@@ -217,7 +217,7 @@ public partial class Main
                         break;
                     }
                     case ItemTypes.SkillGem:
-                        var displayText = item.QualityType == SkillGemQualityTypeE.Superior ? item.BaseName : $"{item.QualityType} {item.BaseName}";
+                        var displayText = !string.IsNullOrEmpty(item.GemName) ? item.GemName : item.BaseName;
                         var fittingGems = CollectedData.SkillGems.Lines
                            .Where(x => x.Name == displayText).ToList();
                         var gemSearch = MoreLinq.MoreEnumerable.MaxBy(fittingGems,

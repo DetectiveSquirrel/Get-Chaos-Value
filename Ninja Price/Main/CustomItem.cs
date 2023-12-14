@@ -33,8 +33,8 @@ public class CustomItem
     public readonly int LargestLink = 0;
     public readonly string Path;
     public readonly int Quality;
-    public readonly SkillGemQualityTypeE QualityType;
     public readonly int GemLevel;
+    public string GemName;
     public readonly ItemRarity Rarity;
     public readonly int Sockets;
     public readonly List<string> UniqueNameCandidates;
@@ -104,8 +104,8 @@ public class CustomItem
 
             if (itemEntity.TryGetComponent<SkillGem>(out var skillGem))
             {
-                QualityType = skillGem.QualityType;
                 GemLevel = skillGem.Level;
+                GemName = skillGem.GemEffect?.Name;
             }
 
             if (itemEntity.TryGetComponent<Base>(out var @base))
