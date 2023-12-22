@@ -194,12 +194,14 @@ public partial class Main
                     case ItemTypes.Voidstone:
                     case ItemTypes.Compass:
                         var enchantedStatsTransformed = $"Sextant { string.Join(" ", item.EnchantedStats?.Where(x => !x.EndsWith(" uses remaining", StringComparison.Ordinal)) ?? []) }";
-                        if (CollectedData.CompassNameMapping.TryGetValue(enchantedStatsTransformed, out var shortCompassName) &&
-                            CollectedData.CompassPriceData.Data.Find(x => x.Name == shortCompassName) is { } dataLine)
+                        if (CollectedData.NoCaseCompassNameMapping.TryGetValue(enchantedStatsTransformed, out var shortCompassName))
                         {
-                            item.PriceData.MinChaosValue = dataLine.Chaos;
-                            item.PriceData.ChangeInLast7Days = 0;
                             item.PriceData.DetailsId = shortCompassName;
+                            if (CollectedData.CompassPriceData.Data.Find(x => x.Name == shortCompassName) is { } dataLine)
+                            {
+                                item.PriceData.MinChaosValue = dataLine.Chaos;
+                                item.PriceData.ChangeInLast7Days = 0;
+                            }
                         }
 
                         break;

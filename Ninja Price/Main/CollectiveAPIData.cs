@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Ninja_Price.API.PoeNinja;
 using Ninja_Price.API.Tft;
@@ -33,4 +34,8 @@ public class CollectiveApiData
     public Omens.RootObject Omens { get; set; } = new();
     public Compasses.PriceData CompassPriceData { get; set; } = new();
     public Dictionary<string, string> CompassNameMapping { get; set; } = new();
+    private Dictionary<string, string> _noCaseCompassNameMapping;
+
+    public Dictionary<string, string> NoCaseCompassNameMapping =>
+        _noCaseCompassNameMapping ??= new Dictionary<string, string>(CompassNameMapping, StringComparer.InvariantCultureIgnoreCase);
 }

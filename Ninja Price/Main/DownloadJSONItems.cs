@@ -37,7 +37,7 @@ public partial class Main
     private const string TattooUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Tattoo&language=en";
     private const string OmenUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Omen&language=en";
     private const string CompassPriceDataUrl = "https://raw.githubusercontent.com/The-Forbidden-Trove/tft-data-prices/master/lsc/bulk-compasses.json";
-    private const string CompassNameMappingUrl = "https://raw.githubusercontent.com/The-Forbidden-Trove/tft-data-prices/master/mappings/compasses.json";
+    private const string CompassNameMappingUrl = "https://raw.githubusercontent.com/exApiTools/tft-data-prices/master/mappings/compasses.json";
 
     private class LeagueMetadata
     {
