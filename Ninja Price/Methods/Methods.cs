@@ -191,6 +191,18 @@ public partial class Main
                             item.PriceData.DetailsId = omenSearch.DetailsId;
                         }
                         break;
+                    case ItemTypes.Voidstone:
+                    case ItemTypes.Compass:
+                        var enchantedStatsTransformed = $"Sextant { string.Join(" ", item.EnchantedStats?.Where(x => !x.EndsWith(" uses remaining", StringComparison.Ordinal)) ?? []) }";
+                        if (CollectedData.CompassNameMapping.TryGetValue(enchantedStatsTransformed, out var shortCompassName) &&
+                            CollectedData.CompassPriceData.Data.Find(x => x.Name == shortCompassName) is { } dataLine)
+                        {
+                            item.PriceData.MinChaosValue = dataLine.Chaos;
+                            item.PriceData.ChangeInLast7Days = 0;
+                            item.PriceData.DetailsId = shortCompassName;
+                        }
+
+                        break;
                     case ItemTypes.Artifact:
                         var artifactSearch = CollectedData.Artifacts.Lines.Find(x => x.Name == item.BaseName);
                         if (artifactSearch != null)

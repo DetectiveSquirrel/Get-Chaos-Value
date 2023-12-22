@@ -40,6 +40,7 @@ public class CustomItem
     public readonly List<string> UniqueNameCandidates;
     public readonly ItemTypes ItemType;
     public readonly ClusterJewelData ClusterJewelData;
+    public readonly List<string> EnchantedStats;
     public MapData MapInfo { get; set; } =  new MapData();
     public CurrencyData CurrencyInfo { get; set; } =  new CurrencyData();
     public Main.RelevantPriceData PriceData { get; set; } = new Main.RelevantPriceData();
@@ -120,6 +121,7 @@ public class CustomItem
                 Rarity = mods.ItemRarity;
                 IsIdentified = mods.Identified;
                 ItemLevel = mods.ItemLevel;
+                EnchantedStats = mods.EnchantedStats;
                 UniqueName = mods.UniqueName;
                 if (!IsIdentified && Rarity == ItemRarity.Unique)
                 {
@@ -195,13 +197,28 @@ public class CustomItem
 
             // sort items into types to use correct json data later from poe.ninja
             // This might need tweaking since if this catches anything other than currency.
-            if (ClassName == "StackableCurrency" && !BaseName.StartsWith("Crescent Splinter") && !BaseName.StartsWith("Simulacrum") &&
-                !BaseName.EndsWith("Delirium Orb") && !BaseName.Contains("Essence") && !BaseName.EndsWith(" Oil") && !BaseName.Contains("Tattoo ") && !BaseName.StartsWith("Omen ") && !BaseName.EndsWith("Artifact") &&
-                !BaseName.Contains("Astragali") && !BaseName.Contains("Burial Medallion") && !BaseName.Contains("Scrap Metal") && !BaseName.Contains("Exotic Coinage") &&
-                !BaseName.Contains("Remnant of") && !BaseName.Contains("Timeless ") && BaseName != "Prophecy" &&
-                ClassName != "MapFragment" && !BaseName.EndsWith(" Fossil") && !BaseName.StartsWith("Splinter of ") && ClassName != "Incubator" &&
-                !BaseName.EndsWith(
-                    " Catalyst") /*&& !BaseName.Contains("Shard") && BaseName != "Chaos Orb" && !BaseName.Contains("Wisdom")*/
+            if (ClassName == "StackableCurrency" && 
+                !BaseName.StartsWith("Crescent Splinter") &&
+                !BaseName.StartsWith("Simulacrum") &&
+                !BaseName.EndsWith("Delirium Orb") &&
+                !BaseName.Contains("Essence") &&
+                !BaseName.EndsWith(" Oil") &&
+                !BaseName.Contains("Tattoo ") &&
+                !BaseName.StartsWith("Omen ") &&
+                !BaseName.EndsWith("Artifact") &&
+                !BaseName.Contains("Astragali") &&
+                !BaseName.Contains("Burial Medallion") &&
+                !BaseName.Contains("Scrap Metal") &&
+                !BaseName.Contains("Exotic Coinage") &&
+                !BaseName.Contains("Remnant of") &&
+                !BaseName.Contains("Timeless ") &&
+                BaseName != "Prophecy" &&
+                BaseName != "Charged Compass" &&
+                ClassName != "MapFragment" &&
+                !BaseName.EndsWith(" Fossil") &&
+                !BaseName.StartsWith("Splinter of ") &&
+                ClassName != "Incubator" &&
+                !BaseName.EndsWith(" Catalyst")
                )
             {
                 ItemType = ItemTypes.Currency;
@@ -275,6 +292,14 @@ public class CustomItem
             else if (ClassName is "Support Skill Gem" or "Active Skill Gem")
             {
                 ItemType = ItemTypes.SkillGem;
+            }
+            else if (ClassName is "AtlasUpgradeItem")
+            {
+                ItemType = ItemTypes.Voidstone;
+            }
+            else if (BaseName is "Charged Compass")
+            {
+                ItemType = ItemTypes.Compass;
             }
             else if (Rarity != ItemRarity.Unique && BaseName is
                          "Large Cluster Jewel" or

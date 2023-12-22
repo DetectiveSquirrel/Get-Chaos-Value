@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Ninja_Price.API.PoeNinja;
+using Ninja_Price.API.Tft;
 
 namespace Ninja_Price.Main;
 
@@ -34,6 +36,8 @@ public partial class Main
     private const string ClusterJewelsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=ClusterJewel&language=en";
     private const string TattooUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Tattoo&language=en";
     private const string OmenUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Omen&language=en";
+    private const string CompassPriceDataUrl = "https://raw.githubusercontent.com/The-Forbidden-Trove/tft-data-prices/master/lsc/bulk-compasses.json";
+    private const string CompassNameMappingUrl = "https://raw.githubusercontent.com/The-Forbidden-Trove/tft-data-prices/master/mappings/compasses.json";
 
     private class LeagueMetadata
     {
@@ -89,6 +93,8 @@ public partial class Main
                 await LoadData<ClusterJewelNinjaData>("ClusterJewels.json", ClusterJewelsUrl, league, tryWebFirst, t => newData.ClusterJewels = t);
                 await LoadData<Tattoos.RootObject>("Tattoos.json", TattooUrl, league, tryWebFirst, t => newData.Tattoos = t);
                 await LoadData<Omens.RootObject>("Omens.json", OmenUrl, league, tryWebFirst, t => newData.Omens = t);
+                await LoadData<Compasses.PriceData>("CompassPriceData.json", CompassPriceDataUrl, league, tryWebFirst, t => newData.CompassPriceData = t);
+                await LoadData<Dictionary<string, string>>("CompassNameMapping.json", CompassNameMappingUrl, league, tryWebFirst, t => newData.CompassNameMapping = t);
 
                 new FileInfo(metadataPath).Directory?.Create();
                 await File.WriteAllTextAsync(metadataPath, JsonConvert.SerializeObject(new LeagueMetadata { LastLoadTime = DateTime.UtcNow }));

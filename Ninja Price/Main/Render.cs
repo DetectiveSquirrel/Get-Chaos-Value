@@ -281,6 +281,8 @@ public partial class Main
                 case ItemTypes.MavenInvitation:
                 case ItemTypes.SkillGem:
                 case ItemTypes.ClusterJewel:
+                case ItemTypes.Voidstone:
+                case ItemTypes.Compass:
                     if (priceInDivines >= 0.1)
                     {
                         AddText($"\nDivine: {priceInDivinesText}d");
