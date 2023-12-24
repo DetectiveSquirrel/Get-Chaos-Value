@@ -382,17 +382,20 @@ public partial class Main
                 var chaosValue = StashTabValue;
                 var topValueItems = ItemsToDrawList
                     .Where(x => x.PriceData.MinChaosValue != 0)
-                    .GroupBy(x => (x.PriceData.DetailsId, x.BaseName, x.UniqueName))
+                    .GroupBy(x => (x.PriceData.DetailsId, x.BaseName, x.UniqueName, x.ItemType))
                     .Select(group => new CustomItem
                     {
                         PriceData = { MinChaosValue = group.Sum(i => i.PriceData.MinChaosValue) },
                         CurrencyInfo = { StackSize = group.Sum(i => i.CurrencyInfo.StackSize) },
-                        BaseName = group.Key.BaseName,
+                        BaseName = group.Key.ItemType == ItemTypes.Compass || group.Key.ItemType == ItemTypes.Voidstone
+                            ? group.Key.DetailsId
+                            : group.Key.BaseName,
                         UniqueName = group.Key.UniqueName,
                     })
                     .OrderByDescending(x => x.PriceData.MinChaosValue)
                     .Take(Settings.VisibleStashValue.TopValuedItemCount.Value)
                     .ToList();
+
                 DrawWorthWidget(chaosValue, pos, Settings.VisibleStashValue.SignificantDigits.Value, Settings.UniTextColor, Settings.VisibleStashValue.EnableBackground,
                     topValueItems);
             }
