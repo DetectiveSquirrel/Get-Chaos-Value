@@ -106,8 +106,8 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         }
 
         mapping ??= GetEmbeddedUniqueArtMapping();
-        mapping ??= new Dictionary<string, List<string>>();
-        return mapping;
+        mapping ??= [];
+        return mapping.ToDictionary(x => x.Key, x => x.Value.Select(str => str.Replace('’', '\'')).ToList());
     }
 
     private Dictionary<string, List<string>> GetEmbeddedUniqueArtMapping()

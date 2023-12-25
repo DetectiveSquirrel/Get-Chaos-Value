@@ -13,6 +13,7 @@ using ExileCore.PoEMemory.MemoryObjects.Ancestor;
 using ExileCore.Shared.Cache;
 using ExileCore.Shared.Enums;
 using ExileCore.Shared.Helpers;
+using ExileCore.Shared.Nodes;
 using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
 using ImGuiNET;
@@ -203,132 +204,8 @@ public partial class Main
         ProcessExpeditionWindow();
         ProcessItemsOnGround();
         ProcessTradeWindow();
-        ProcessAncestorFightRewards();
-        // Hovered Item
-        if (HoveredItem != null && HoveredItem.ItemType != ItemTypes.None && Settings.HoveredItem.Value)
-        {
-            var textSections = new List<string> { "" };
-            void AddSection() => textSections.Add("");
-            void AddText(string text1) => textSections[^1] += text1;
-
-            var changeText = $"Change in last 7 Days: {HoveredItem.PriceData.ChangeInLast7Days}%%";
-            var changeTextLength = changeText.Length - 1;
-            var sectionBreak = $"\n{new string('-', changeTextLength)}\n";
-            if (HoveredItem.PriceData.ChangeInLast7Days != 0)
-            {
-                AddText(changeText);
-            }
-
-            var priceInDivines = HoveredItem.PriceData.MinChaosValue / DivinePrice;
-            var priceInDivinesText = priceInDivines.FormatNumber(2);
-            var minPriceText = HoveredItem.PriceData.MinChaosValue.FormatNumber(2, Settings.MaximalValueForFractionalDisplay);
-            AddSection();
-            switch (HoveredItem.ItemType)
-            {
-                case ItemTypes.Currency:
-                case ItemTypes.Essence:
-                case ItemTypes.Fragment:
-                case ItemTypes.Scarab:
-                case ItemTypes.Resonator:
-                case ItemTypes.Fossil:
-                case ItemTypes.Oil:
-                case ItemTypes.Artifact:
-                case ItemTypes.Catalyst:
-                case ItemTypes.DeliriumOrbs:
-                case ItemTypes.Vials:
-                case ItemTypes.DivinationCard:
-                case ItemTypes.Incubator:
-                case ItemTypes.Tattoo:
-                case ItemTypes.Omen:
-                    if (priceInDivines >= 0.1)
-                    {
-                        var priceInDivinessPerOne = priceInDivines / HoveredItem.CurrencyInfo.StackSize;
-                        AddText(priceInDivinessPerOne >= 0.1
-                                    ? $"\nDivine: {priceInDivinesText}d ({priceInDivinessPerOne.FormatNumber(2)}d per one)"
-                                    : $"\nDivine: {priceInDivinesText}d");
-                    }
-                    AddText($"\nChaos: {minPriceText}c ({(HoveredItem.PriceData.MinChaosValue / HoveredItem.CurrencyInfo.StackSize).FormatNumber(2, Settings.MaximalValueForFractionalDisplay)}c per one)");
-                    break;
-                case ItemTypes.UniqueAccessory:
-                case ItemTypes.UniqueArmour:
-                case ItemTypes.UniqueFlask:
-                case ItemTypes.UniqueJewel:
-                case ItemTypes.UniqueMap:
-                case ItemTypes.UniqueWeapon:
-                    if (HoveredItem.UniqueNameCandidates.Any())
-                    {
-                        AddText(HoveredItem.UniqueNameCandidates.Count == 1
-                                    ? $"\nIdentified as: {HoveredItem.UniqueNameCandidates.First()}"
-                                    : $"\nIdentified as one of:\n{string.Join('\n', HoveredItem.UniqueNameCandidates)}");
-                    }
-
-                    AddSection();
-                    if (priceInDivines >= 0.1)
-                    {
-                        var maxDivinePriceText = (HoveredItem.PriceData.MaxChaosValue / DivinePrice).FormatNumber(2);
-                        AddText(priceInDivinesText != maxDivinePriceText 
-                                    ? $"\nDivine: {priceInDivinesText}d - {maxDivinePriceText}d" 
-                                    : $"\nDivine: {priceInDivinesText}d");
-                    }
-
-                    var maxPriceText = HoveredItem.PriceData.MaxChaosValue.FormatNumber(2, Settings.MaximalValueForFractionalDisplay);
-                    AddText(minPriceText != maxPriceText 
-                                ? $"\nChaos: {minPriceText}c - {maxPriceText}c" 
-                                : $"\nChaos: {minPriceText}c");
-
-                    break;
-                case ItemTypes.Map:
-                case ItemTypes.MavenInvitation:
-                case ItemTypes.SkillGem:
-                case ItemTypes.ClusterJewel:
-                case ItemTypes.Voidstone:
-                case ItemTypes.Compass:
-                    if (priceInDivines >= 0.1)
-                    {
-                        AddText($"\nDivine: {priceInDivinesText}d");
-                    }
-
-                    AddText($"\nChaos: {minPriceText}c");
-                    break;
-            }
-
-            if (Settings.Debug)
-            {
-                AddSection();
-                AddText($"\nUniqueName: {HoveredItem.UniqueName}"
-                      + $"\nBaseName: {HoveredItem.BaseName}"
-                      + $"\nItemType: {HoveredItem.ItemType}"
-                      + $"\nMapType: {HoveredItem.MapInfo.MapType}"
-                      + $"\nDetailsId: {HoveredItem.PriceData.DetailsId}");
-            } 
-                
-            if (Settings.ArtifactChaosPrices)
-            {
-                if (TryGetArtifactPrice(HoveredItem, out var amount, out var artifactName))
-                {
-                    AddSection();
-                    AddText($"\nArtifact price: ({(HoveredItem.PriceData.MinChaosValue / amount * 100).FormatNumber(2)}c per 100 {artifactName})");
-                }
-            }
-
-            // var textMeasure = Graphics.MeasureText(text, 15);
-            //Graphics.DrawBox(new RectangleF(0, 0, textMeasure.Width, textMeasure.Height), Color.Black);
-            //Graphics.DrawText(text, new Vector2(50, 50), Color.White);
-
-            var tooltipText = string.Join(sectionBreak, textSections.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()));
-            if (!string.IsNullOrWhiteSpace(tooltipText))
-            {
-                ImGui.BeginTooltip();
-                ImGui.SetTooltip(tooltipText);
-                ImGui.EndTooltip();
-            }
-        }
-
-        // Inventory Value
+        ProcessHoveredItem();
         VisibleInventoryValue();
-
-        if (Settings.HelmetEnchantPrices)
-            ShowHelmetEnchantPrices();
 
         if (StashPanel.IsVisible)
         {
@@ -354,21 +231,136 @@ public partial class Main
                             break;
                     }
                 }
+            }
+        }
+    }
 
-                if (Settings.HighlightUniqueJunk)
+    private void ProcessHoveredItem()
+    {
+        if (!Settings.HoveredItemSettings.Show) return;
+        if (HoveredItem == null || HoveredItem.ItemType == ItemTypes.None) return;
+        var textSections = new List<string> { "" };
+        void AddSection() => textSections.Add("");
+        void AddText(string text) => textSections[^1] += text;
+
+        var changeText = $"Change in last 7 Days: {HoveredItem.PriceData.ChangeInLast7Days}%%";
+        var changeTextLength = changeText.Length - 1;
+        var sectionBreak = $"\n{new string('-', changeTextLength)}\n";
+        if (HoveredItem.PriceData.ChangeInLast7Days != 0)
+        {
+            AddText(changeText);
+        }
+
+        var priceInChaos = HoveredItem.PriceData.MinChaosValue;
+        var priceInDivines = priceInChaos / DivinePrice;
+        var priceInDivinesText = priceInDivines.FormatNumber(2);
+        var minPriceText = priceInChaos.FormatNumber(2, Settings.MaximalValueForFractionalDisplay);
+        AddSection();
+        switch (HoveredItem.ItemType)
+        {
+            case ItemTypes.Currency:
+            case ItemTypes.Essence:
+            case ItemTypes.Fragment:
+            case ItemTypes.Scarab:
+            case ItemTypes.Resonator:
+            case ItemTypes.Fossil:
+            case ItemTypes.Oil:
+            case ItemTypes.Artifact:
+            case ItemTypes.Catalyst:
+            case ItemTypes.DeliriumOrbs:
+            case ItemTypes.Vials:
+            case ItemTypes.DivinationCard:
+            case ItemTypes.Incubator:
+            case ItemTypes.Tattoo:
+            case ItemTypes.Omen:
+                if (priceInDivines >= 0.1)
                 {
-                    if (customItem.ItemType == ItemTypes.None || customItem.ItemType == ItemTypes.Currency) continue;
-                    HighlightJunkUniques(customItem);
+                    var priceInDivinessPerOne = priceInDivines / HoveredItem.CurrencyInfo.StackSize;
+                    AddText(priceInDivinessPerOne >= 0.1
+                        ? $"\nDivine: {priceInDivinesText}d ({priceInDivinessPerOne.FormatNumber(2)}d per one)"
+                        : $"\nDivine: {priceInDivinesText}d");
                 }
+                AddText($"\nChaos: {minPriceText}c ({(priceInChaos / HoveredItem.CurrencyInfo.StackSize).FormatNumber(2, Settings.MaximalValueForFractionalDisplay)}c per one)");
+                break;
+            case ItemTypes.UniqueAccessory:
+            case ItemTypes.UniqueArmour:
+            case ItemTypes.UniqueFlask:
+            case ItemTypes.UniqueJewel:
+            case ItemTypes.UniqueMap:
+            case ItemTypes.UniqueWeapon:
+                if (HoveredItem.UniqueNameCandidates.Any())
+                {
+                    AddText(HoveredItem.UniqueNameCandidates.Count == 1
+                        ? $"\nIdentified as: {HoveredItem.UniqueNameCandidates.First()}"
+                        : $"\nIdentified as one of:\n{string.Join('\n', HoveredItem.UniqueNameCandidates)}");
+                }
+
+                AddSection();
+                if (priceInDivines >= 0.1)
+                {
+                    var maxDivinePriceText = (HoveredItem.PriceData.MaxChaosValue / DivinePrice).FormatNumber(2);
+                    AddText(priceInDivinesText != maxDivinePriceText 
+                        ? $"\nDivine: {priceInDivinesText}d - {maxDivinePriceText}d" 
+                        : $"\nDivine: {priceInDivinesText}d");
+                }
+
+                var maxPriceText = HoveredItem.PriceData.MaxChaosValue.FormatNumber(2, Settings.MaximalValueForFractionalDisplay);
+                AddText(minPriceText != maxPriceText 
+                    ? $"\nChaos: {minPriceText}c - {maxPriceText}c" 
+                    : $"\nChaos: {minPriceText}c");
+
+                break;
+            case ItemTypes.Map:
+            case ItemTypes.MavenInvitation:
+            case ItemTypes.SkillGem:
+            case ItemTypes.ClusterJewel:
+            case ItemTypes.Voidstone:
+            case ItemTypes.Compass:
+                if (priceInDivines >= 0.1)
+                {
+                    AddText($"\nDivine: {priceInDivinesText}d");
+                }
+
+                AddText($"\nChaos: {minPriceText}c");
+                break;
+        }
+
+        if (Settings.Debug)
+        {
+            AddSection();
+            AddText($"\nUniqueName: {HoveredItem.UniqueName}"
+                    + $"\nBaseName: {HoveredItem.BaseName}"
+                    + $"\nItemType: {HoveredItem.ItemType}"
+                    + $"\nMapType: {HoveredItem.MapInfo.MapType}"
+                    + $"\nDetailsId: {HoveredItem.PriceData.DetailsId}");
+        } 
+                
+        if (Settings.ArtifactChaosPrices)
+        {
+            if (TryGetArtifactPrice(HoveredItem, out var amount, out var artifactName))
+            {
+                AddSection();
+                AddText($"\nArtifact price: ({(priceInChaos / amount * 100).FormatNumber(2)}c per 100 {artifactName})");
+            }
+        }
+
+        var tooltipText = string.Join(sectionBreak, textSections.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()));
+        if (!string.IsNullOrWhiteSpace(tooltipText))
+        {
+            ImGui.BeginTooltip();
+            var valuable = priceInChaos >= Settings.HoveredItemSettings.ValuableColorThreshold.Value;
+            if (valuable)
+            {
+                ImGui.PushStyleColor(ImGuiCol.Text, Settings.HoveredItemSettings.ValuableColor.Value.ToImgui());
             }
 
-            if (Settings.HighlightUniqueJunk)
-                foreach (var customItem in InventoryItemsToDrawList)
-                {
-                    if (customItem.ItemType == ItemTypes.None || customItem.ItemType == ItemTypes.Currency) continue;
+            ImGui.TextUnformatted(tooltipText);
+            if (valuable)
+            {
+                ImGui.PopStyleColor();
+            }
 
-                    HighlightJunkUniques(customItem);
-                }
+            ImGui.EndTooltip();
         }
     }
 
@@ -438,9 +430,9 @@ public partial class Main
         try
         {
             var inventory = GameController.Game.IngameState.IngameUi.InventoryPanel;
-            if (!Settings.VisibleInventoryValue.Value || !inventory.IsVisible) return;
+            if (!Settings.InventoryValueSettings.Show.Value || !inventory.IsVisible) return;
             {
-                var pos = new Vector2(Settings.InventoryValueX.Value, Settings.InventoryValueY.Value);
+                var pos = new Vector2(Settings.InventoryValueSettings.PositionX.Value, Settings.InventoryValueSettings.PositionY.Value);
                 DrawWorthWidget(InventoryTabValue, pos, Settings.VisibleStashValue.SignificantDigits.Value, Settings.UniTextColor, false, new List<CustomItem>());
             }
         }
@@ -572,7 +564,7 @@ public partial class Main
 
     private void ProcessTradeWindow()
     {
-        if (!Settings.ShowTradeWindowValue) return;
+        if (!Settings.TradeWindowSettings.Show) return;
 
         var (yourItems, theirItems, element) =
             (GameController.IngameState.IngameUi.TradeWindow,
@@ -597,38 +589,13 @@ public partial class Main
         var yourTradeWindowValue = yourFormattedItems.Sum(x => x.PriceData.MinChaosValue);
         var theirTradeWindowValue = theirFormatterItems.Sum(x => x.PriceData.MinChaosValue);
         var textPosition = new Vector2(element.GetClientRectCache.Right, element.GetClientRectCache.Center.Y - ImGui.GetTextLineHeight() * 3) 
-                         + new Vector2(Settings.TradeWindowValueOffsetX, Settings.TradeWindowValueOffsetY);
+                         + new Vector2(Settings.TradeWindowSettings.OffsetX, Settings.TradeWindowSettings.OffsetY);
         DrawWorthWidget(theirTradeWindowValue, textPosition, 2, Settings.UniTextColor, true, new List<CustomItem>());
         textPosition.Y += ImGui.GetTextLineHeight() * 2;
         var diff = theirTradeWindowValue - yourTradeWindowValue;
         DrawWorthWidget(diff, textPosition, 2, diff switch { > 0 => Color.Green, 0 => Settings.UniTextColor, < 0 => Color.Red, double.NaN => Color.Purple }, true, new List<CustomItem>());
         textPosition.Y += ImGui.GetTextLineHeight() * 2;
         DrawWorthWidget(yourTradeWindowValue, textPosition, 2, Settings.UniTextColor, true, new List<CustomItem>());
-    }
-
-    private void ProcessAncestorFightRewards()
-    {
-        if ((!Settings.VisibleStashValue.CurrencyTabSettings.DoNotDrawWhileAnItemIsHovered || HoveredItem == null) &&
-            GameController.IngameState.IngameUi.AncestorFightSelectionWindow is { IsVisible: true, Options: { Count: > 0 } options } window)
-        {
-            var containerBounds = window.TableContainer.GetClientRectCache;
-            foreach (var x in options)
-            {
-                try
-                {
-                    var customItem = new CustomItem(x.Reward, x.RewardElement);
-                    GetValue(customItem);
-                    PriceBoxOverItem(customItem, containerBounds,
-                        customItem.PriceData.MinChaosValue >= Settings.AncestorSettings.SpecialRewardValueThreshold
-                            ? Settings.AncestorSettings.SpecialRewardColor
-                            : Settings.AncestorSettings.DefaultRewardColor);
-                }
-                catch (Exception ex)
-                {
-                    LogError(ex.ToString());
-                }
-            }
-        }
     }
 
     private void ProcessItemsOnGround()
@@ -676,7 +643,7 @@ public partial class Main
                             }
                         }
 
-                        if (Settings.GroundItemSettings.DisplayRealUniqueNameOnGround && !item.IsIdentified && item.UniqueNameCandidates.Any())
+                        if (Settings.GroundItemSettings.DisplayRealUniqueNameOnGround && !item.IsIdentified)
                         {
                             float GetRatio(string text)
                             {
@@ -684,27 +651,43 @@ public partial class Main
                                 return Math.Min(box.Width * Settings.GroundItemSettings.UniqueLabelSize / textSize.X, (box.Height - 2) / textSize.Y);
                             }
 
-                            var isValuable = item.PriceData.MaxChaosValue >= Settings.GroundItemSettings.ValuableUniqueOnGroundValueThreshold;
-                            if (Settings.GroundItemSettings.OnlyDisplayRealUniqueNameForValuableUniques && !isValuable)
+                            void DrawOnItemLabel(float scale, string text, Color backgroundColor, Color textColor)
                             {
-                                continue;
+                                ImGui.SetWindowFontScale(scale);
+                                var newTextSize = ImGui.CalcTextSize(text);
+                                var textPosition = box.Center.ToVector2Num() - newTextSize / 2;
+                                var rectPosition = new Vector2(textPosition.X, box.Top + 1);
+                                drawList.AddRectFilled(rectPosition, rectPosition + new Vector2(newTextSize.X, box.Height - 2), backgroundColor.ToImgui());
+                                drawList.AddText(textPosition, textColor.ToImgui(), text);
+                                ImGui.SetWindowFontScale(1);
                             }
 
-                            var textColor = isValuable ? Settings.GroundItemSettings.ValuableUniqueItemNameTextColor : Settings.GroundItemSettings.UniqueItemNameTextColor;
-                            var backgroundColor = isValuable ? Settings.GroundItemSettings.ValuableUniqueItemNameBackgroundColor : Settings.GroundItemSettings.UniqueItemNameBackgroundColor;
-                            var (text, ratio) = Enumerable.Range(1, item.UniqueNameCandidates.Count).Select(perOneLine =>
-                                    string.Join('\n', MoreLinq.Extensions.BatchExtension.Batch(item.UniqueNameCandidates, perOneLine)
-                                       .Select(onLine => string.Join(" / ", onLine))))
-                               .Select(text => (text, ratio: GetRatio(text)))
-                               .MaxBy(x => x.ratio);
+                            if (item.UniqueNameCandidates.Any())
+                            {
+                                var isValuable = item.PriceData.MaxChaosValue >= Settings.GroundItemSettings.ValuableUniqueOnGroundValueThreshold;
+                                if (Settings.GroundItemSettings.OnlyDisplayRealUniqueNameForValuableUniques && !isValuable)
+                                {
+                                    continue;
+                                }
 
-                            ImGui.SetWindowFontScale(ratio);
-                            var newTextSize = ImGui.CalcTextSize(text);
-                            var textPosition = box.Center.ToVector2Num() - newTextSize / 2;
-                            var rectPosition = new Vector2(textPosition.X, box.Top + 1);
-                            drawList.AddRectFilled(rectPosition, rectPosition + new Vector2(newTextSize.X, box.Height - 2), backgroundColor.Value.ToImgui());
-                            drawList.AddText(textPosition, textColor.Value.ToImgui(), text);
-                            ImGui.SetWindowFontScale(1);
+                                var textColor = isValuable ? Settings.GroundItemSettings.ValuableUniqueItemNameTextColor : Settings.GroundItemSettings.UniqueItemNameTextColor;
+                                var backgroundColor = isValuable
+                                    ? Settings.GroundItemSettings.ValuableUniqueItemNameBackgroundColor
+                                    : Settings.GroundItemSettings.UniqueItemNameBackgroundColor;
+                                var (text, ratio) = Enumerable.Range(1, item.UniqueNameCandidates.Count).Select(perOneLine =>
+                                        string.Join('\n', MoreLinq.Extensions.BatchExtension.Batch(item.UniqueNameCandidates, perOneLine)
+                                            .Select(onLine => string.Join(" / ", onLine))))
+                                    .Select(text => (text, ratio: GetRatio(text)))
+                                    .MaxBy(x => x.ratio);
+
+                                DrawOnItemLabel(ratio, text, backgroundColor, textColor);
+                            }
+                            else if (Settings.GroundItemSettings.DisplayWarningTextForUnknownUniques)
+                            {
+                                const string text = "???";
+                                var ratio = GetRatio(text);
+                                DrawOnItemLabel(ratio, text, Color.Blue, Color.Red);
+                            }
                         }
                     }
                     break;
@@ -738,63 +721,6 @@ public partial class Main
         }
 
         ImGui.End();
-    }
-
-    /// <summary>
-    ///     Displays price for unique items, and highlights the uniques under X value by drawing a border arround them.
-    /// </summary>
-    /// <param name="item"></param>
-    private void HighlightJunkUniques(CustomItem item)
-    {
-        var hoverUi = GameController.Game.IngameState.UIHoverTooltip.Tooltip;
-        if (hoverUi != null && (item.Rarity != ItemRarity.Unique || hoverUi.GetClientRect().Intersects(item.Element.GetClientRect()) && hoverUi.IsVisibleLocal)) return;
-
-        if (item.PriceData.MinChaosValue >= Settings.InventoryValueCutOff.Value) return;
-        var rec = item.Element.GetClientRect();
-        var fontSize = Settings.HighlightFontSize.Value;
-        // var backgroundBox = Graphics.MeasureText($"{chaosValueSignificanDigits}", fontSize);
-        var position = new Vector2(rec.TopRight.X - fontSize, rec.TopRight.Y);
-
-        //Graphics.DrawBox(new RectangleF(position.X - backgroundBox.Width, position.Y, backgroundBox.Width, backgroundBox.Height), Color.Black);
-        Graphics.DrawText(item.PriceData.MinChaosValue.FormatNumber(Settings.HighlightSignificantDigits.Value), 
-            position, Settings.UniTextColor, FontAlign.Center);
-        //Graphics.DrawFrame(item.Item.GetClientRect(), 2, Settings.HighlightColor.Value);
-    }
-
-
-    private void ShowHelmetEnchantPrices()
-    {
-        Element GetElementByString(Element element, string str)
-        {
-            if (string.IsNullOrWhiteSpace(str))
-                return null;
-
-            if (element.Text != null && element.Text.Contains(str))
-                return element;
-
-            return element.Children.Select(c => GetElementByString(c, str)).FirstOrDefault(e => e != null);
-        }
-            
-        var ingameUi = GameController.Game.IngameState.IngameUi;
-        if (!ingameUi.LabyrinthDivineFontPanel.IsVisible) return;
-        var triggerEnchantment = GetElementByString(ingameUi.LabyrinthDivineFontPanel, "lvl ");
-        var enchantmentContainer = triggerEnchantment?.Parent?.Parent;
-        if(enchantmentContainer == null) return;
-        var enchants = enchantmentContainer.Children.Select(c => new {Name = c.Children[1].Text, ContainerElement = c});
-        foreach (var enchant in enchants)
-        {
-            var data = GetHelmetEnchantValue(enchant.Name);
-            if (data == null) continue;
-            var box = enchant.ContainerElement.GetClientRect();
-            var drawBox = new RectangleF(box.X + box.Width, box.Y - 2, 65, box.Height);
-            var position = new Vector2(drawBox.Center.X, drawBox.Center.Y - 7);
-
-            var textColor = data.PriceData.MinChaosValue >= DivinePrice ? Color.Black : Color.White;
-            var bgColor = data.PriceData.MinChaosValue >= DivinePrice ? Color.Goldenrod : Color.Black;
-            Graphics.DrawBox(drawBox, bgColor);
-            Graphics.DrawFrame(drawBox, Color.Black, 1);
-            Graphics.DrawText($"{data.PriceData.MinChaosValue.FormatNumber(2)}c", position, textColor, FontAlign.Center);
-        }
     }
 
     private bool TryGetArtifactPrice(CustomItem item, out double amount, out string artifactName)

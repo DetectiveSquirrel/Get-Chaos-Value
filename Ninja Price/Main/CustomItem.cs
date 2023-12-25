@@ -122,18 +122,17 @@ public class CustomItem
                 IsIdentified = mods.Identified;
                 ItemLevel = mods.ItemLevel;
                 EnchantedStats = mods.EnchantedStats;
-                UniqueName = mods.UniqueName;
+                UniqueName = mods.UniqueName?.Replace('’', '\'');
                 if (!IsIdentified && Rarity == ItemRarity.Unique)
                 {
                     var artPath = itemEntity.GetComponent<RenderItem>()?.ResourcePath;
                     if (artPath != null)
                     {
                         UniqueNameCandidates = (Core.UniqueArtMapping.GetValueOrDefault(artPath) ?? Enumerable.Empty<string>())
-                            .Where(x => !x.StartsWith("Replica "))
+                            .Where(x => !x.StartsWith("Replica ") || x.StartsWith("Replica Dragonfang's Flight"))
                             .ToList();
                     }
                 }
-
             }
 
             UniqueNameCandidates ??= new List<string>();
