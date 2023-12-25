@@ -204,6 +204,7 @@ public partial class Main
         ProcessExpeditionWindow();
         ProcessItemsOnGround();
         ProcessTradeWindow();
+        ProcessDivineFontRewards();
         ProcessHoveredItem();
         VisibleInventoryValue();
 
@@ -596,6 +597,27 @@ public partial class Main
         DrawWorthWidget(diff, textPosition, 2, diff switch { > 0 => Color.Green, 0 => Settings.UniTextColor, < 0 => Color.Red, double.NaN => Color.Purple }, true, new List<CustomItem>());
         textPosition.Y += ImGui.GetTextLineHeight() * 2;
         DrawWorthWidget(yourTradeWindowValue, textPosition, 2, Settings.UniTextColor, true, new List<CustomItem>());
+    }
+
+    private void ProcessDivineFontRewards()
+    {
+        if ((!Settings.VisibleStashValue.CurrencyTabSettings.DoNotDrawWhileAnItemIsHovered || HoveredItem == null) &&
+            GameController.IngameState.IngameUi.LabyrinthDivineFontPanel is { IsVisible: true, GemElements: { Count: > 0 } options })
+        {
+            foreach (var x in options.Where(x => x.IsVisible))
+            {
+                try
+                {
+                    var customItem = new CustomItem(x[0].Entity, x);
+                    GetValue(customItem);
+                    PriceBoxOverItem(customItem, null, Color.White);
+                }
+                catch (Exception ex)
+                {
+                    LogError(ex.ToString());
+                }
+            }
+        }
     }
 
     private void ProcessItemsOnGround()
