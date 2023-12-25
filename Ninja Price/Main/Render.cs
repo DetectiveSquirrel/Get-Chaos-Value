@@ -388,7 +388,7 @@ public partial class Main
                         PriceData = { MinChaosValue = group.Sum(i => i.PriceData.MinChaosValue) },
                         CurrencyInfo = { StackSize = group.Sum(i => i.CurrencyInfo.StackSize) },
                         BaseName = group.Key.ItemType == ItemTypes.Compass
-                            ? group.Key.DetailsId
+                            ? $"Compass ({group.Key.DetailsId})"
                             : group.Key.BaseName,
                         UniqueName = group.Key.UniqueName,
                     })
