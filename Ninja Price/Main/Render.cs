@@ -643,7 +643,7 @@ public partial class Main
                             }
                         }
 
-                        if (Settings.GroundItemSettings.DisplayRealUniqueNameOnGround && !item.IsIdentified)
+                        if (Settings.GroundItemSettings.DisplayRealUniqueNameOnGround && !item.IsIdentified && item.Rarity == ItemRarity.Unique)
                         {
                             float GetRatio(string text)
                             {
