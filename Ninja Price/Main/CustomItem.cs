@@ -29,6 +29,7 @@ public class CustomItem
     public readonly bool IsWeapon;
     public readonly bool IsHovered;
     public readonly Element Element;
+    public readonly Entity Entity;
     public readonly int ItemLevel;
     public readonly int LargestLink = 0;
     public readonly string Path;
@@ -79,6 +80,7 @@ public class CustomItem
                 Element = element;
 
             Path = itemEntity.Path;
+            Entity = itemEntity;
             var baseItemType = Core.GameController.Files.BaseItemTypes.Translate(itemEntity.Path);
             ClassName = baseItemType.ClassName;
             BaseName = baseItemType.BaseName;

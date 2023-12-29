@@ -9,6 +9,7 @@ using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
+using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.PoEMemory.MemoryObjects.Ancestor;
 using ExileCore.Shared.Cache;
 using ExileCore.Shared.Enums;
@@ -42,33 +43,59 @@ public partial class Main
 
     public CustomItem HoveredItem { get; set; }
 
-    private readonly CachedValue<List<(CustomItem, GroundItemProcessingType)>> _groundItems;
+    private readonly CachedValue<List<ItemOnGround>> _slowGroundItems;
+    private readonly CachedValue<List<ItemOnGround>> _groundItems;
 
     public Main()
     {
-        _groundItems = new TimeCache<List<(CustomItem, GroundItemProcessingType)>>(GetItemsOnGround, 500);
+        _slowGroundItems = new TimeCache<List<ItemOnGround>>(GetItemsOnGroundSlow, 500);
+        _groundItems = new FrameCache<List<ItemOnGround>>(CacheUtils.RememberLastValue(GetItemsOnGround, new List<ItemOnGround>()));
     }
 
-    private List<(CustomItem item, GroundItemProcessingType type)> GetItemsOnGround()
+    private List<ItemOnGround> GetItemsOnGround(List<ItemOnGround> previousValue)
+    {
+        var prevDict = previousValue
+            .Where(x => x.Type == GroundItemProcessingType.WorldItem)
+            .DistinctBy(x => (x.Item.Element?.Address, x.Item.Entity?.Address))
+            .ToDictionary(x => (x.Item.Element?.Address, x.Item.Entity?.Address));
+        var labelsOnGround = GameController.IngameState.IngameUi.ItemsOnGroundLabelElement.VisibleGroundItemLabels;
+        var result = new List<ItemOnGround>();
+        foreach (var description in labelsOnGround)
+        {
+            if (description.Entity.TryGetComponent<WorldItem>(out var worldItem) &&
+                worldItem.ItemEntity is { IsValid: true } groundItemEntity)
+            {
+                var customItem = prevDict.GetValueOrDefault((description.Label?.Address, groundItemEntity.Address))?.Item;
+                if (customItem == null)
+                {
+                    customItem = new CustomItem(groundItemEntity, description.Label);
+                    GetValue(customItem);
+                }
+
+                var useRawPosition = Settings.GroundItemSettings.AlwaysUseRawElementPosition ||
+                                     Settings.GroundItemSettings.UseRawElementPositionWhileMoving &&
+                                     Entity.Player.GetComponent<Actor>()?.isMoving == true;
+                result.Add(new ItemOnGround(customItem, GroundItemProcessingType.WorldItem, useRawPosition ? null : description.ClientRect));
+            }
+        }
+        result.AddRange(_slowGroundItems.Value);
+        return result;
+    }
+    private List<ItemOnGround> GetItemsOnGroundSlow()
     {
         var labelsOnGround = GameController.IngameState.IngameUi.ItemsOnGroundLabelsVisible;
-        var result = new List<(CustomItem item, GroundItemProcessingType type)>();
+        var result = new List<ItemOnGround>();
         foreach (var labelOnGround in labelsOnGround)
         {
             var item = labelOnGround.ItemOnGround;
-            if (item.TryGetComponent<WorldItem>(out var worldItem) &&
-                worldItem.ItemEntity is { IsValid: true } groundItemEntity)
-            {
-                result.Add((new CustomItem(groundItemEntity, labelOnGround.Label), GroundItemProcessingType.WorldItem));
-            }
-            else if (item.TryGetComponent<HeistRewardDisplay>(out var heistReward) &&
+            if (item.TryGetComponent<HeistRewardDisplay>(out var heistReward) &&
                      heistReward.RewardItem is { IsValid: true } heistItemEntity)
             {
-                result.Add((new CustomItem(heistItemEntity, labelOnGround.Label), GroundItemProcessingType.HeistReward));
+                result.Add(new ItemOnGround(new CustomItem(heistItemEntity, labelOnGround.Label), GroundItemProcessingType.HeistReward, null));
             }
         }
 
-        result.ForEach(x => GetValue(x.item));
+        result.ForEach(x => GetValue(x.Item));
         return result;
     }
 
@@ -635,9 +662,9 @@ public partial class Main
         var rightPanelRect = GameController.IngameState.IngameUi.OpenRightPanel.Address != 0
                                  ? GameController.IngameState.IngameUi.OpenRightPanel.GetClientRectCache
                                  : RectangleF.Empty;
-        foreach (var (item, processingType) in _groundItems.Value)
+        foreach (var (item, processingType, clientRect) in _groundItems.Value)
         {
-            var box = item.Element.GetClientRect();
+            var box = clientRect ?? item.Element.GetClientRect();
             switch (processingType)
             {
                 case GroundItemProcessingType.WorldItem:
@@ -799,3 +826,5 @@ public partial class Main
         return false;
     }
 }
+
+internal record ItemOnGround(CustomItem Item, GroundItemProcessingType Type, RectangleF? ClientRect);

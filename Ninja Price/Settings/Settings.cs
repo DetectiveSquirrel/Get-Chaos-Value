@@ -108,6 +108,12 @@ public class GroundItemSettings
     [ConditionalDisplay(nameof(PriceItemsOnGround))]
     public ColorNode GroundPriceBackgroundColor { get; set; } = new(Color.Black);
 
+    [ConditionalDisplay(nameof(PriceItemsOnGround))]
+    public ToggleNode UseRawElementPositionWhileMoving { get; set; } = new(true);
+
+    [ConditionalDisplay(nameof(PriceItemsOnGround))]
+    public ToggleNode AlwaysUseRawElementPosition { get; set; } = new(false);
+
     public ToggleNode DisplayRealUniqueNameOnGround { get; set; } = new(true);
 
     public ToggleNode OnlyDisplayRealUniqueNameForValuableUniques { get; set; } = new(false);
