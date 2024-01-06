@@ -60,7 +60,7 @@ public class CustomItem
     public class CurrencyData
     {
         public bool IsShard;
-        public int StackSize;
+        public int StackSize = 1;
         public int MaxStackSize = 0;
     }
 
@@ -219,8 +219,8 @@ public class CustomItem
                 !BaseName.EndsWith(" Fossil") &&
                 !BaseName.StartsWith("Splinter of ") &&
                 ClassName != "Incubator" &&
-                !BaseName.EndsWith(" Catalyst")
-               )
+                !BaseName.EndsWith(" Catalyst") &&
+                BaseName != "Valdo's Puzzle Box")
             {
                 ItemType = ItemTypes.Currency;
             }
@@ -254,7 +254,9 @@ public class CustomItem
             }
             else if (((ClassName == "MapFragment" || BaseName.Contains("Timeless ") || BaseName.StartsWith("Simulacrum")) && !BaseName.EndsWith(" Scarab")) ||
                      ClassName == "StackableCurrency" && BaseName.StartsWith("Splinter of ") ||
-                     BaseName.StartsWith("Crescent Splinter"))
+                     BaseName.StartsWith("Crescent Splinter") ||
+                     ClassName == "VaultKey" ||
+                     BaseName == "Valdo's Puzzle Box")
             {
                 ItemType = ItemTypes.Fragment;
             }
