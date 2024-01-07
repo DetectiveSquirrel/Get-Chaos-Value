@@ -124,7 +124,7 @@ public class CustomItem
                 IsIdentified = mods.Identified;
                 ItemLevel = mods.ItemLevel;
                 EnchantedStats = mods.EnchantedStats;
-                UniqueName = mods.UniqueName?.Replace('’', '\'');
+                UniqueName = mods.UniqueName?.Replace('\x2019', '\x27');
                 if (!IsIdentified && Rarity == ItemRarity.Unique)
                 {
                     var artPath = itemEntity.GetComponent<RenderItem>()?.ResourcePath;
