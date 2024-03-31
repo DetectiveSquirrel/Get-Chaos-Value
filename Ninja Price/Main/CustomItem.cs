@@ -248,11 +248,11 @@ public class CustomItem
             {
                 ItemType = ItemTypes.DivinationCard;
             }
-            else if (BaseName.Contains("Essence") || BaseName.Contains("Remnant of"))
+            else if (BaseName.Contains("Essence") || BaseName.Contains("Remnant of") && !Path.StartsWith("Metadata/Items/Scarabs/"))
             {
                 ItemType = ItemTypes.Essence;
             }
-            else if (((ClassName == "MapFragment" || BaseName.Contains("Timeless ") || BaseName.StartsWith("Simulacrum")) && !BaseName.EndsWith(" Scarab")) ||
+            else if (((ClassName == "MapFragment" || BaseName.Contains("Timeless ") || BaseName.StartsWith("Simulacrum")) && !Path.StartsWith("Metadata/Items/Scarabs/")) ||
                      ClassName == "StackableCurrency" && BaseName.StartsWith("Splinter of ") ||
                      BaseName.StartsWith("Crescent Splinter") ||
                      ClassName == "VaultKey" ||
@@ -260,7 +260,7 @@ public class CustomItem
             {
                 ItemType = ItemTypes.Fragment;
             }
-            else if (ClassName == "MapFragment" && BaseName.EndsWith(" Scarab"))
+            else if (ClassName == "MapFragment" && Path.StartsWith("Metadata/Items/Scarabs/"))
             {
                 ItemType = ItemTypes.Scarab;
             }
