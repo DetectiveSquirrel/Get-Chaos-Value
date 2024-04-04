@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using ExileCore;
+using ExileCore.PoEMemory.FilesInMemory;
 using ExileCore.PoEMemory.MemoryObjects;
 using Newtonsoft.Json;
 using Ninja_Price.API.PoeNinja.Classes;
@@ -19,6 +22,10 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
     private const string DefaultUniqueArtMappingPath = "uniqueArtMapping.default.json";
     private int _updating;
     public Dictionary<string, List<string>> UniqueArtMapping = new Dictionary<string, List<string>>();
+    private readonly ConcurrentDictionary<NecropolisCraftingMod, string> _necropolisModText = [];
+
+    [GeneratedRegex("<[^>]*>{{(?<data>[^}]*)}}")]
+    private static partial Regex StripTagsRegex();
 
     public override bool Initialise()
     {

@@ -191,19 +191,26 @@ public partial class Main
                             item.PriceData.DetailsId = omenSearch.DetailsId;
                         }
                         break;
-                    case ItemTypes.Voidstone:
-                    case ItemTypes.Compass:
-                        var enchantedStatsTransformed = $"Sextant { string.Join(" ", item.EnchantedStats?.Where(x => !x.EndsWith(" uses remaining", StringComparison.Ordinal)) ?? []) }";
-                        if (CollectedData.NoCaseCompassNameMapping.TryGetValue(enchantedStatsTransformed, out var shortCompassName))
+                    case ItemTypes.Coffin:
+                        if (item.NecropolisMod is { } craftingMod)
                         {
-                            item.PriceData.DetailsId = shortCompassName;
-                            if (CollectedData.CompassPriceData.Data.Find(x => x.Name == shortCompassName) is { } dataLine)
+                            var modText = _necropolisModText.GetOrAdd(craftingMod, m =>
                             {
-                                item.PriceData.MinChaosValue = dataLine.Chaos;
-                                item.PriceData.ChangeInLast7Days = 0;
+                                var r = StripTagsRegex();
+                                var dict = m.Stats.Zip(m.StatValues).Select(x => new Dictionary<GameStat, int> { { x.First.MatchingStat, x.Second } })
+                                    .Select(GameController.Game.Files.NecropolisStatDescriptions.TranslateMod).ToList();
+                                return r.Replace(string.Join(", ", dict), "${data}");
+                            });
+
+                            var coffinSearch = MoreLinq.MoreEnumerable.MaxBy(CollectedData.Coffins.lines.Where(x => x.name == modText),
+                                x => (x.levelRequired == item.ItemLevel, x.levelRequired > item.ItemLevel ? -x.levelRequired : 0)).MinBy(x => x.chaosValue);
+                            if (coffinSearch != null)
+                            {
+                                item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * coffinSearch.chaosValue ?? 0;
+                                item.PriceData.ChangeInLast7Days = coffinSearch.sparkline.totalChange ?? 0;
+                                item.PriceData.DetailsId = coffinSearch.detailsId;
                             }
                         }
-
                         break;
                     case ItemTypes.Artifact:
                         var artifactSearch = CollectedData.Artifacts.Lines.Find(x => x.Name == item.BaseName);

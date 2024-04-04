@@ -10,11 +10,9 @@ using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements;
 using ExileCore.PoEMemory.Elements.InventoryElements;
 using ExileCore.PoEMemory.MemoryObjects;
-using ExileCore.PoEMemory.MemoryObjects.Ancestor;
 using ExileCore.Shared.Cache;
 using ExileCore.Shared.Enums;
 using ExileCore.Shared.Helpers;
-using ExileCore.Shared.Nodes;
 using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
 using ImGuiNET;
@@ -342,8 +340,7 @@ public partial class Main
             case ItemTypes.MavenInvitation:
             case ItemTypes.SkillGem:
             case ItemTypes.ClusterJewel:
-            case ItemTypes.Voidstone:
-            case ItemTypes.Compass:
+            case ItemTypes.Coffin:
                 if (priceInDivines >= 0.1)
                 {
                     AddText($"\nDivine: {priceInDivinesText}d");
@@ -407,9 +404,7 @@ public partial class Main
                     {
                         PriceData = { MinChaosValue = group.Sum(i => i.PriceData.MinChaosValue) },
                         CurrencyInfo = { StackSize = group.Sum(i => i.CurrencyInfo.StackSize) },
-                        BaseName = group.Key.ItemType == ItemTypes.Compass
-                            ? $"Compass ({group.Key.DetailsId})"
-                            : group.Key.BaseName,
+                        BaseName = group.Key.BaseName,
                         UniqueName = group.Key.UniqueName,
                     })
                     .OrderByDescending(x => x.PriceData.MinChaosValue)

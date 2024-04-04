@@ -28,6 +28,5 @@ public enum ItemTypes
     ClusterJewel,
     Tattoo,
     Omen,
-    Voidstone,
-    Compass,
+    Coffin,
 }

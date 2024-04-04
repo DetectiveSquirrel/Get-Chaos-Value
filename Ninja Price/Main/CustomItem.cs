@@ -4,6 +4,7 @@ using System.Linq;
 using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements.InventoryElements;
+using ExileCore.PoEMemory.FilesInMemory;
 using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.Shared.Enums;
 using Ninja_Price.Enums;
@@ -42,6 +43,7 @@ public class CustomItem
     public readonly ItemTypes ItemType;
     public readonly ClusterJewelData ClusterJewelData;
     public readonly List<string> EnchantedStats;
+    public readonly NecropolisCraftingMod NecropolisMod;
     public MapData MapInfo { get; set; } =  new MapData();
     public CurrencyData CurrencyInfo { get; set; } =  new CurrencyData();
     public Main.RelevantPriceData PriceData { get; set; } = new Main.RelevantPriceData();
@@ -118,6 +120,12 @@ public class CustomItem
                 IsCorrupted = @base.isCorrupted;
             }
 
+            if (itemEntity.TryGetComponent<NecropolisCorpse>(out var corpse))
+            {
+                ItemLevel = corpse.Level;
+                NecropolisMod = corpse.CraftingMod;
+            }
+
             if (itemEntity.TryGetComponent<Mods>(out var mods))
             {
                 Rarity = mods.ItemRarity;
@@ -137,7 +145,7 @@ public class CustomItem
                 }
             }
 
-            UniqueNameCandidates ??= new List<string>();
+            UniqueNameCandidates ??= [];
 
             if (itemEntity.TryGetComponent<Sockets>(out var sockets))
             {
@@ -198,7 +206,11 @@ public class CustomItem
 
             // sort items into types to use correct json data later from poe.ninja
             // This might need tweaking since if this catches anything other than currency.
-            if (ClassName == "MapFragment" && Path.StartsWith("Metadata/Items/Scarabs/"))
+            if (BaseName == "Filled Coffin")
+            {
+                ItemType = ItemTypes.Coffin;
+            }
+            else if (ClassName == "MapFragment" && Path.StartsWith("Metadata/Items/Scarabs/"))
             {
                 ItemType = ItemTypes.Scarab;
             }
@@ -295,14 +307,6 @@ public class CustomItem
             else if (ClassName is "Support Skill Gem" or "Active Skill Gem")
             {
                 ItemType = ItemTypes.SkillGem;
-            }
-            else if (ClassName is "AtlasUpgradeItem")
-            {
-                ItemType = ItemTypes.Voidstone;
-            }
-            else if (BaseName is "Charged Compass")
-            {
-                ItemType = ItemTypes.Compass;
             }
             else if (Rarity != ItemRarity.Unique && BaseName is
                          "Large Cluster Jewel" or
