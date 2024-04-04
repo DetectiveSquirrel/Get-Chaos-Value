@@ -79,7 +79,7 @@ public class Invitations
     public class Sparkline
     {
         [JsonProperty("data", Required = Required.DisallowNull, NullValueHandling = NullValueHandling.Ignore)]
-        public List<double> Data { get; set; }
+        public List<double?> Data { get; set; }
 
         [JsonProperty("totalChange", Required = Required.DisallowNull, NullValueHandling = NullValueHandling.Ignore)]
         public double? TotalChange { get; set; }

@@ -22,7 +22,7 @@ public enum ItemTypes
     Catalyst,
     DeliriumOrbs,
     Vials,
-    MavenInvitation,
+    Invitation,
     Artifact,
     SkillGem,
     ClusterJewel,

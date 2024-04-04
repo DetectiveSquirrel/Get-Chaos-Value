@@ -8,7 +8,6 @@ public class CollectiveApiData
     public DivinationCards.RootObject DivinationCards { get; set; } = new();
     public Essences.RootObject Essences { get; set; } = new();
     public Fragments.RootObject Fragments { get; set; } = new();
-    public HelmetEnchants.RootObject HelmetEnchants { get; set; } = new();
     public UniqueAccessories.RootObject UniqueAccessories { get; set; } = new();
     public UniqueArmours.RootObject UniqueArmours { get; set; } = new();
     public UniqueFlasks.RootObject UniqueFlasks { get; set; } = new();

@@ -34,14 +34,14 @@ public class Coffins
 
     public class Sparkline
     {
-        public int?[] data { get; set; }
-        public int? totalChange { get; set; }
+        public float?[] data { get; set; }
+        public float? totalChange { get; set; }
     }
 
     public class Lowconfidencesparkline
     {
-        public int?[] data { get; set; }
-        public int? totalChange { get; set; }
+        public float?[] data { get; set; }
+        public float? totalChange { get; set; }
     }
 
     public class Tradefilter

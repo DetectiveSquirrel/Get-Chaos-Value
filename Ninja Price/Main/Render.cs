@@ -337,7 +337,7 @@ public partial class Main
 
                 break;
             case ItemTypes.Map:
-            case ItemTypes.MavenInvitation:
+            case ItemTypes.Invitation:
             case ItemTypes.SkillGem:
             case ItemTypes.ClusterJewel:
             case ItemTypes.Coffin:

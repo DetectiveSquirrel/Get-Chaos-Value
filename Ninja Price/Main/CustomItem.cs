@@ -210,6 +210,11 @@ public class CustomItem
             {
                 ItemType = ItemTypes.Coffin;
             }
+            else if (ClassName == "MiscMapItem" && Path.StartsWith("Metadata/Items/MapFragments/Primordial/", StringComparison.Ordinal) &&
+                     Path.EndsWith("Key", StringComparison.Ordinal))
+            {
+                ItemType = ItemTypes.Invitation;
+            }
             else if (ClassName == "MapFragment" && Path.StartsWith("Metadata/Items/Scarabs/"))
             {
                 ItemType = ItemTypes.Scarab;
@@ -299,10 +304,6 @@ public class CustomItem
             else if (BaseName.StartsWith("Vial "))
             {
                 ItemType = ItemTypes.Vials;
-            }
-            else if (BaseName.StartsWith("Maven's Invitation: "))
-            {
-                ItemType = ItemTypes.MavenInvitation;
             }
             else if (ClassName is "Support Skill Gem" or "Active Skill Gem")
             {

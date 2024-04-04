@@ -278,13 +278,13 @@ public partial class Main
                         }
 
                         break;
-                    case ItemTypes.MavenInvitation:
-                        var InvitationSearch = CollectedData.Invitations.Lines.Find(x => x.Name == item.BaseName);
-                        if (InvitationSearch != null)
+                    case ItemTypes.Invitation:
+                        var invitationSearch = CollectedData.Invitations.Lines.Find(x => x.Name == item.BaseName);
+                        if (invitationSearch != null)
                         {
-                            item.PriceData.MinChaosValue = InvitationSearch.ChaosValue ?? 0;
-                            item.PriceData.ChangeInLast7Days = InvitationSearch.Sparkline.TotalChange ?? 0;
-                            item.PriceData.DetailsId = InvitationSearch.DetailsId;
+                            item.PriceData.MinChaosValue = invitationSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = invitationSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = invitationSearch.DetailsId;
                         }
 
                         break;
@@ -697,25 +697,5 @@ public partial class Main
 
         if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() == True", 5, Color.LimeGreen);
         return true;
-    }
-        
-    private CustomItem GetHelmetEnchantValue(string EnchantName)
-    {
-        if (string.IsNullOrWhiteSpace(EnchantName))
-            return null;
-
-        var enchantSearch = CollectedData.HelmetEnchants.lines.Find(x => x.name.ToLower().Contains(EnchantName.ToLower()));
-        return enchantSearch == null
-                   ? null
-                   : new CustomItem
-                   {
-                       PriceData = new RelevantPriceData
-                       {
-                           MinChaosValue = enchantSearch.chaosValue, 
-                           ItemType = ItemTypes.None, 
-                           ChangeInLast7Days = enchantSearch.sparkline.totalChange
-                       },
-                       BaseName = enchantSearch.name
-                   };
     }
 }
