@@ -202,8 +202,7 @@ public partial class Main
                                 return r.Replace(string.Join(", ", dict), "${data}");
                             });
 
-                            var coffinSearch = MoreLinq.MoreEnumerable.MaxBy(CollectedData.Coffins.lines.Where(x => x.name == modText),
-                                x => (x.levelRequired == item.ItemLevel, x.levelRequired > item.ItemLevel ? -x.levelRequired : 0)).MinBy(x => x.chaosValue);
+                            var coffinSearch = CollectedData.Coffins.lines.Where(x => x.name == modText && x.levelRequired <= item.ItemLevel).MaxBy(x => x.levelRequired);
                             if (coffinSearch != null)
                             {
                                 item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * coffinSearch.chaosValue ?? 0;
