@@ -94,6 +94,7 @@ public class HoveredItemSettings
 public class GroundItemSettings
 {
     public ToggleNode PriceHeistRewards { get; set; } = new(true);
+    public ToggleNode PriceCoffins { get; set; } = new(true);
     public ToggleNode PriceItemsOnGround { get; set; } = new(true);
 
     [ConditionalDisplay(nameof(PriceItemsOnGround))]
