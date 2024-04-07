@@ -64,7 +64,7 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
     public override void AreaChange(AreaInstance area)
     {
         UniqueArtMapping = GetUniqueArtMapping();
-
+        _necropolisModText.Clear();
         SyncCurrentLeague();
     }
 
