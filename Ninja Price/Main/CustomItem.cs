@@ -31,7 +31,7 @@ public class CustomItem
     public readonly bool IsHovered;
     public readonly Element Element;
     public readonly Entity Entity;
-    public readonly int ItemLevel;
+    public int ItemLevel;
     public readonly int LargestLink = 0;
     public readonly string Path;
     public readonly int Quality;
@@ -40,10 +40,10 @@ public class CustomItem
     public readonly ItemRarity Rarity;
     public readonly int Sockets;
     public readonly List<string> UniqueNameCandidates;
-    public readonly ItemTypes ItemType;
+    public ItemTypes ItemType;
     public readonly ClusterJewelData ClusterJewelData;
     public readonly List<string> EnchantedStats;
-    public readonly NecropolisCraftingMod NecropolisMod;
+    public NecropolisCraftingMod NecropolisMod;
     public MapData MapInfo { get; set; } =  new MapData();
     public CurrencyData CurrencyInfo { get; set; } =  new CurrencyData();
     public Main.RelevantPriceData PriceData { get; set; } = new Main.RelevantPriceData();
@@ -84,8 +84,8 @@ public class CustomItem
             Path = itemEntity.Path;
             Entity = itemEntity;
             var baseItemType = Core.GameController.Files.BaseItemTypes.Translate(itemEntity.Path);
-            ClassName = baseItemType.ClassName;
-            BaseName = baseItemType.BaseName;
+            ClassName = baseItemType?.ClassName ?? string.Empty;
+            BaseName = baseItemType?.BaseName ?? string.Empty;
             var weaponClass = new List<string>
             {
                 "One Hand Mace",

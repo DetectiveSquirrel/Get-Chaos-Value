@@ -18,6 +18,7 @@ using RectangleF = SharpDX.RectangleF;
 using ImGuiNET;
 using static Ninja_Price.Enums.HaggleTypes.HaggleType;
 using Ninja_Price.API.PoeNinja;
+using ExileCore.PoEMemory.Elements.Necropolis;
 
 namespace Ninja_Price.Main;
 
@@ -44,54 +45,11 @@ public partial class Main
 
     private readonly CachedValue<List<ItemOnGround>> _slowGroundItems;
     private readonly CachedValue<List<ItemOnGround>> _groundItems;
-    private readonly CachedValue<List<ItemOnGround>> _coffins;
 
     public Main()
     {
-        _coffins = new FrameCache<List<ItemOnGround>>(CacheUtils.RememberLastValue(GetCoffinsOnGround, new List<ItemOnGround>()));
         _slowGroundItems = new TimeCache<List<ItemOnGround>>(GetItemsOnGroundSlow, 500);
         _groundItems = new FrameCache<List<ItemOnGround>>(CacheUtils.RememberLastValue(GetItemsOnGround, new List<ItemOnGround>()));
-    }
-
-    private List<ItemOnGround> GetCoffinsOnGround(List<ItemOnGround> previousValue)
-    {
-        var result = new List<ItemOnGround>();
-
-        var prevDict = previousValue
-        .Where(x => x.Type == GroundItemProcessingType.WorldItem)
-        .DistinctBy(x => (x.Item.Element?.Address))
-        .ToDictionary(x => (x.Item.Element?.Address));
-
-        var labelsOnGround = GameController.IngameState.IngameUi.ItemsOnGroundLabelsVisible.Where(x => ((bool)x.ItemOnGround?.Path?.Contains("NecropolisCorpseMarker")));
-
-        foreach (var label in labelsOnGround)
-        {
-            CustomItem customItem = prevDict.GetValueOrDefault((label.Label?.Address))?.Item;
-            if (customItem == null)
-            {
-                try
-                {
-                    //its going to throw an exception on the BaseType translation but who cares
-                    customItem = new CustomItem(label.ItemOnGround, label.Label);
-                }
-                catch { }
-
-                int corpseLevel = int.Parse(label.Label.GetChildFromIndices(0, 1, 0, 0)?.TextNoTags.Replace("Corpse Level: ", ""));
-                string corpseBase = label.Label.GetChildFromIndices(0, 1, 0, 3)?.TextNoTags.Replace("\n", "|");
-
-                var coffinSearch = CollectedData.Coffins.lines.Where(x => x.baseType == corpseBase && x.levelRequired <= corpseLevel).MaxBy(x => x.levelRequired);
-                if (coffinSearch != null)
-                {
-                    customItem.PriceData.MinChaosValue = customItem.CurrencyInfo.StackSize * coffinSearch.chaosValue ?? 0;
-                    customItem.PriceData.ChangeInLast7Days = coffinSearch.sparkline.totalChange ?? 0;
-                    customItem.PriceData.DetailsId = coffinSearch.detailsId;
-                }
-            }
-
-            result.Add(new ItemOnGround(customItem, GroundItemProcessingType.WorldItem, label.Label.GetChildFromIndices(0, 0, 0)?.GetClientRectCache));
-        }
-
-        return result;
     }
 
     private List<ItemOnGround> GetItemsOnGround(List<ItemOnGround> previousValue)
@@ -135,6 +93,18 @@ public partial class Main
                      heistReward.RewardItem is { IsValid: true } heistItemEntity)
             {
                 result.Add(new ItemOnGround(new CustomItem(heistItemEntity, labelOnGround.Label), GroundItemProcessingType.HeistReward, null));
+            }
+
+            if (Settings.GroundItemSettings.PriceCoffins && item.Path == "Metadata/Terrain/Leagues/Necropolis/Objects/NecropolisCorpseMarker")
+            {
+                var customItem = new CustomItem(labelOnGround.ItemOnGround, labelOnGround.Label.GetChildFromIndices(0, 0, 0));
+                var typedLabel = labelOnGround.Label.AsObject<NecropolisCollectableCorpse>();
+                var corpses = typedLabel.CorpsesByEntityId;
+                var surrogateComponent = corpses.GetValueOrDefault(labelOnGround.ItemOnGround.Id);
+                customItem.NecropolisMod = surrogateComponent.CraftingMod;
+                customItem.ItemLevel = surrogateComponent.Level;
+                customItem.ItemType = ItemTypes.Coffin;
+                result.Add(new ItemOnGround(customItem, GroundItemProcessingType.CollectableCorpse, null));
             }
         }
 
@@ -708,6 +678,7 @@ public partial class Main
             switch (processingType)
             {
                 case GroundItemProcessingType.WorldItem:
+                case GroundItemProcessingType.CollectableCorpse when Settings.GroundItemSettings.PriceCoffins:
                 {
                     if (!tooltipRect.Intersects(box) && !leftPanelRect.Intersects(box) && !rightPanelRect.Intersects(box))
                     {
@@ -807,31 +778,6 @@ public partial class Main
                 }
             }
                 
-        }
-
-        if (Settings.GroundItemSettings.PriceCoffins)
-        {
-            foreach (var (item, processingType, clientRect) in _coffins.Value)
-            {
-                if (item.PriceData.MinChaosValue > 0)
-                {
-                    var s = item.PriceData.MinChaosValue.FormatNumber(2);
-                    if (item.PriceData.MaxChaosValue > item.PriceData.MinChaosValue)
-                    {
-                        s += $"-{item.PriceData.MaxChaosValue.FormatNumber(2)}";
-                    }
-
-                    using (Graphics.SetTextScale(Settings.GroundItemSettings.GroundPriceTextScale))
-                    {
-                        var box = clientRect.Value;
-                        box.Right += 10;
-                        var textSize = Graphics.MeasureText(s);
-                        var textPos = new Vector2(box.Right - textSize.X, box.Top);
-                        Graphics.DrawBox(textPos, textPos + textSize, Settings.GroundItemSettings.GroundPriceBackgroundColor);
-                        Graphics.DrawText(s, textPos, Settings.GroundItemSettings.GroundPriceTextColor);
-                    }
-                }
-            }
         }
         
         ImGui.End();
