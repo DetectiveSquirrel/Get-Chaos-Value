@@ -211,6 +211,16 @@ public partial class Main
                             }
                         }
                         break;
+                    case ItemTypes.Allflame:
+                        var allflameSearch = CollectedData.Allflames.lines.Where(x => x.baseType == item.BaseName && x.levelRequired <= item.ItemLevel).MaxBy(x => x.levelRequired);
+                        if (allflameSearch != null)
+                        {
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * allflameSearch.chaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = allflameSearch.sparkline.totalChange ?? 0;
+                            item.PriceData.DetailsId = allflameSearch.detailsId;
+                        }
+
+                        break;
                     case ItemTypes.Artifact:
                         var artifactSearch = CollectedData.Artifacts.Lines.Find(x => x.Name == item.BaseName);
                         if (artifactSearch != null)

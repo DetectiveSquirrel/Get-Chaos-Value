@@ -110,10 +110,10 @@ public class GroundItemSettings
     public ColorNode GroundPriceBackgroundColor { get; set; } = new(Color.Black);
 
     [ConditionalDisplay(nameof(PriceItemsOnGround))]
-    public ToggleNode UseRawElementPositionWhileMoving { get; set; } = new(true);
+    public RangeNode<int> ValuableValueThreshold { get; set; } = new(50, 0, 100000);
 
     [ConditionalDisplay(nameof(PriceItemsOnGround))]
-    public ToggleNode AlwaysUseRawElementPosition { get; set; } = new(false);
+    public ColorNode ValuablePriceColor { get; set; } = new(Color.Violet);
 
     public ToggleNode DisplayRealUniqueNameOnGround { get; set; } = new(true);
 
@@ -126,11 +126,11 @@ public class GroundItemSettings
 
     public ColorNode UniqueItemNameBackgroundColor { get; set; } = new(new Color(175, 96, 37));
 
-    public RangeNode<int> ValuableUniqueOnGroundValueThreshold { get; set; } = new(50, 0, 100000);
 
     public ColorNode ValuableUniqueItemNameTextColor { get; set; } = new(new Color(175, 96, 37));
 
     public ColorNode ValuableUniqueItemNameBackgroundColor { get; set; } = new(Color.White);
+
 }
 
 [Submenu]
