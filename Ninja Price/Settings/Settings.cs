@@ -57,7 +57,6 @@ public class Settings : ISettings
     public UniqueIdentificationSettings UniqueIdentificationSettings { get; set; } = new();
     public TradeWindowSettings TradeWindowSettings { get; set; } = new();
     public HoveredItemSettings HoveredItemSettings { get; set; } = new();
-    public ToggleNode ReloadNecropolisStatDescriptions { get; set; } = new(true);
     public ToggleNode Enable { get; set; } = new(true);
 }
 
