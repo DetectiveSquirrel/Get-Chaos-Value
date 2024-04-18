@@ -17,6 +17,7 @@ using RectangleF = SharpDX.RectangleF;
 using ImGuiNET;
 using static Ninja_Price.Enums.HaggleTypes.HaggleType;
 using ExileCore.PoEMemory.Elements.Necropolis;
+using System.Data;
 
 namespace Ninja_Price.Main;
 
@@ -117,7 +118,11 @@ public partial class Main
         InventoryTabValue = 0;
         HoveredItem = null;
 
-        StashPanel = GameController.Game.IngameState.IngameUi.StashElement;
+        StashPanel = (GameController.Game.IngameState.IngameUi.StashElement, GameController.Game.IngameState.IngameUi.GuildStashElement) switch
+        {
+            ({ IsVisible: false }, { IsVisible: true, IsValid: true } gs) => gs,
+            var (s, _) => s
+        };
         InventoryPanel = GameController.Game.IngameState.IngameUi.InventoryPanel;
         HagglePanel = GameController.Game.IngameState.IngameUi.HaggleWindow;
 
@@ -146,51 +151,34 @@ public partial class Main
             var tabType = StashPanel.VisibleStash?.InvType;
 
             // Everything is updated, lets check if we should draw
-            if (StashPanel.IsVisible && tabType != null)
+            if (ShouldUpdateValues())
             {
-                if (ShouldUpdateValues())
+                // Format stash items
+                ItemList = StashPanel.IsVisible && tabType != null ? StashPanel.VisibleStash?.VisibleInventoryItems?.ToList() ?? [] : [];
+                if (ItemList.Count == 0 && GameController.Game.IngameState.IngameUi.RitualWindow.IsVisible)
                 {
-                    // Format stash items
-                    switch (tabType)
-                    {
-                        case InventoryType.BlightStash:
-                            ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
-                            ItemList.RemoveAt(0);
-                            ItemList.RemoveAt(ItemList.Count - 1);
-                            break;
-                        case InventoryType.MetamorphStash:
-                            ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
-                            ItemList.RemoveAt(0);
-                            break;
-                        default:
-                            ItemList = StashPanel.VisibleStash.VisibleInventoryItems.ToList();
-                            break;
-                    }
-                    if (ItemList.Count == 0)
-                    {
-                        ItemList = (List<NormalInventoryItem>)GameController.Game.IngameState.IngameUi.RitualWindow.Items;
-                    }
-                    FormattedItemList = FormatItems(ItemList);
-
-                    if (Settings.Debug)
-                        LogMessage($"{GetCurrentMethod()}.Render() Looping if (ShouldUpdateValues())", 5,
-                            Color.LawnGreen);
-
-                    FormattedItemList.ForEach(GetValue);
+                    ItemList = GameController.Game.IngameState.IngameUi.RitualWindow.Items;
                 }
 
-                // Gather all information needed before rendering as we only want to iterate through the list once
+                FormattedItemList = FormatItems(ItemList);
 
-                ItemsToDrawList = new List<CustomItem>();
-                foreach (var item in FormattedItemList)
-                {
-                    if (item == null || item.Element.Address == 0) continue; // Item is fucked, skip
-                    if (!item.Element.IsVisible && item.ItemType != ItemTypes.None)
-                        continue; // Disregard non visible items as that usually means they aren't part of what we want to look at
+                if (Settings.Debug)
+                    LogMessage($"{GetCurrentMethod()}.Render() Looping if (ShouldUpdateValues())", 5,
+                        Color.LawnGreen);
 
-                    StashTabValue += item.PriceData.MinChaosValue;
-                    ItemsToDrawList.Add(item);
-                }
+                FormattedItemList.ForEach(GetValue);
+            }
+
+            // Gather all information needed before rendering as we only want to iterate through the list once
+            ItemsToDrawList = [];
+            foreach (var item in FormattedItemList)
+            {
+                if (item == null || item.Element.Address == 0) continue; // Item is fucked, skip
+                if (!item.Element.IsVisible && item.ItemType != ItemTypes.None)
+                    continue; // Disregard non visible items as that usually means they aren't part of what we want to look at
+
+                StashTabValue += item.PriceData.MinChaosValue;
+                ItemsToDrawList.Add(item);
             }
             if (InventoryPanel.IsVisible)
             {
@@ -248,24 +236,40 @@ public partial class Main
             VisibleStashValue();
 
             var tabType = StashPanel.VisibleStash?.InvType;
-            foreach (var customItem in ItemsToDrawList)
+            if (Settings.VisibleStashValue.CurrencyTabSettings.ShowItemOverlay &&
+                (!Settings.VisibleStashValue.CurrencyTabSettings.DoNotDrawWhileAnItemIsHovered || HoveredItem == null))
             {
-                if (customItem.ItemType == ItemTypes.None) continue;
-
-                if (Settings.VisibleStashValue.CurrencyTabSettings.ShowItemOverlay &&
-                    (!Settings.VisibleStashValue.CurrencyTabSettings.DoNotDrawWhileAnItemIsHovered || HoveredItem == null))
+                foreach (var customItem in ItemsToDrawList)
                 {
+                    if (customItem.ItemType == ItemTypes.None) continue;
+
                     switch (tabType)
                     {
                         case InventoryType.CurrencyStash:
                         case InventoryType.FragmentStash:
                         case InventoryType.DelveStash:
                         case InventoryType.DeliriumStash:
-                        case InventoryType.MetamorphStash:
+                        case InventoryType.UltimatumStash:
                         case InventoryType.BlightStash:
                             PriceBoxOverItem(customItem, null, Settings.VisibleStashValue.CurrencyTabSettings.FontColor);
                             break;
                     }
+                }
+            }
+        }
+        else if (GameController.IngameState.IngameUi.RitualWindow.IsVisible)
+        {
+            if (Settings.VisibleStashValue.CurrencyTabSettings.ShowItemOverlay &&
+                (!Settings.VisibleStashValue.CurrencyTabSettings.DoNotDrawWhileAnItemIsHovered || HoveredItem == null))
+            {
+                foreach (var customItem in ItemsToDrawList)
+                {
+                    if (customItem.ItemType == ItemTypes.None) continue;
+
+                    PriceBoxOverItem(customItem, null,
+                        customItem.PriceData.MinChaosValue >= Settings.HoveredItemSettings.ValuableColorThreshold
+                            ? Settings.HoveredItemSettings.ValuableColor
+                            : Settings.VisibleStashValue.CurrencyTabSettings.FontColor);
                 }
             }
         }
