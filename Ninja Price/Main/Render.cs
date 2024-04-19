@@ -441,12 +441,12 @@ public partial class Main
         }
     }
 
-    private void DrawWorthWidget(double chaosValue, Vector2 pos, int significantDigits, Color textColor, bool drawBackground, List<CustomItem> topValueItems)
+    private void DrawWorthWidget(double chaosValue, Vector2 pos, int significantDigits, Color textColor, bool drawBackground, List<CustomItem> topValueItems) => DrawWorthWidget("", false, chaosValue, pos, significantDigits, textColor, drawBackground, topValueItems);
+    private void DrawWorthWidget(string initialString, bool indent, double chaosValue, Vector2 pos, int significantDigits, Color textColor, bool drawBackground, List<CustomItem> topValueItems)
     {
-        var text = $"Chaos: {chaosValue.FormatNumber(significantDigits)}" +
-                   (DivineDalue != null
-                       ? $"\nDivine: {(chaosValue / DivineDalue.Value).FormatNumber(significantDigits)}"
-                       : "");
+        var text = $"{initialString}{(indent ? "\t" : "")}Chaos: {chaosValue.FormatNumber(significantDigits)}" + (DivineDalue != null
+            ? $"\n{(indent ? "\t" : "")}Divine: {(chaosValue / DivineDalue.Value).FormatNumber(significantDigits)}"
+            : "");
         if (topValueItems.Count > 0)
         {
             var maxChaosValueLength = topValueItems.Max(x => x.PriceData.MinChaosValue.FormatNumber(2, forceDecimals: true).Length);
@@ -628,12 +628,12 @@ public partial class Main
         var theirTradeWindowValue = theirFormatterItems.Sum(x => x.PriceData.MinChaosValue);
         var textPosition = new Vector2(element.GetClientRectCache.Right, element.GetClientRectCache.Center.Y - ImGui.GetTextLineHeight() * 3) 
                          + new Vector2(Settings.TradeWindowSettings.OffsetX, Settings.TradeWindowSettings.OffsetY);
-        DrawWorthWidget(theirTradeWindowValue, textPosition, 2, Settings.VisualPriceSettings.FontColor, true, []);
-        textPosition.Y += ImGui.GetTextLineHeight() * 2;
+        DrawWorthWidget("Theirs\n", true, theirTradeWindowValue, textPosition, 2, Settings.VisualPriceSettings.FontColor, true, []);
+        textPosition.Y += ImGui.GetTextLineHeight() * 3;
         var diff = theirTradeWindowValue - yourTradeWindowValue;
-        DrawWorthWidget(diff, textPosition, 2, diff switch { > 0 => Color.Green, 0 => Settings.VisualPriceSettings.FontColor, < 0 => Color.Red, double.NaN => Color.Purple }, true, []);
-        textPosition.Y += ImGui.GetTextLineHeight() * 2;
-        DrawWorthWidget(yourTradeWindowValue, textPosition, 2, Settings.VisualPriceSettings.FontColor, true, new List<CustomItem>());
+        DrawWorthWidget("Profit/Loss\n", true, diff, textPosition, 2, diff switch { > 0 => Color.Green, 0 => Settings.VisualPriceSettings.FontColor, < 0 => Color.Red, double.NaN => Color.Purple }, true, []);
+        textPosition.Y += ImGui.GetTextLineHeight() * 3;
+        DrawWorthWidget("Yours\n", true, yourTradeWindowValue, textPosition, 2, Settings.VisualPriceSettings.FontColor, true, new List<CustomItem>());
     }
 
     private void ProcessDivineFontRewards()
