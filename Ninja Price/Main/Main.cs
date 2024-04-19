@@ -34,9 +34,9 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         Directory.CreateDirectory(NinjaDirectory);
 
         UpdateLeagueList();
-        StartDataReload(Settings.LeagueList.Value, false);
+        StartDataReload(Settings.DataSourceSettings.League.Value, false);
 
-        Settings.ReloadPrices.OnPressed += () => StartDataReload(Settings.LeagueList.Value, true);
+        Settings.DataSourceSettings.ReloadPrices.OnPressed += () => StartDataReload(Settings.DataSourceSettings.League.Value, true);
         Settings.UniqueIdentificationSettings.RebuildUniqueItemArtMappingBackup.OnPressed += () =>
         {
             var mapping = GetGameFileUniqueArtMapping();
@@ -49,7 +49,7 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         {
             UniqueArtMapping = GetUniqueArtMapping();
         };
-        Settings.SyncCurrentLeague.OnValueChanged += (_, _) => SyncCurrentLeague();
+        Settings.DataSourceSettings.SyncCurrentLeague.OnValueChanged += (_, _) => SyncCurrentLeague();
         CustomItem.InitCustomItem(this);
 
         GameController.PluginBridge.SaveMethod("NinjaPrice.GetValue", (Entity e) =>
@@ -70,20 +70,20 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
 
     private void SyncCurrentLeague()
     {
-        if (Settings.SyncCurrentLeague)
+        if (Settings.DataSourceSettings.SyncCurrentLeague)
         {
             var playerLeague = PlayerLeague;
             if (playerLeague != null)
             {
-                if (!Settings.LeagueList.Values.Contains(playerLeague))
+                if (!Settings.DataSourceSettings.League.Values.Contains(playerLeague))
                 {
-                    Settings.LeagueList.Values.Add(playerLeague);
+                    Settings.DataSourceSettings.League.Values.Add(playerLeague);
                 }
 
-                if (Settings.LeagueList.Value != playerLeague)
+                if (Settings.DataSourceSettings.League.Value != playerLeague)
                 {
-                    Settings.LeagueList.Value = playerLeague;
-                    StartDataReload(Settings.LeagueList.Value, false);
+                    Settings.DataSourceSettings.League.Value = playerLeague;
+                    StartDataReload(Settings.DataSourceSettings.League.Value, false);
                 }
             }
         }
@@ -124,7 +124,7 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
             using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(DefaultUniqueArtMappingPath);
             if (stream == null)
             {
-                if (Settings.Debug)
+                if (Settings.EnableDebugLogging)
                 {
                     LogMessage($"Embedded stream {DefaultUniqueArtMappingPath} is missing");
                 }
@@ -188,12 +188,12 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         leagueList.Add("Standard");
         leagueList.Add("Hardcore");
 
-        if (!leagueList.Contains(Settings.LeagueList.Value))
+        if (!leagueList.Contains(Settings.DataSourceSettings.League.Value))
         {
-            Settings.LeagueList.Value = leagueList.MaxBy(x => x == playerLeague);
+            Settings.DataSourceSettings.League.Value = leagueList.MaxBy(x => x == playerLeague);
         }
 
-        Settings.LeagueList.SetListValues(leagueList.ToList());
+        Settings.DataSourceSettings.League.SetListValues(leagueList.ToList());
     }
 
     private string PlayerLeague

@@ -126,7 +126,7 @@ public partial class Main
                         var (pricedStack, pricedItem) = item.CurrencyInfo.IsShard && TryGetShardParent(item.BaseName, out var shardParent)
                             ? (item.CurrencyInfo.MaxStackSize > 0 ? item.CurrencyInfo.MaxStackSize : 20, shardParent)
                             : (1, item.BaseName);
-                        var shardCurrencySearch = CollectedData.Currency.FindLine(pricedItem, Settings.UseChaosEquivalentDataForCurrency);
+                        var shardCurrencySearch = CollectedData.Currency.FindLine(pricedItem, Settings.DataSourceSettings.UseChaosEquivalentDataForCurrency);
                         if (shardCurrencySearch != null)
                         {
                             item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * shardCurrencySearch.ChaosEquivalent / pricedStack;
@@ -137,7 +137,7 @@ public partial class Main
                         break;
                     }
                     case ItemTypes.Catalyst:
-                        var catalystSearch = CollectedData.Currency.FindLine(item.BaseName, Settings.UseChaosEquivalentDataForCurrency);
+                        var catalystSearch = CollectedData.Currency.FindLine(item.BaseName, Settings.DataSourceSettings.UseChaosEquivalentDataForCurrency);
                         if (catalystSearch != null)
                         {
                             item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * catalystSearch.ChaosEquivalent;
@@ -535,10 +535,10 @@ public partial class Main
                             case MapTypes.Blighted:
 
                                 var blightedBaseName = $"Blighted {item.BaseName}";
-                                var normalBlightedMapSearch = Settings.MapVariant.Value
+                                var normalBlightedMapSearch = Settings.DataSourceSettings.CheckMapVariant.Value
                                                                   ? CollectedData.WhiteMaps.Lines.Find(x =>
                                                                       x.BaseType == blightedBaseName && item.MapInfo.MapTier == x.MapTier &&
-                                                                      x.Variant == Settings.LeagueList.Value)
+                                                                      x.Variant == Settings.DataSourceSettings.League.Value)
                                                                   : CollectedData.WhiteMaps.Lines.Find(x =>
                                                                       x.BaseType == blightedBaseName && item.MapInfo.MapTier == x.MapTier);
 
@@ -552,9 +552,9 @@ public partial class Main
                                 break;
                             case MapTypes.None:
 
-                                var normalMapSearch = Settings.MapVariant.Value
+                                var normalMapSearch = Settings.DataSourceSettings.CheckMapVariant.Value
                                                           ? CollectedData.WhiteMaps.Lines.Find(x =>
-                                                              x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.LeagueList.Value)
+                                                              x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.DataSourceSettings.League.Value)
                                                           : CollectedData.WhiteMaps.Lines.Find(x =>
                                                               x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier);
 
@@ -574,7 +574,7 @@ public partial class Main
         }
         catch (Exception)
         {
-            if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.GetValue()", 5, Color.Red); }
+            if (Settings.EnableDebugLogging) { LogMessage($"{GetCurrentMethod()}.GetValue()", 5, Color.Red); }
         }
         finally
         {
@@ -635,7 +635,7 @@ public partial class Main
         }
         catch (Exception e)
         {
-            if (Settings.Debug)
+            if (Settings.EnableDebugLogging)
             {
                 LogMessage($"{GetCurrentMethod()}.GetValueHaggle() Error that i dont understand, Item: {item.BaseName}", 5, Color.Red);
                 LogMessage($"{GetCurrentMethod()}.GetValueHaggle() {e.Message}", 5, Color.Red);
@@ -645,10 +645,10 @@ public partial class Main
 
     private bool ShouldUpdateValues()
     {
-        if (StashUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
+        if (StashUpdateTimer.ElapsedMilliseconds > Settings.DataSourceSettings.ItemUpdatePeriodMs)
         {
             StashUpdateTimer.Restart();
-            if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
+            if (Settings.EnableDebugLogging) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
         }
         else
         {
@@ -657,28 +657,28 @@ public partial class Main
         // TODO: Get inventory items and not just stash tab items, this will be done at a later date
         try
         {
-            if (!Settings.VisibleStashValue.Show)
+            if (!Settings.StashValueSettings.Show)
             {
-                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Stash is not visible", 5, Color.DarkGray); }
+                if (Settings.EnableDebugLogging) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() Stash is not visible", 5, Color.DarkGray); }
                 return false;
             }
         }
         catch (Exception)
         {
-            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues()", 5, Color.DarkGray);
+            if (Settings.EnableDebugLogging) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues()", 5, Color.DarkGray);
             return false;
         }
 
-        if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
+        if (Settings.EnableDebugLogging) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValues() == True", 5, Color.LimeGreen);
         return true;
     }
 
     private bool ShouldUpdateValuesInventory()
     {
-        if (InventoryUpdateTimer.ElapsedMilliseconds > Settings.ValueLoopTimerMS)
+        if (InventoryUpdateTimer.ElapsedMilliseconds > Settings.DataSourceSettings.ItemUpdatePeriodMs)
         {
             InventoryUpdateTimer.Restart();
-            if (Settings.Debug) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
+            if (Settings.EnableDebugLogging) { LogMessage($"{GetCurrentMethod()} ValueUpdateTimer.Restart()", 5, Color.DarkGray); }
         }
         else
         {
@@ -689,24 +689,24 @@ public partial class Main
         {
             if (!Settings.InventoryValueSettings.Show.Value || !GameController.Game.IngameState.IngameUi.InventoryPanel.IsVisible)
             {
-                if (Settings.Debug) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() Inventory is not visible", 5, Color.DarkGray); }
+                if (Settings.EnableDebugLogging) { LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() Inventory is not visible", 5, Color.DarkGray); }
                 return false;
             }
 
             // Dont continue if the stash page isnt even open
             if (GameController.Game.IngameState.IngameUi.InventoryPanel[InventoryIndex.PlayerInventory].VisibleInventoryItems == null)
             {
-                if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() Items == null", 5, Color.DarkGray);
+                if (Settings.EnableDebugLogging) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() Items == null", 5, Color.DarkGray);
                 return false;
             }
         }
         catch (Exception)
         {
-            if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory()", 5, Color.DarkGray);
+            if (Settings.EnableDebugLogging) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory()", 5, Color.DarkGray);
             return false;
         }
 
-        if (Settings.Debug) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() == True", 5, Color.LimeGreen);
+        if (Settings.EnableDebugLogging) LogMessage($"{GetCurrentMethod()}.ShouldUpdateValuesInventory() == True", 5, Color.LimeGreen);
         return true;
     }
 }

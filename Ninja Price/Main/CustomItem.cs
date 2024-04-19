@@ -352,7 +352,7 @@ public class CustomItem
         }
         catch (Exception exception)
         {
-            if (Core.Settings.Debug)
+            if (Core.Settings.EnableDebugLogging)
                 Core.LogError($"Ninja Pricer.CustomItem Error:\n{exception}");
         }
 

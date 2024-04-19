@@ -60,7 +60,7 @@ public partial class Main
                 var newData = new CollectiveApiData();
                 var tryWebFirst = forceRefresh;
                 var metadataPath = Path.Join(NinjaDirectory, league, "meta.json");
-                if (!tryWebFirst && Settings.AutoReload)
+                if (!tryWebFirst && Settings.DataSourceSettings.AutoReload)
                 {
                     tryWebFirst = await IsLocalCacheStale(metadataPath);
                 }
@@ -117,11 +117,11 @@ public partial class Main
         try
         {
             var metadata = JsonConvert.DeserializeObject<LeagueMetadata>(await File.ReadAllTextAsync(metadataPath));
-            return DateTime.UtcNow - metadata.LastLoadTime > TimeSpan.FromMinutes(Settings.ReloadTimer);
+            return DateTime.UtcNow - metadata.LastLoadTime > TimeSpan.FromMinutes(Settings.DataSourceSettings.ReloadPeriod);
         }
         catch (Exception ex)
         {
-            if (Settings.Debug)
+            if (Settings.EnableDebugLogging)
             {
                 LogError($"Metadata loading failed: {ex}");
             }
@@ -164,13 +164,13 @@ public partial class Main
             }
             catch (Exception backupEx)
             {
-                if (Settings.Debug)
+                if (Settings.EnableDebugLogging)
                 {
                     LogError($"{fileName} backup data load failed: {backupEx}");
                 }
             }
         }
-        else if (Settings.Debug)
+        else if (Settings.EnableDebugLogging)
         {
             LogError($"No backup for {fileName}");
         }
@@ -182,13 +182,13 @@ public partial class Main
     {
         try
         {
-            if (Settings.Debug)
+            if (Settings.EnableDebugLogging)
             {
                 LogMessage($"Downloading {fileName}");
             }
 
             var data = JsonConvert.DeserializeObject<T>(await Utils.DownloadFromUrl(string.Format(url, league)));
-            if (Settings.Debug)
+            if (Settings.EnableDebugLogging)
             {
                 LogMessage($"{fileName} downloaded");
             }
@@ -203,7 +203,7 @@ public partial class Main
                 var errorPath = backupFile + ".error";
                 new FileInfo(errorPath).Directory.Create();
                 await File.WriteAllTextAsync(errorPath, ex.ToString());
-                if (Settings.Debug)
+                if (Settings.EnableDebugLogging)
                 {
                     LogError($"{fileName} save failed: {ex}");
                 }
@@ -214,7 +214,7 @@ public partial class Main
         }
         catch (Exception ex)
         {
-            if (Settings.Debug)
+            if (Settings.EnableDebugLogging)
             {
                 LogError($"{fileName} fresh data download failed: {ex}");
             }
