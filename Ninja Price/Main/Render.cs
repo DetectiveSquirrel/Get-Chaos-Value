@@ -684,8 +684,10 @@ public partial class Main
                     {
                         var isValuable = item.PriceData.MaxChaosValue >= Settings.VisualPriceSettings.ValuableColorThreshold;
 
-                        if (Settings.GroundItemSettings.PriceItemsOnGround && 
-                            (!Settings.GroundItemSettings.OnlyPriceUniquesOnGround || item.Rarity == ItemRarity.Unique))
+                        if (Settings.GroundItemSettings.PriceItemsOnGround &&
+                            (!Settings.GroundItemSettings.OnlyPriceUniquesOnGround || 
+                             item.Rarity == ItemRarity.Unique ||
+                             processingType == GroundItemProcessingType.CollectableCorpse))
                         {
                             if (item.PriceData.MinChaosValue > 0)
                             {

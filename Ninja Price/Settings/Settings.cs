@@ -42,7 +42,7 @@ public class DataSourceSettings
     [Menu(null, "Minutes")]
     public RangeNode<int> ReloadPeriod { get; set; } = new(15, 1, 60);
 
-    public ToggleNode CheckMapVariant { get; set; } = new(true);
+    public ToggleNode CheckMapVariant { get; set; } = new(false);
 
     [Menu(null, "ChaosEquivalent is not used by poe.ninja itself and can have weird values. If you like it better, try it")]
     public ToggleNode UseChaosEquivalentDataForCurrency { get; set; } = new(false);
@@ -92,7 +92,7 @@ public class GroundItemSettings
 {
     public ToggleNode PriceHeistRewards { get; set; } = new(true);
     public ToggleNode PriceItemsOnGround { get; set; } = new(true);
-    public ToggleNode OnlyPriceUniquesOnGround { get; set; } = new(true);
+    public ToggleNode OnlyPriceUniquesOnGround { get; set; } = new(false);
     public RangeNode<float> GroundPriceTextScale { get; set; } = new(2, 0, 10);
     public ColorNode GroundPriceBackgroundColor { get; set; } = new(Color.Black);
 }
