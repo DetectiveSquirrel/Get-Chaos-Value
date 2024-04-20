@@ -29,7 +29,7 @@ public class CustomItem
     public readonly bool IsShaper;
     public readonly bool IsWeapon;
     public readonly bool IsHovered;
-    public readonly Element Element;
+    public Element Element;
     public readonly Entity Entity;
     public int ItemLevel;
     public readonly int LargestLink = 0;

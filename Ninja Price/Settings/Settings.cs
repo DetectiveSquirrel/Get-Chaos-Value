@@ -53,6 +53,7 @@ public class LeagueSpecificSettings
 {
     public ToggleNode ShowCoffinPrices { get; set; } = new(true);
     public ToggleNode ShowRitualWindowPrices { get; set; } = new(true);
+    public ToggleNode ShowSanctumRewardPrices { get; set; } = new(true);
 
     public ToggleNode ShowExpeditionVendorOverlay { get; set; } = new(false);
 

@@ -18,6 +18,7 @@ using ImGuiNET;
 using static Ninja_Price.Enums.HaggleTypes.HaggleType;
 using ExileCore.PoEMemory.Elements.Necropolis;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace Ninja_Price.Main;
 
@@ -228,6 +229,7 @@ public partial class Main
         ProcessItemsOnGround();
         ProcessTradeWindow();
         ProcessDivineFontRewards();
+        ShowSanctumOfferPrices();
         ProcessHoveredItem();
         VisibleInventoryValue();
 
@@ -654,6 +656,52 @@ public partial class Main
                     LogError(ex.ToString());
                 }
             }
+        }
+    }
+
+    private static readonly Regex SanctumOfferParse = new(
+        @"(Receive)\s((?'currencysize'(\d+))x(?'currencyname'.*))\s(right now|at the end of the next Floor|at the end of the Floor|on completing the Sanctum)$",
+        RegexOptions.Compiled);
+
+    private void ShowSanctumOfferPrices()
+    {
+        if (!Settings.LeagueSpecificSettings.ShowSanctumRewardPrices ||
+            GameController.IngameState.IngameUi.SanctumRewardWindow is not
+            {
+                IsVisible: true,
+                RewardElements: { Count: > 0 } rewardElements
+            })
+            return;
+
+        foreach (var offer in rewardElements)
+        {
+            var offerText = offer.Children[1].Text;
+            if (offerText == null) continue;
+            var match = SanctumOfferParse.Match(offerText);
+            if (!match.Success)
+            {
+                continue;
+            }
+
+            var currencyName = match.Groups["currencyname"].Value.Trim().Replace("Orbs", "Orb").TrimEnd('s');
+            var stackSizeText = match.Groups["currencysize"].ValueSpan.Trim();
+            if (!int.TryParse(stackSizeText, out var stackSize))
+                continue;
+            var data = new CustomItem
+            {
+                CurrencyInfo = new CustomItem.CurrencyData
+                {
+                    IsShard = false,
+                    StackSize = stackSize
+                },
+                BaseName = currencyName,
+                ItemType = ItemTypes.Currency,
+                Element = offer.GetChildFromIndices(0, 0),
+            };
+            GetValue(data);
+            PriceBoxOverItem(data, null, data.PriceData.MinChaosValue >= Settings.VisualPriceSettings.ValuableColorThreshold
+                ? Settings.VisualPriceSettings.ValuableColor
+                : Settings.VisualPriceSettings.FontColor);
         }
     }
 
