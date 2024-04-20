@@ -45,7 +45,7 @@ public partial class Main
         { "Simulacrum Splinter", "Simulacrum" },
     };
 
-    private double DivinePrice => CollectedData.Currency.Lines.Find(x => x.CurrencyTypeName == "Divine Orb")?.ChaosEquivalent ?? throw new Exception("Divine price is missing");
+    private double DivinePrice => CollectedData.Currency.FindLine("Divine Orb", Settings.DataSourceSettings.UseChaosEquivalentDataForCurrency)?.ChaosEquivalent ?? throw new Exception("Divine price is missing");
 
     private List<NormalInventoryItem> GetInventoryItems()
     {
