@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
 using ExileCore.PoEMemory.Elements.InventoryElements;
@@ -8,6 +5,9 @@ using ExileCore.PoEMemory.FilesInMemory;
 using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.Shared.Enums;
 using Ninja_Price.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ninja_Price.Main;
 
@@ -211,6 +211,10 @@ public class CustomItem
             {
                 ItemType = ItemTypes.Coffin;
             }
+            if (ClassName == "MemoryLine")
+            {
+                ItemType = ItemTypes.Memory;
+            }
             else if (ClassName == "NecropolisPack")
             {
                 ItemType = ItemTypes.Allflame;
@@ -224,7 +228,8 @@ public class CustomItem
             {
                 ItemType = ItemTypes.Scarab;
             }
-            else if (ClassName == "StackableCurrency" && 
+            else if (itemEntity.Metadata.Contains("MapFragments/CurrencyUberBossKey") ||
+                ClassName == "StackableCurrency" && 
                 !BaseName.StartsWith("Crescent Splinter") &&
                 !BaseName.StartsWith("Simulacrum") &&
                 !BaseName.EndsWith("Delirium Orb") &&
@@ -360,6 +365,7 @@ public class CustomItem
 
     public override string ToString()
     {
-        return string.IsNullOrWhiteSpace(UniqueName) ? BaseName : UniqueName;
+        var uniqueName = string.IsNullOrWhiteSpace(UniqueName) ? BaseName : UniqueName;
+        return uniqueName;
     }
 }

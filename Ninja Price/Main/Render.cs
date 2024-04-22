@@ -1,3 +1,12 @@
+using ExileCore.PoEMemory;
+using ExileCore.PoEMemory.Components;
+using ExileCore.PoEMemory.Elements;
+using ExileCore.PoEMemory.Elements.InventoryElements;
+using ExileCore.PoEMemory.Elements.Necropolis;
+using ExileCore.Shared.Cache;
+using ExileCore.Shared.Enums;
+using ExileCore.Shared.Helpers;
+using ImGuiNET;
 using Ninja_Price.Enums;
 using System;
 using System.Collections.Generic;
@@ -5,20 +14,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
-using ExileCore.PoEMemory;
-using ExileCore.PoEMemory.Components;
-using ExileCore.PoEMemory.Elements;
-using ExileCore.PoEMemory.Elements.InventoryElements;
-using ExileCore.Shared.Cache;
-using ExileCore.Shared.Enums;
-using ExileCore.Shared.Helpers;
+using System.Text.RegularExpressions;
+using static Ninja_Price.Enums.HaggleTypes.HaggleType;
 using Color = SharpDX.Color;
 using RectangleF = SharpDX.RectangleF;
-using ImGuiNET;
-using static Ninja_Price.Enums.HaggleTypes.HaggleType;
-using ExileCore.PoEMemory.Elements.Necropolis;
-using System.Data;
-using System.Text.RegularExpressions;
 
 namespace Ninja_Price.Main;
 
@@ -358,6 +357,7 @@ public partial class Main
             case ItemTypes.ClusterJewel:
             case ItemTypes.Coffin:
             case ItemTypes.Allflame:
+            case ItemTypes.Memory:
                 if (priceInDivines >= 0.1)
                 {
                     AddText($"\nDivine: {priceInDivinesText}d");

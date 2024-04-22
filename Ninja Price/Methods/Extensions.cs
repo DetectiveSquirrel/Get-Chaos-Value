@@ -1,5 +1,5 @@
-using System;
 using Ninja_Price.API.PoeNinja;
+using System;
 
 namespace Ninja_Price.Main;
 

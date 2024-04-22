@@ -1,14 +1,13 @@
+using ExileCore.PoEMemory.Components;
+using ExileCore.PoEMemory.Elements;
+using ExileCore.PoEMemory.Elements.InventoryElements;
+using ExileCore.Shared.Enums;
+using Ninja_Price.API.PoeNinja;
 using Ninja_Price.Enums;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using ExileCore.PoEMemory.Elements;
-using ExileCore.PoEMemory.Elements.InventoryElements;
-using ExileCore.PoEMemory.FilesInMemory;
-using ExileCore.Shared.Enums;
 using Color = SharpDX.Color;
-using Ninja_Price.API.PoeNinja;
 
 namespace Ninja_Price.Main;
 
@@ -566,6 +565,18 @@ public partial class Main
                                 }
 
                                 break;
+                        }
+
+                        break;
+                    case ItemTypes.Memory:
+                        item.Entity.TryGetComponent<Mods>(out var modsComp);
+                        var modName = modsComp.ExplicitMods.Find(x => x.ModRecord.Group == "MemoryLineType").DisplayName;
+                        var memorySearch = CollectedData.Memories.Lines.Find(x => x.Name == $"{item.BaseName} {modName}");
+                        if (memorySearch != null)
+                        {
+                            item.PriceData.MinChaosValue = memorySearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = memorySearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = memorySearch.DetailsId;
                         }
 
                         break;

@@ -30,4 +30,5 @@ public enum ItemTypes
     Omen,
     Coffin,
     Allflame,
+    Memory,
 }

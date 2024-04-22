@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Ninja_Price.Enums;
+﻿using Ninja_Price.Enums;
+using System.Collections.Generic;
 
 namespace Ninja_Price.Main;
 
