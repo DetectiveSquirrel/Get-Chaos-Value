@@ -211,7 +211,7 @@ public class CustomItem
             {
                 ItemType = ItemTypes.Coffin;
             }
-            if (ClassName == "MemoryLine")
+            else if (ClassName == "MemoryLine")
             {
                 ItemType = ItemTypes.Memory;
             }
@@ -365,7 +365,6 @@ public class CustomItem
 
     public override string ToString()
     {
-        var uniqueName = string.IsNullOrWhiteSpace(UniqueName) ? BaseName : UniqueName;
-        return uniqueName;
+        return string.IsNullOrWhiteSpace(UniqueName) ? BaseName : UniqueName;
     }
 }
