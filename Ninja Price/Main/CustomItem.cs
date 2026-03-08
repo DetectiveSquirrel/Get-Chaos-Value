@@ -44,8 +44,8 @@ public class CustomItem
     public ItemTypes ItemType;
     public ClusterJewelData ClusterJewelData;
     public readonly List<string> EnchantedStats;
-    public NecropolisCraftingMod NecropolisMod;
     public readonly string CapturedMonsterName;
+    public HashSet<string> FoulbornMods;
 
     public readonly uint EntityId;
     public MapData MapInfo { get; set; } =  new MapData();
@@ -146,7 +146,6 @@ public class CustomItem
             if (itemEntity.TryGetComponent<NecropolisCorpse>(out var corpse))
             {
                 ItemLevel = corpse.Level;
-                NecropolisMod = corpse.CraftingMod;
             }
 
             if (itemEntity.TryGetComponent<Mods>(out var mods))
@@ -166,6 +165,8 @@ public class CustomItem
                             .ToList();
                     }
                 }
+
+                FoulbornMods = mods.ExplicitMods.Where(x => x.RawName.StartsWith("MutatedUnique", StringComparison.Ordinal)).Select(x => x.Translation).ToHashSet();
             }
 
             UniqueNameCandidates ??= [];

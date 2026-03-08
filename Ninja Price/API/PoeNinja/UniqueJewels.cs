@@ -55,10 +55,13 @@ public class UniqueJewels
         public Sparkline LowConfidenceSparkline { get; set; }
 
         [JsonProperty("implicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
-        public List<object> ImplicitModifiers { get; set; }
+        public List<ExplicitModifier> ImplicitModifiers { get; set; }
 
         [JsonProperty("explicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
         public List<ExplicitModifier> ExplicitModifiers { get; set; }
+
+        [JsonProperty("mutatedModifiers", NullValueHandling = NullValueHandling.Ignore)]
+        public List<ExplicitModifier> MutatedModifiers { get; set; }
 
         [JsonProperty("flavourText", NullValueHandling = NullValueHandling.Ignore)]
         public string FlavourText { get; set; }

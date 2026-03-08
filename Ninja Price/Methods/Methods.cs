@@ -352,8 +352,20 @@ public partial class Main
 
                         break;
                     case ItemTypes.UniqueAccessory:
+                    {
+                        var uniqueName = item.UniqueName;
+                        if (item.FoulbornMods.Any() && !string.IsNullOrEmpty(uniqueName))
+                        {
+                            uniqueName = $"Foulborn {uniqueName}";
+                        }
+
                         var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x =>
-                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                            x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                        if (uniqueAccessorySearch.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        {
+                            uniqueAccessorySearch = refined;
+                        }
+
                         if (uniqueAccessorySearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueAccessorySearch[0].ChaosValue ?? 0;
@@ -374,10 +386,18 @@ public partial class Main
                         }
 
                         break;
+                    }
                     case ItemTypes.UniqueArmour:
                     {
+                        var uniqueName = item.UniqueName;
+                        if (item.FoulbornMods.Any() && !string.IsNullOrEmpty(uniqueName))
+                        {
+                            uniqueName = $"Foulborn {uniqueName}";
+                        }
+
                         var allLinksLines = CollectedData.UniqueArmours.Lines.Where(x =>
-                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                            x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
+
                         var uniqueArmourSearchLinks = item.LargestLink switch
                         {
                             < 5 => allLinksLines.Where(x => x.Links != 5 && x.Links != 6).ToList(),
@@ -385,6 +405,10 @@ public partial class Main
                             6 => allLinksLines.Where(x => x.Links == 6).ToList(),
                             _ => new List<UniqueArmours.Line>()
                         };
+                        if (uniqueArmourSearchLinks.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        {
+                            uniqueArmourSearchLinks = refined;
+                        }
 
                         if (uniqueArmourSearchLinks.Count == 1)
                         {
@@ -408,8 +432,20 @@ public partial class Main
                         break;
                     }
                     case ItemTypes.UniqueFlask:
+                    {
+                        var uniqueName = item.UniqueName;
+                        if (item.FoulbornMods.Any() && !string.IsNullOrEmpty(uniqueName))
+                        {
+                            uniqueName = $"Foulborn {uniqueName}";
+                        }
+
                         var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.FindAll(x =>
-                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                            x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                        if (uniqueFlaskSearch.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        {
+                            uniqueFlaskSearch = refined;
+                        }
+
                         if (uniqueFlaskSearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueFlaskSearch[0].ChaosValue ?? 0;
@@ -430,9 +466,22 @@ public partial class Main
                         }
 
                         break;
+                    }
                     case ItemTypes.UniqueJewel:
+                    {
+                        var uniqueName = item.UniqueName;
+                        if (item.FoulbornMods.Any() && !string.IsNullOrEmpty(uniqueName))
+                        {
+                            uniqueName = $"Foulborn {uniqueName}";
+                        }
+                        
                         var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x =>
-                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                            x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                        if (uniqueJewelSearch.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        {
+                            uniqueJewelSearch = refined;
+                        }
+
                         if (uniqueJewelSearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueJewelSearch[0].ChaosValue ?? 0;
@@ -453,6 +502,7 @@ public partial class Main
                         }
 
                         break;
+                    }
                     case ItemTypes.UniqueMap:
                         var uniqueMapSearch = CollectedData.UniqueMaps.Lines.FindAll(x =>
                             (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
@@ -499,8 +549,14 @@ public partial class Main
                         break;
                     case ItemTypes.UniqueWeapon:
                     {
+                        var uniqueName = item.UniqueName;
+                        if (item.FoulbornMods.Any() && !string.IsNullOrEmpty(uniqueName))
+                        {
+                            uniqueName = $"Foulborn {uniqueName}";
+                        }
+
                         var allLinksLines = CollectedData.UniqueWeapons.Lines.Where(x =>
-                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                            x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
                         var uniqueArmourSearchLinks = item.LargestLink switch
                         {
                             < 5 => allLinksLines.Where(x => x.Links != 5 && x.Links != 6).ToList(),
@@ -508,6 +564,12 @@ public partial class Main
                             6 => allLinksLines.Where(x => x.Links == 6).ToList(),
                             _ => new List<UniqueWeapons.Line>()
                         };
+
+                        if (uniqueArmourSearchLinks.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        {
+                            uniqueArmourSearchLinks = refined;
+                        }
+
                         if (uniqueArmourSearchLinks.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueArmourSearchLinks[0].ChaosValue ?? 0;
