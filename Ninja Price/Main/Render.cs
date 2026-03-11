@@ -167,6 +167,11 @@ public partial class Main
                 {
                     ItemList = ritualItems;
                 }
+                if (Settings.LeagueSpecificSettings.ShowTrappedStashPrices &&
+                    GameController.Game.IngameState.IngameUi.TrappedStashWindow is { IsVisible: true, Items: { Count: > 0 } trappedStashItems })
+                {
+                    ItemList = trappedStashItems;
+                }
                 else if (Settings.LeagueSpecificSettings.ShowVillageRewardWindowPrices &&
                          GameController.Game.IngameState.IngameUi.VillageRewardWindow is { IsVisible: true, TabContainer.VisibleStash.VisibleInventoryItems: { Count: > 0 } villageItems })
                 {
@@ -275,11 +280,12 @@ public partial class Main
                 }
             }
         }
-        else if (Settings.LeagueSpecificSettings.ShowRitualWindowPrices && GameController.IngameState.IngameUi.RitualWindow.IsVisible ||
-                 Settings.LeagueSpecificSettings.ShowVillageRewardWindowPrices && GameController.IngameState.IngameUi.VillageRewardWindow.IsVisible ||
-                 Settings.LeagueSpecificSettings.ShowMercenaryInventoryPrices && GameController.IngameState.IngameUi.MercenaryEncounterWindow.IsVisible ||
-                 Settings.LeagueSpecificSettings.ShowPurchaseWindowPrices && (GameController.IngameState.IngameUi.PurchaseWindow.IsVisible ||
-                                                                              GameController.IngameState.IngameUi.PurchaseWindowHideout.IsVisible))
+        else if (
+            Settings.LeagueSpecificSettings.ShowTrappedStashPrices && GameController.IngameState.IngameUi.TrappedStashWindow.IsVisible ||
+            Settings.LeagueSpecificSettings.ShowRitualWindowPrices && GameController.IngameState.IngameUi.RitualWindow.IsVisible ||
+            Settings.LeagueSpecificSettings.ShowVillageRewardWindowPrices && GameController.IngameState.IngameUi.VillageRewardWindow.IsVisible ||
+            Settings.LeagueSpecificSettings.ShowMercenaryInventoryPrices && GameController.IngameState.IngameUi.MercenaryEncounterWindow.IsVisible ||
+            Settings.LeagueSpecificSettings.ShowPurchaseWindowPrices && GameController.IngameState.IngameUi.PurchaseWindow.IsVisible)
         {
             if (Settings.PriceOverlaySettings.Show &&
                 (!Settings.PriceOverlaySettings.DoNotDrawWhileAnItemIsHovered || HoveredItem == null))

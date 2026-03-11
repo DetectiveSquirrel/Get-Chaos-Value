@@ -64,6 +64,7 @@ public class LeagueSpecificSettings
 {
     public ToggleNode ShowMercenaryInventoryPrices { get; set; } = new(true);
     public ToggleNode ShowRitualWindowPrices { get; set; } = new(true);
+    public ToggleNode ShowTrappedStashPrices { get; set; } = new(true);
     public ToggleNode ShowVillageRewardWindowPrices { get; set; } = new(true);
     public ToggleNode ShowPurchaseWindowPrices { get; set; } = new(true);
     public ToggleNode ShowSanctumRewardPrices { get; set; } = new(true);
