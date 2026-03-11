@@ -178,6 +178,16 @@ public partial class Main
 
                         break;
                     }
+                    case ItemTypes.DjinnCoin:
+                        var djinnSearch = CollectedData.DjinnCoins.LinesByName.GetValueOrDefault(item.BaseName);
+                        if (djinnSearch != default)
+                        {
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * djinnSearch.ChaosEquivalent;
+                            item.PriceData.ChangeInLast7Days = djinnSearch.Line.sparkline.totalChange ?? 0;
+                            item.PriceData.DetailsId = djinnSearch.Item.detailsId;
+                        }
+
+                        break;
                     case ItemTypes.Catalyst:
                         var catalystSearch = CollectedData.Currency.LinesByName.GetValueOrDefault(item.BaseName);
                         if (catalystSearch != default)
