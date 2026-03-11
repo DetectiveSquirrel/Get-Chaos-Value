@@ -193,7 +193,7 @@ public class CustomItem
             if (weaponClass.Any(ClassName.Equals))
                 IsWeapon = true;
 
-            MapInfo.MapTier = itemEntity.TryGetComponent<Map>(out var map) ? map.Tier : 0;
+            MapInfo.MapTier = itemEntity.TryGetComponent<MapKey>(out var map) ? map.Tier : 0;
             MapInfo.IsMap = MapInfo.MapTier > 0;
 
             if (Rarity != ItemRarity.Unique && MapInfo.IsMap)
