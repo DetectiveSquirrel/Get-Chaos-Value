@@ -656,8 +656,29 @@ public partial class Main
                             case MapTypes.None:
 
                                 var normalMapBaseName = item.BaseName;
+
+                                #region Occupied Types
+
+                                var prefix = item.MapInfo.Occupier switch
+                                {
+                                    MapOccupier.AlHezmin => "Al-Hezmin",
+                                    MapOccupier.Baran => "Baran",
+                                    MapOccupier.Drox => "Drox",
+                                    MapOccupier.Veritania => "Veritania",
+                                    MapOccupier.Constrictor => "The Constrictor",
+                                    MapOccupier.Enslaver => "The Enslaver",
+                                    MapOccupier.Eradicator => "The Eradicator",
+                                    MapOccupier.Purifier => "The Purifier",
+                                    _ => null
+                                };
+
+                                if (prefix != null)
+                                    normalMapBaseName = $"{prefix} {normalMapBaseName}";
+
+                                #endregion
+
                                 var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x =>
-                                    x.BaseType == normalMapBaseName);
+                                    x.Name == normalMapBaseName);
 
                                 if (normalMapSearch != null)
                                 {
