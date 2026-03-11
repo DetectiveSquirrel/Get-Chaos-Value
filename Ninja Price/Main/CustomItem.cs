@@ -223,6 +223,8 @@ public class CustomItem
                         break;
                     }
                 }
+
+                if (BaseName == "Valdo Map") MapInfo.MapType = MapTypes.Valdo;
             }
 
             if (itemEntity.TryGetComponent<Stack>(out var stack))

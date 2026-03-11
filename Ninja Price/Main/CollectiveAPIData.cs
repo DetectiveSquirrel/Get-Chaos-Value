@@ -33,6 +33,7 @@ public class CollectiveApiData
     public WhiteMaps.RootObject WhiteMaps { get; set; } = new();
     public BlightedMaps.RootObject BlightedMaps { get; set; } = new();
     public BlightRavagedMaps.RootObject BlightRavagedMaps { get; set; } = new();
+    public ValdoMaps.RootObject ValdoMaps { get; set; } = new();
     public SkillGems.RootObject SkillGems { get; set; } = new();
     public Beasts.RootObject Beasts { get; set; } = new();
     public ClusterJewelNinjaData ClusterJewels { get; set; } = new();

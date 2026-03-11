@@ -6,5 +6,6 @@ public enum MapTypes
     Elder,
     Shaped,
     Blighted,
-    BlightRavaged
+    BlightRavaged,
+    Valdo
 }

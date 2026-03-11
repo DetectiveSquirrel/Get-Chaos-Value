@@ -526,9 +526,9 @@ public partial class Main
                         break;
                     }
                     case ItemTypes.UniqueMap:
-                        var uniqueMapSearch = CollectedData.UniqueMaps.Lines.FindAll(x =>
-                            (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
-                            item.MapInfo.MapTier == x.MapTier);
+                        var firstCandidate = item.UniqueNameCandidates?.FirstOrDefault();
+
+                        var uniqueMapSearch = CollectedData.UniqueMaps.Lines.FindAll(x => x.BaseType == item.BaseName && (x.Name == item.UniqueName || x.Name == firstCandidate));
                         if (uniqueMapSearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueMapSearch[0].ChaosValue ?? 0;
@@ -612,19 +612,14 @@ public partial class Main
                         }
 
                         break;
-                    }
+                        }
                     case ItemTypes.Map:
                         switch (item.MapInfo.MapType)
                         {
                             case MapTypes.Blighted:
 
                                 var blightedBaseName = $"Blighted {item.BaseName}";
-                                var normalBlightedMapSearch = Settings.DataSourceSettings.CheckMapVariant.Value
-                                    ? CollectedData.BlightedMaps.Lines.Find(x =>
-                                        x.BaseType == blightedBaseName && item.MapInfo.MapTier == x.MapTier &&
-                                        x.Variant == Settings.DataSourceSettings.League.Value)
-                                    : CollectedData.BlightedMaps.Lines.Find(x =>
-                                        x.BaseType == blightedBaseName && item.MapInfo.MapTier == x.MapTier);
+                                var normalBlightedMapSearch = CollectedData.BlightedMaps.Lines.Find(x => x.BaseType == blightedBaseName);
 
                                 if (normalBlightedMapSearch != null)
                                 {
@@ -637,12 +632,7 @@ public partial class Main
                             case MapTypes.BlightRavaged:
 
                                 var blightRavagedBaseName = $"Blight-ravaged {item.BaseName}";
-                                var blightRavagedMapSearch = Settings.DataSourceSettings.CheckMapVariant.Value
-                                    ? CollectedData.BlightRavagedMaps.Lines.Find(x =>
-                                        x.BaseType == blightRavagedBaseName && item.MapInfo.MapTier == x.MapTier &&
-                                        x.Variant == Settings.DataSourceSettings.League.Value)
-                                    : CollectedData.BlightRavagedMaps.Lines.Find(x =>
-                                        x.BaseType == blightRavagedBaseName && item.MapInfo.MapTier == x.MapTier);
+                                var blightRavagedMapSearch = CollectedData.BlightRavagedMaps.Lines.Find(x => x.BaseType == blightRavagedBaseName);
 
                                 if (blightRavagedMapSearch != null)
                                 {
@@ -652,13 +642,22 @@ public partial class Main
                                 }
 
                                 break;
+                            case MapTypes.Valdo:
+                                var valdoMapSearch = CollectedData.ValdoMaps.Lines.Find(x => x.Name == item.UniqueName);
+
+                                if (valdoMapSearch != null)
+                                {
+                                    item.PriceData.MinChaosValue = valdoMapSearch.ChaosValue ?? 0;
+                                    item.PriceData.ChangeInLast7Days = valdoMapSearch.Sparkline.TotalChange ?? 0;
+                                    item.PriceData.DetailsId = valdoMapSearch.DetailsId;
+                                }
+
+                                break;
                             case MapTypes.None:
 
-                                var normalMapSearch = Settings.DataSourceSettings.CheckMapVariant.Value
-                                                          ? CollectedData.WhiteMaps.Lines.Find(x =>
-                                                              x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.DataSourceSettings.League.Value)
-                                                          : CollectedData.WhiteMaps.Lines.Find(x =>
-                                                              x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier);
+                                var normalMapBaseName = item.BaseName;
+                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x =>
+                                    x.BaseType == normalMapBaseName);
 
                                 if (normalMapSearch != null)
                                 {

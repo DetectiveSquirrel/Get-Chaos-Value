@@ -55,8 +55,6 @@ public class DataSourceSettings
 
     [Menu(null, "Minutes")]
     public RangeNode<int> ReloadPeriod { get; set; } = new(15, 1, 60);
-
-    public ToggleNode CheckMapVariant { get; set; } = new(false);
 }
 
 [Submenu(CollapsedByDefault = true)]

@@ -35,6 +35,7 @@ public partial class Main
     private const string WhiteMapsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Map&language=en";
     private const string BlightedMapsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=BlightedMap&language=en";
     private const string BlightRavagedMapsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=BlightRavagedMap&language=en";
+    private const string ValdoMapsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=ValdoMap&language=en";
     private const string IncubatorsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Incubator&language=en";
     private const string WombgiftsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Wombgift&language=en";
     private const string SkillGemsUrl = "https://poe.ninja/api/data/ItemOverview?league={0}&type=SkillGem&language=en";
@@ -103,6 +104,7 @@ public partial class Main
                 await LoadData<WhiteMaps.RootObject>("WhiteMaps.json", WhiteMapsUrl, league, tryWebFirst, t => newData.WhiteMaps = t);
                 await LoadData<BlightedMaps.RootObject>("BlightedMaps.json", BlightedMapsUrl, league, tryWebFirst, t => newData.BlightedMaps = t);
                 await LoadData<BlightRavagedMaps.RootObject>("BlightRavagedMaps.json", BlightRavagedMapsUrl, league, tryWebFirst, t => newData.BlightRavagedMaps = t);
+                await LoadData<ValdoMaps.RootObject>("ValdoMaps.json", ValdoMapsUrl, league, tryWebFirst, t => newData.ValdoMaps = t);
 
                 new FileInfo(metadataPath).Directory?.Create();
                 await File.WriteAllTextAsync(metadataPath, JsonConvert.SerializeObject(new LeagueMetadata { LastLoadTime = DateTime.UtcNow }));
