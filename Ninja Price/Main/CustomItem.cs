@@ -63,7 +63,9 @@ public class CustomItem
         public bool IsMap;
         public MapTypes MapType;
         public int MapTier;
+        public MapOccupier Occupier { get; set; } = MapOccupier.None;
     }
+
     public class CurrencyData
     {
         public bool IsShard;
@@ -173,6 +175,31 @@ public class CustomItem
                 }
 
                 FoulbornMods = mods.ExplicitMods.Where(x => x.RawName.StartsWith("MutatedUnique", StringComparison.Ordinal)).Select(x => x.Translation).ToHashSet();
+
+                var itemStats = GetGameStats(mods.ImplicitMods);
+
+                #region MapOccupation
+
+                var elder = itemStats.GetValueOrDefault(GameStat.MapElderBossVariation);
+                var conqueror = itemStats.GetValueOrDefault(GameStat.MapContainsCitadel);
+
+                MapInfo.Occupier = elder switch
+                {
+                    1 => MapOccupier.Enslaver,
+                    2 => MapOccupier.Eradicator,
+                    3 => MapOccupier.Constrictor,
+                    4 => MapOccupier.Purifier,
+                    _ => conqueror switch
+                    {
+                        1 => MapOccupier.Baran,
+                        2 => MapOccupier.Veritania,
+                        3 => MapOccupier.AlHezmin,
+                        4 => MapOccupier.Drox,
+                        _ => MapOccupier.None
+                    }
+                };
+
+                #endregion
             }
 
             UniqueNameCandidates ??= [];
@@ -420,6 +447,25 @@ public class CustomItem
                     break;
             }
         }
+    }
+
+    public static Dictionary<GameStat, int> GetGameStats(IEnumerable<ItemMod> mods)
+    {
+        var stats = new Dictionary<GameStat, int>();
+
+        foreach (var mod in mods)
+        {
+            for (var i = 0; i < mod.ModRecord.StatNames.Length; i++)
+            {
+                var stat = mod.ModRecord.StatNames[i].MatchingStat;
+                var value = mod.Values[i];
+
+                if (stats.TryGetValue(stat, out var existing)) stats[stat] = existing + value;
+                else stats[stat] = value;
+            }
+        }
+
+        return stats;
     }
 
     public override string ToString()
