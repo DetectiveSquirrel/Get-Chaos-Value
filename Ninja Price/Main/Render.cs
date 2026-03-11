@@ -411,6 +411,7 @@ public partial class Main
             case ItemTypes.Vials:
             case ItemTypes.DivinationCard:
             case ItemTypes.Incubator:
+            case ItemTypes.Wombgift:
             case ItemTypes.Tattoo:
             case ItemTypes.Omen:
             case ItemTypes.KalguuranRune:

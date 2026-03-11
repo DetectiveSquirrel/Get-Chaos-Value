@@ -46,6 +46,7 @@ public class CustomItem
     public readonly List<string> EnchantedStats;
     public readonly string CapturedMonsterName;
     public HashSet<string> FoulbornMods;
+    public readonly int WombgiftLevel;
 
     public readonly uint EntityId;
     public MapData MapInfo { get; set; } =  new MapData();
@@ -127,6 +128,11 @@ public class CustomItem
             if (itemEntity.TryGetComponent<Quality>(out var quality))
             {
                 Quality = quality.ItemQuality;
+            }
+
+            if (itemEntity.TryGetComponent<BrequelFruit>(out var wombgift))
+            {
+                WombgiftLevel = wombgift.Level;
             }
 
             if (itemEntity.TryGetComponent<SkillGem>(out var skillGem))
@@ -308,6 +314,10 @@ public class CustomItem
         else if (BaseName.StartsWith("Coin of"))
         {
             ItemType = ItemTypes.DjinnCoin;
+        }
+        else if (ClassName == "BrequelFruit")
+        {
+            ItemType = ItemTypes.Wombgift;
         }
         else if (BaseName.EndsWith(" Catalyst"))
         {

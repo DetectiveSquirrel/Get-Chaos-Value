@@ -36,6 +36,7 @@ public partial class Main
     private const string BlightedMapsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=BlightedMap&language=en";
     private const string BlightRavagedMapsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=BlightRavagedMap&language=en";
     private const string IncubatorsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Incubator&language=en";
+    private const string WombgiftsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Wombgift&language=en";
     private const string SkillGemsUrl = "https://poe.ninja/api/data/ItemOverview?league={0}&type=SkillGem&language=en";
     private const string ClusterJewelsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=ClusterJewel&language=en";
     private const string BeastUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Beast&language=en";
@@ -89,6 +90,7 @@ public partial class Main
                 await LoadData<Invitations.RootObject>("Invitations.json", InvitationUrl, league, tryWebFirst, t => newData.Invitations = t);
                 await LoadData<Vials.RootObject>("Vials.json", VialUrl, league, tryWebFirst, t => newData.Vials = t);
                 await LoadData<Incubators.RootObject>("Incubators.json", IncubatorsUrl, league, tryWebFirst, t => newData.Incubators = t);
+                await LoadData<Wombgifts.RootObject>("Wombgifts.json", WombgiftsUrl, league, tryWebFirst, t => newData.Wombgifts = t);
                 await LoadData<SkillGems.RootObject>("SkillGems.json", SkillGemsUrl, league, tryWebFirst, t => newData.SkillGems = t);
                 await LoadData<ClusterJewelNinjaData>("ClusterJewels.json", ClusterJewelsUrl, league, tryWebFirst, t => newData.ClusterJewels = t);
                 await LoadData<Beasts.RootObject>("Beasts.json", BeastUrl, league, tryWebFirst, t => newData.Beasts = t);
