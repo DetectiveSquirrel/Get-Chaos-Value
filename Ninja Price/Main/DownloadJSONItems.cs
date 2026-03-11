@@ -23,6 +23,7 @@ public partial class Main
     private const string OmenUrl = "https://poe.ninja/poe1/api/economy/exchange/current/overview?league={0}&type=Omen";
     private const string KalguuranRunesUrl = "https://poe.ninja/poe1/api/economy/exchange/current/overview?league={0}&type=Runegraft";
     private const string AllflameEmbersUrl = "https://poe.ninja/poe1/api/economy/exchange/current/overview?league={0}&type=AllflameEmber";
+    private const string DjinnCoinsUrl = "https://poe.ninja/poe1/api/economy/exchange/current/overview?league={0}&type=DjinnCoin";
 
     private const string InvitationUrl = "https://poe.ninja/api/data/ItemOverview?league={0}&type=Invitation&language=en";
     private const string UniqueAccessoriesUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=UniqueAccessory&language=en";
@@ -83,6 +84,7 @@ public partial class Main
                 await LoadData<CurrencyOverviewData.RootObject>("Omens2.json", OmenUrl, league, tryWebFirst, t => newData.Omens = t);
                 await LoadData<CurrencyOverviewData.RootObject>("KalguuranRunes2.json", KalguuranRunesUrl, league, tryWebFirst, t => newData.KalguuranRunes = t);
                 await LoadData<CurrencyOverviewData.RootObject>("AllflameEmbers2.json", AllflameEmbersUrl, league, tryWebFirst, t => newData.AllflameEmbers = t);
+                await LoadData<CurrencyOverviewData.RootObject>("DjinnCoinsUrl2.json", DjinnCoinsUrl, league, tryWebFirst, t => newData.DjinnCoins = t);
 
                 await LoadData<Invitations.RootObject>("Invitations.json", InvitationUrl, league, tryWebFirst, t => newData.Invitations = t);
                 await LoadData<Vials.RootObject>("Vials.json", VialUrl, league, tryWebFirst, t => newData.Vials = t);

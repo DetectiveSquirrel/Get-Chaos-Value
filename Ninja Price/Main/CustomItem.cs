@@ -300,9 +300,14 @@ public class CustomItem
                  !BaseName.StartsWith("Splinter of ") &&
                  ClassName != "Incubator" &&
                  !BaseName.EndsWith(" Catalyst") &&
-                 BaseName != "Valdo's Puzzle Box")
+                 BaseName != "Valdo's Puzzle Box" &&
+                 !BaseName.StartsWith("Coin of"))
         {
             ItemType = ItemTypes.Currency;
+        }
+        else if (BaseName.StartsWith("Coin of"))
+        {
+            ItemType = ItemTypes.DjinnCoin;
         }
         else if (BaseName.EndsWith(" Catalyst"))
         {
