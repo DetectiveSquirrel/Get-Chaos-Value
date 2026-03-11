@@ -311,6 +311,18 @@ public partial class Main
                         }
 
                         break;
+                    case ItemTypes.Wombgift:
+                        var wombgiftSearch = CollectedData.Wombgifts.Lines.Find(x => x.Name == item.BaseName && x.LevelRequired == item.WombgiftLevel);
+                        if (wombgiftSearch != null)
+                        {
+                            item.PriceData.MinChaosValue = wombgiftSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = wombgiftSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = wombgiftSearch.DetailsId;
+                        }
+
+                        break;
+
+                        break;
                     case ItemTypes.Invitation:
                         var invitationSearch = CollectedData.Invitations.Lines.Find(x => x.Name == item.BaseName);
                         if (invitationSearch != null)

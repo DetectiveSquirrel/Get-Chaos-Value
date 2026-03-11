@@ -23,6 +23,7 @@ public class CollectiveApiData
     public Invitations.RootObject Invitations { get; set; } = new();
     public Vials.RootObject Vials { get; set; } = new();
     public Incubators.RootObject Incubators { get; set; } = new();
+    public Wombgifts.RootObject Wombgifts { get; set; } = new();
     public UniqueAccessories.RootObject UniqueAccessories { get; set; } = new();
     public UniqueArmours.RootObject UniqueArmours { get; set; } = new();
     public UniqueFlasks.RootObject UniqueFlasks { get; set; } = new();
