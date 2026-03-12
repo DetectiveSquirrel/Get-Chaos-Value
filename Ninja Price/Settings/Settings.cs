@@ -55,8 +55,6 @@ public class DataSourceSettings
 
     [Menu(null, "Minutes")]
     public RangeNode<int> ReloadPeriod { get; set; } = new(15, 1, 60);
-
-    public ToggleNode CheckMapVariant { get; set; } = new(false);
 }
 
 [Submenu(CollapsedByDefault = true)]
@@ -64,6 +62,7 @@ public class LeagueSpecificSettings
 {
     public ToggleNode ShowMercenaryInventoryPrices { get; set; } = new(true);
     public ToggleNode ShowRitualWindowPrices { get; set; } = new(true);
+    public ToggleNode ShowTrappedStashPrices { get; set; } = new(true);
     public ToggleNode ShowVillageRewardWindowPrices { get; set; } = new(true);
     public ToggleNode ShowPurchaseWindowPrices { get; set; } = new(true);
     public ToggleNode ShowSanctumRewardPrices { get; set; } = new(true);

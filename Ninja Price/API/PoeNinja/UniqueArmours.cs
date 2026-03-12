@@ -62,6 +62,9 @@ public class UniqueArmours
         [JsonProperty("explicitModifiers", NullValueHandling = NullValueHandling.Ignore)]
         public List<PlicitModifier> ExplicitModifiers { get; set; }
 
+        [JsonProperty("mutatedModifiers", NullValueHandling = NullValueHandling.Ignore)]
+        public List<PlicitModifier> MutatedModifiers { get; set; }
+
         [JsonProperty("flavourText", NullValueHandling = NullValueHandling.Ignore)]
         public string FlavourText { get; set; }
 

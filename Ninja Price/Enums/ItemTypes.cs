@@ -32,4 +32,6 @@ public enum ItemTypes
     KalguuranRune,
     InscribedUltimatum,
     AllflameEmber,
+    DjinnCoin,
+    Wombgift
 }

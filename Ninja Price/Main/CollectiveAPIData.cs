@@ -18,10 +18,12 @@ public class CollectiveApiData
     public CurrencyOverviewData.RootObject Omens { get; set; } = new();
     public CurrencyOverviewData.RootObject KalguuranRunes { get; set; } = new();
     public CurrencyOverviewData.RootObject AllflameEmbers { get; set; } = new();
+    public CurrencyOverviewData.RootObject DjinnCoins { get; set; } = new();
 
     public Invitations.RootObject Invitations { get; set; } = new();
     public Vials.RootObject Vials { get; set; } = new();
     public Incubators.RootObject Incubators { get; set; } = new();
+    public Wombgifts.RootObject Wombgifts { get; set; } = new();
     public UniqueAccessories.RootObject UniqueAccessories { get; set; } = new();
     public UniqueArmours.RootObject UniqueArmours { get; set; } = new();
     public UniqueFlasks.RootObject UniqueFlasks { get; set; } = new();
@@ -31,6 +33,7 @@ public class CollectiveApiData
     public WhiteMaps.RootObject WhiteMaps { get; set; } = new();
     public BlightedMaps.RootObject BlightedMaps { get; set; } = new();
     public BlightRavagedMaps.RootObject BlightRavagedMaps { get; set; } = new();
+    public ValdoMaps.RootObject ValdoMaps { get; set; } = new();
     public SkillGems.RootObject SkillGems { get; set; } = new();
     public Beasts.RootObject Beasts { get; set; } = new();
     public ClusterJewelNinjaData ClusterJewels { get; set; } = new();

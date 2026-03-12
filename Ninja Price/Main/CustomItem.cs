@@ -44,8 +44,9 @@ public class CustomItem
     public ItemTypes ItemType;
     public ClusterJewelData ClusterJewelData;
     public readonly List<string> EnchantedStats;
-    public NecropolisCraftingMod NecropolisMod;
     public readonly string CapturedMonsterName;
+    public HashSet<string> FoulbornMods;
+    public readonly int WombgiftLevel;
 
     public readonly uint EntityId;
     public MapData MapInfo { get; set; } =  new MapData();
@@ -62,7 +63,9 @@ public class CustomItem
         public bool IsMap;
         public MapTypes MapType;
         public int MapTier;
+        public MapOccupier Occupier { get; set; } = MapOccupier.None;
     }
+
     public class CurrencyData
     {
         public bool IsShard;
@@ -129,6 +132,11 @@ public class CustomItem
                 Quality = quality.ItemQuality;
             }
 
+            if (itemEntity.TryGetComponent<BrequelFruit>(out var wombgift))
+            {
+                WombgiftLevel = wombgift.Level;
+            }
+
             if (itemEntity.TryGetComponent<SkillGem>(out var skillGem))
             {
                 GemLevel = skillGem.Level;
@@ -146,7 +154,6 @@ public class CustomItem
             if (itemEntity.TryGetComponent<NecropolisCorpse>(out var corpse))
             {
                 ItemLevel = corpse.Level;
-                NecropolisMod = corpse.CraftingMod;
             }
 
             if (itemEntity.TryGetComponent<Mods>(out var mods))
@@ -166,6 +173,33 @@ public class CustomItem
                             .ToList();
                     }
                 }
+
+                FoulbornMods = mods.ExplicitMods.Where(x => x.RawName.StartsWith("MutatedUnique", StringComparison.Ordinal)).Select(x => x.Translation).ToHashSet();
+
+                var itemStats = GetGameStats(mods.ImplicitMods);
+
+                #region MapOccupation
+
+                var elder = itemStats.GetValueOrDefault(GameStat.MapElderBossVariation);
+                var conqueror = itemStats.GetValueOrDefault(GameStat.MapContainsCitadel);
+
+                MapInfo.Occupier = elder switch
+                {
+                    1 => MapOccupier.Enslaver,
+                    2 => MapOccupier.Eradicator,
+                    3 => MapOccupier.Constrictor,
+                    4 => MapOccupier.Purifier,
+                    _ => conqueror switch
+                    {
+                        1 => MapOccupier.Baran,
+                        2 => MapOccupier.Veritania,
+                        3 => MapOccupier.AlHezmin,
+                        4 => MapOccupier.Drox,
+                        _ => MapOccupier.None
+                    }
+                };
+
+                #endregion
             }
 
             UniqueNameCandidates ??= [];
@@ -186,7 +220,7 @@ public class CustomItem
             if (weaponClass.Any(ClassName.Equals))
                 IsWeapon = true;
 
-            MapInfo.MapTier = itemEntity.TryGetComponent<Map>(out var map) ? map.Tier : 0;
+            MapInfo.MapTier = itemEntity.TryGetComponent<MapKey>(out var map) ? map.Tier : 0;
             MapInfo.IsMap = MapInfo.MapTier > 0;
 
             if (Rarity != ItemRarity.Unique && MapInfo.IsMap)
@@ -216,6 +250,8 @@ public class CustomItem
                         break;
                     }
                 }
+
+                if (BaseName == "Valdo Map") MapInfo.MapType = MapTypes.Valdo;
             }
 
             if (itemEntity.TryGetComponent<Stack>(out var stack))
@@ -299,9 +335,18 @@ public class CustomItem
                  !BaseName.StartsWith("Splinter of ") &&
                  ClassName != "Incubator" &&
                  !BaseName.EndsWith(" Catalyst") &&
-                 BaseName != "Valdo's Puzzle Box")
+                 BaseName != "Valdo's Puzzle Box" &&
+                 !BaseName.StartsWith("Coin of"))
         {
             ItemType = ItemTypes.Currency;
+        }
+        else if (BaseName.StartsWith("Coin of"))
+        {
+            ItemType = ItemTypes.DjinnCoin;
+        }
+        else if (ClassName == "BrequelFruit")
+        {
+            ItemType = ItemTypes.Wombgift;
         }
         else if (BaseName.EndsWith(" Catalyst"))
         {
@@ -402,6 +447,25 @@ public class CustomItem
                     break;
             }
         }
+    }
+
+    public static Dictionary<GameStat, int> GetGameStats(IEnumerable<ItemMod> mods)
+    {
+        var stats = new Dictionary<GameStat, int>();
+
+        foreach (var mod in mods)
+        {
+            for (var i = 0; i < mod.ModRecord.StatNames.Length; i++)
+            {
+                var stat = mod.ModRecord.StatNames[i].MatchingStat;
+                var value = mod.Values[i];
+
+                if (stats.TryGetValue(stat, out var existing)) stats[stat] = existing + value;
+                else stats[stat] = value;
+            }
+        }
+
+        return stats;
     }
 
     public override string ToString()

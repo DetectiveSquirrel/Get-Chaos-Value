@@ -178,6 +178,16 @@ public partial class Main
 
                         break;
                     }
+                    case ItemTypes.DjinnCoin:
+                        var djinnSearch = CollectedData.DjinnCoins.LinesByName.GetValueOrDefault(item.BaseName);
+                        if (djinnSearch != default)
+                        {
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * djinnSearch.ChaosEquivalent;
+                            item.PriceData.ChangeInLast7Days = djinnSearch.Line.sparkline.totalChange ?? 0;
+                            item.PriceData.DetailsId = djinnSearch.Item.detailsId;
+                        }
+
+                        break;
                     case ItemTypes.Catalyst:
                         var catalystSearch = CollectedData.Currency.LinesByName.GetValueOrDefault(item.BaseName);
                         if (catalystSearch != default)
@@ -301,6 +311,18 @@ public partial class Main
                         }
 
                         break;
+                    case ItemTypes.Wombgift:
+                        var wombgiftSearch = CollectedData.Wombgifts.Lines.Find(x => x.Name == item.BaseName && x.LevelRequired == item.WombgiftLevel);
+                        if (wombgiftSearch != null)
+                        {
+                            item.PriceData.MinChaosValue = wombgiftSearch.ChaosValue ?? 0;
+                            item.PriceData.ChangeInLast7Days = wombgiftSearch.Sparkline.TotalChange ?? 0;
+                            item.PriceData.DetailsId = wombgiftSearch.DetailsId;
+                        }
+
+                        break;
+
+                        break;
                     case ItemTypes.Invitation:
                         var invitationSearch = CollectedData.Invitations.Lines.Find(x => x.Name == item.BaseName);
                         if (invitationSearch != null)
@@ -352,8 +374,20 @@ public partial class Main
 
                         break;
                     case ItemTypes.UniqueAccessory:
+                    {
+                        var uniqueName = item.UniqueName;
+                        if (item.FoulbornMods.Any() && !string.IsNullOrEmpty(uniqueName))
+                        {
+                            uniqueName = $"Foulborn {uniqueName}";
+                        }
+
                         var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x =>
-                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                            x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                        if (uniqueAccessorySearch.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        {
+                            uniqueAccessorySearch = refined;
+                        }
+
                         if (uniqueAccessorySearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueAccessorySearch[0].ChaosValue ?? 0;
@@ -374,10 +408,18 @@ public partial class Main
                         }
 
                         break;
+                    }
                     case ItemTypes.UniqueArmour:
                     {
+                        var uniqueName = item.UniqueName;
+                        if (item.FoulbornMods.Any() && !string.IsNullOrEmpty(uniqueName))
+                        {
+                            uniqueName = $"Foulborn {uniqueName}";
+                        }
+
                         var allLinksLines = CollectedData.UniqueArmours.Lines.Where(x =>
-                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                            x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
+
                         var uniqueArmourSearchLinks = item.LargestLink switch
                         {
                             < 5 => allLinksLines.Where(x => x.Links != 5 && x.Links != 6).ToList(),
@@ -385,6 +427,10 @@ public partial class Main
                             6 => allLinksLines.Where(x => x.Links == 6).ToList(),
                             _ => new List<UniqueArmours.Line>()
                         };
+                        if (uniqueArmourSearchLinks.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        {
+                            uniqueArmourSearchLinks = refined;
+                        }
 
                         if (uniqueArmourSearchLinks.Count == 1)
                         {
@@ -408,8 +454,20 @@ public partial class Main
                         break;
                     }
                     case ItemTypes.UniqueFlask:
+                    {
+                        var uniqueName = item.UniqueName;
+                        if (item.FoulbornMods.Any() && !string.IsNullOrEmpty(uniqueName))
+                        {
+                            uniqueName = $"Foulborn {uniqueName}";
+                        }
+
                         var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.FindAll(x =>
-                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                            x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                        if (uniqueFlaskSearch.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        {
+                            uniqueFlaskSearch = refined;
+                        }
+
                         if (uniqueFlaskSearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueFlaskSearch[0].ChaosValue ?? 0;
@@ -430,9 +488,22 @@ public partial class Main
                         }
 
                         break;
+                    }
                     case ItemTypes.UniqueJewel:
+                    {
+                        var uniqueName = item.UniqueName;
+                        if (item.FoulbornMods.Any() && !string.IsNullOrEmpty(uniqueName))
+                        {
+                            uniqueName = $"Foulborn {uniqueName}";
+                        }
+                        
                         var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x =>
-                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                            x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                        if (uniqueJewelSearch.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        {
+                            uniqueJewelSearch = refined;
+                        }
+
                         if (uniqueJewelSearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueJewelSearch[0].ChaosValue ?? 0;
@@ -453,10 +524,11 @@ public partial class Main
                         }
 
                         break;
+                    }
                     case ItemTypes.UniqueMap:
-                        var uniqueMapSearch = CollectedData.UniqueMaps.Lines.FindAll(x =>
-                            (x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) &&
-                            item.MapInfo.MapTier == x.MapTier);
+                        var firstCandidate = item.UniqueNameCandidates?.FirstOrDefault();
+
+                        var uniqueMapSearch = CollectedData.UniqueMaps.Lines.FindAll(x => x.BaseType == item.BaseName && (x.Name == item.UniqueName || x.Name == firstCandidate));
                         if (uniqueMapSearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueMapSearch[0].ChaosValue ?? 0;
@@ -499,8 +571,14 @@ public partial class Main
                         break;
                     case ItemTypes.UniqueWeapon:
                     {
+                        var uniqueName = item.UniqueName;
+                        if (item.FoulbornMods.Any() && !string.IsNullOrEmpty(uniqueName))
+                        {
+                            uniqueName = $"Foulborn {uniqueName}";
+                        }
+
                         var allLinksLines = CollectedData.UniqueWeapons.Lines.Where(x =>
-                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name));
+                            x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
                         var uniqueArmourSearchLinks = item.LargestLink switch
                         {
                             < 5 => allLinksLines.Where(x => x.Links != 5 && x.Links != 6).ToList(),
@@ -508,6 +586,12 @@ public partial class Main
                             6 => allLinksLines.Where(x => x.Links == 6).ToList(),
                             _ => new List<UniqueWeapons.Line>()
                         };
+
+                        if (uniqueArmourSearchLinks.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        {
+                            uniqueArmourSearchLinks = refined;
+                        }
+
                         if (uniqueArmourSearchLinks.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueArmourSearchLinks[0].ChaosValue ?? 0;
@@ -528,19 +612,14 @@ public partial class Main
                         }
 
                         break;
-                    }
+                        }
                     case ItemTypes.Map:
                         switch (item.MapInfo.MapType)
                         {
                             case MapTypes.Blighted:
 
                                 var blightedBaseName = $"Blighted {item.BaseName}";
-                                var normalBlightedMapSearch = Settings.DataSourceSettings.CheckMapVariant.Value
-                                    ? CollectedData.BlightedMaps.Lines.Find(x =>
-                                        x.BaseType == blightedBaseName && item.MapInfo.MapTier == x.MapTier &&
-                                        x.Variant == Settings.DataSourceSettings.League.Value)
-                                    : CollectedData.BlightedMaps.Lines.Find(x =>
-                                        x.BaseType == blightedBaseName && item.MapInfo.MapTier == x.MapTier);
+                                var normalBlightedMapSearch = CollectedData.BlightedMaps.Lines.Find(x => x.BaseType == blightedBaseName);
 
                                 if (normalBlightedMapSearch != null)
                                 {
@@ -553,12 +632,7 @@ public partial class Main
                             case MapTypes.BlightRavaged:
 
                                 var blightRavagedBaseName = $"Blight-ravaged {item.BaseName}";
-                                var blightRavagedMapSearch = Settings.DataSourceSettings.CheckMapVariant.Value
-                                    ? CollectedData.BlightRavagedMaps.Lines.Find(x =>
-                                        x.BaseType == blightRavagedBaseName && item.MapInfo.MapTier == x.MapTier &&
-                                        x.Variant == Settings.DataSourceSettings.League.Value)
-                                    : CollectedData.BlightRavagedMaps.Lines.Find(x =>
-                                        x.BaseType == blightRavagedBaseName && item.MapInfo.MapTier == x.MapTier);
+                                var blightRavagedMapSearch = CollectedData.BlightRavagedMaps.Lines.Find(x => x.BaseType == blightRavagedBaseName);
 
                                 if (blightRavagedMapSearch != null)
                                 {
@@ -568,13 +642,43 @@ public partial class Main
                                 }
 
                                 break;
+                            case MapTypes.Valdo:
+                                var valdoMapSearch = CollectedData.ValdoMaps.Lines.Find(x => x.Name == item.UniqueName);
+
+                                if (valdoMapSearch != null)
+                                {
+                                    item.PriceData.MinChaosValue = valdoMapSearch.ChaosValue ?? 0;
+                                    item.PriceData.ChangeInLast7Days = valdoMapSearch.Sparkline.TotalChange ?? 0;
+                                    item.PriceData.DetailsId = valdoMapSearch.DetailsId;
+                                }
+
+                                break;
                             case MapTypes.None:
 
-                                var normalMapSearch = Settings.DataSourceSettings.CheckMapVariant.Value
-                                                          ? CollectedData.WhiteMaps.Lines.Find(x =>
-                                                              x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier && x.Variant == Settings.DataSourceSettings.League.Value)
-                                                          : CollectedData.WhiteMaps.Lines.Find(x =>
-                                                              x.BaseType == item.BaseName && item.MapInfo.MapTier == x.MapTier);
+                                var normalMapBaseName = item.BaseName;
+
+                                #region Occupied Types
+
+                                var prefix = item.MapInfo.Occupier switch
+                                {
+                                    MapOccupier.AlHezmin => "Al-Hezmin",
+                                    MapOccupier.Baran => "Baran",
+                                    MapOccupier.Drox => "Drox",
+                                    MapOccupier.Veritania => "Veritania",
+                                    MapOccupier.Constrictor => "The Constrictor",
+                                    MapOccupier.Enslaver => "The Enslaver",
+                                    MapOccupier.Eradicator => "The Eradicator",
+                                    MapOccupier.Purifier => "The Purifier",
+                                    _ => null
+                                };
+
+                                if (prefix != null)
+                                    normalMapBaseName = $"{prefix} {normalMapBaseName}";
+
+                                #endregion
+
+                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x =>
+                                    x.Name == normalMapBaseName);
 
                                 if (normalMapSearch != null)
                                 {

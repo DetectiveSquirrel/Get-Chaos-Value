@@ -23,6 +23,7 @@ public partial class Main
     private const string OmenUrl = "https://poe.ninja/poe1/api/economy/exchange/current/overview?league={0}&type=Omen";
     private const string KalguuranRunesUrl = "https://poe.ninja/poe1/api/economy/exchange/current/overview?league={0}&type=Runegraft";
     private const string AllflameEmbersUrl = "https://poe.ninja/poe1/api/economy/exchange/current/overview?league={0}&type=AllflameEmber";
+    private const string DjinnCoinsUrl = "https://poe.ninja/poe1/api/economy/exchange/current/overview?league={0}&type=DjinnCoin";
 
     private const string InvitationUrl = "https://poe.ninja/api/data/ItemOverview?league={0}&type=Invitation&language=en";
     private const string UniqueAccessoriesUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=UniqueAccessory&language=en";
@@ -34,7 +35,9 @@ public partial class Main
     private const string WhiteMapsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Map&language=en";
     private const string BlightedMapsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=BlightedMap&language=en";
     private const string BlightRavagedMapsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=BlightRavagedMap&language=en";
+    private const string ValdoMapsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=ValdoMap&language=en";
     private const string IncubatorsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Incubator&language=en";
+    private const string WombgiftsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Wombgift&language=en";
     private const string SkillGemsUrl = "https://poe.ninja/api/data/ItemOverview?league={0}&type=SkillGem&language=en";
     private const string ClusterJewelsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=ClusterJewel&language=en";
     private const string BeastUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Beast&language=en";
@@ -83,10 +86,12 @@ public partial class Main
                 await LoadData<CurrencyOverviewData.RootObject>("Omens2.json", OmenUrl, league, tryWebFirst, t => newData.Omens = t);
                 await LoadData<CurrencyOverviewData.RootObject>("KalguuranRunes2.json", KalguuranRunesUrl, league, tryWebFirst, t => newData.KalguuranRunes = t);
                 await LoadData<CurrencyOverviewData.RootObject>("AllflameEmbers2.json", AllflameEmbersUrl, league, tryWebFirst, t => newData.AllflameEmbers = t);
+                await LoadData<CurrencyOverviewData.RootObject>("DjinnCoinsUrl2.json", DjinnCoinsUrl, league, tryWebFirst, t => newData.DjinnCoins = t);
 
                 await LoadData<Invitations.RootObject>("Invitations.json", InvitationUrl, league, tryWebFirst, t => newData.Invitations = t);
                 await LoadData<Vials.RootObject>("Vials.json", VialUrl, league, tryWebFirst, t => newData.Vials = t);
                 await LoadData<Incubators.RootObject>("Incubators.json", IncubatorsUrl, league, tryWebFirst, t => newData.Incubators = t);
+                await LoadData<Wombgifts.RootObject>("Wombgifts.json", WombgiftsUrl, league, tryWebFirst, t => newData.Wombgifts = t);
                 await LoadData<SkillGems.RootObject>("SkillGems.json", SkillGemsUrl, league, tryWebFirst, t => newData.SkillGems = t);
                 await LoadData<ClusterJewelNinjaData>("ClusterJewels.json", ClusterJewelsUrl, league, tryWebFirst, t => newData.ClusterJewels = t);
                 await LoadData<Beasts.RootObject>("Beasts.json", BeastUrl, league, tryWebFirst, t => newData.Beasts = t);
@@ -99,6 +104,7 @@ public partial class Main
                 await LoadData<WhiteMaps.RootObject>("WhiteMaps.json", WhiteMapsUrl, league, tryWebFirst, t => newData.WhiteMaps = t);
                 await LoadData<BlightedMaps.RootObject>("BlightedMaps.json", BlightedMapsUrl, league, tryWebFirst, t => newData.BlightedMaps = t);
                 await LoadData<BlightRavagedMaps.RootObject>("BlightRavagedMaps.json", BlightRavagedMapsUrl, league, tryWebFirst, t => newData.BlightRavagedMaps = t);
+                await LoadData<ValdoMaps.RootObject>("ValdoMaps.json", ValdoMapsUrl, league, tryWebFirst, t => newData.ValdoMaps = t);
 
                 new FileInfo(metadataPath).Directory?.Create();
                 await File.WriteAllTextAsync(metadataPath, JsonConvert.SerializeObject(new LeagueMetadata { LastLoadTime = DateTime.UtcNow }));
