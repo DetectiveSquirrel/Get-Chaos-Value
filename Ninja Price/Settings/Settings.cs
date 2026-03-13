@@ -169,13 +169,13 @@ public class VisualPriceSettings
     public RangeNode<int> SignificantDigits { get; set; } = new(2, 0, 2);
     public ColorNode FontColor { get; set; } = new Color(216, 216, 216, 255);
     public ColorNode BackgroundColor { get; set; } = new Color(0, 0, 0, 255);
-    public RangeNode<int> SemiValuableColorThreshold { get; set; } = new(20, 0, 100000);
-    public ColorNode SemiValuableColor { get; set; } = new(Color.DeepSkyBlue);
+    public RangeNode<int> SemiValuableColorThreshold { get; set; } = new(30, 0, 100000);
+    public ColorNode SemiValuableColor { get; set; } = new(new Color(0, 240, 56, 153));
     public RangeNode<int> ValuableColorThreshold { get; set; } = new(50, 0, 100000);
-    public ColorNode ValuableColor { get; set; } = new(Color.Violet);
-    public RangeNode<int> ExtraValuableColorThreshold { get; set; } = new(200, 0, 100000);
-    public ColorNode ExtraValuableColor { get; set; } = new(Color.Gold);
-    public ColorNode ExtraValuableBackgroundColor { get; set; } = new(new Color(60, 20, 0, 255));
+    public ColorNode ValuableColor { get; set; } = new(new Color(238, 130, 145, 255));
+    public RangeNode<int> ExtraValuableColorThreshold { get; set; } = new(100, 0, 100000);
+    public ColorNode ExtraValuableColor { get; set; } = new(new Color(255, 166, 0, 255));
+    public ColorNode ExtraValuableBackgroundColor { get; set; } = new(new Color(0, 4, 255, 255));
 
     [Menu(null, "Set to 0 to disable")]
     public RangeNode<float> MaximalValueForFractionalDisplay { get; set; } = new(0.2f, 0, 1);
