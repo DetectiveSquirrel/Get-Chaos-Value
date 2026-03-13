@@ -274,7 +274,7 @@ public partial class Main
                         case InventoryType.DeliriumStash:
                         case InventoryType.UltimatumStash:
                         case InventoryType.BlightStash:
-                            PriceBoxOverItem(customItem, null, Settings.VisualPriceSettings.FontColor);
+                            PriceBoxOverItem(customItem, null);
                             break;
                     }
                 }
@@ -335,7 +335,8 @@ public partial class Main
                                 continue;
                             }
 
-                            Graphics.DrawTextWithBackground(text, topRight, Settings.VisualPriceSettings.FontColor, FontAlign.Right, Color.Black);
+                            var overlayColors = GetOverlayColors(typePrice);
+                            Graphics.DrawTextWithBackground(text, topRight, overlayColors.TextColor, FontAlign.Right, overlayColors.BackgroundColor);
                         }
 
                         if (currencyOption.Owned is > 0 and var owned)
@@ -350,9 +351,8 @@ public partial class Main
                                 continue;
                             }
 
-                            Graphics.DrawTextWithBackground(text2, textRect2.TopLeft.ToVector2Num(), totalOwned >= Settings.VisualPriceSettings.ValuableColorThreshold
-                                ? Settings.VisualPriceSettings.ValuableColor
-                                : Settings.VisualPriceSettings.FontColor, Color.Black);
+                            var ownedOverlayColors = GetOverlayColors(totalOwned);
+                            Graphics.DrawTextWithBackground(text2, textRect2.TopLeft.ToVector2Num(), ownedOverlayColors.TextColor, ownedOverlayColors.BackgroundColor);
                         }
                     }
                 }
@@ -374,11 +374,11 @@ public partial class Main
             return;
         }
 
+        var (textColor, backgroundColor) = GetOverlayColors(customItem.PriceData.MinChaosValue);
+        var textCenter = new Vector2(topRight.X - textSize.X / 2, topRight.Y);
         Graphics.DrawTextWithBackground(text,
-            topRight,
-            customItem.PriceData.MinChaosValue >= Settings.VisualPriceSettings.ValuableColorThreshold
-                ? Settings.VisualPriceSettings.ValuableColor
-                : Settings.VisualPriceSettings.FontColor, FontAlign.Right, Color.Black);
+            textCenter,
+            textColor, FontAlign.Center, backgroundColor);
     }
 
     private void ProcessHoveredItem()
@@ -503,14 +503,20 @@ public partial class Main
         if (!string.IsNullOrWhiteSpace(tooltipText))
         {
             ImGui.BeginTooltip();
-            var valuable = priceInChaos >= Settings.VisualPriceSettings.ValuableColorThreshold.Value;
-            if (valuable)
+            var hoverTextColor = priceInChaos >= Settings.VisualPriceSettings.ExtraValuableColorThreshold.Value
+                ? Settings.VisualPriceSettings.ExtraValuableColor
+                : priceInChaos >= Settings.VisualPriceSettings.ValuableColorThreshold.Value
+                    ? Settings.VisualPriceSettings.ValuableColor
+                    : priceInChaos >= Settings.VisualPriceSettings.SemiValuableColorThreshold.Value
+                        ? Settings.VisualPriceSettings.SemiValuableColor
+                        : null;
+            if (hoverTextColor != null)
             {
-                ImGui.PushStyleColor(ImGuiCol.Text, Settings.VisualPriceSettings.ValuableColor.Value.ToImgui());
+                ImGui.PushStyleColor(ImGuiCol.Text, hoverTextColor.Value.ToImgui());
             }
 
             ImGui.TextUnformatted(tooltipText);
-            if (valuable)
+            if (hoverTextColor != null)
             {
                 ImGui.PopStyleColor();
             }
@@ -612,7 +618,27 @@ public partial class Main
         }
     }
 
-    private void PriceBoxOverItem(CustomItem item, RectangleF? containerBox, Color textColor)
+    private (Color TextColor, Color BackgroundColor) GetOverlayColors(double chaosValue)
+    {
+        if (chaosValue >= Settings.VisualPriceSettings.ExtraValuableColorThreshold.Value)
+        {
+            return (Settings.VisualPriceSettings.ExtraValuableColor, Settings.VisualPriceSettings.ExtraValuableBackgroundColor);
+        }
+
+        if (chaosValue >= Settings.VisualPriceSettings.ValuableColorThreshold.Value)
+        {
+            return (Settings.VisualPriceSettings.ValuableColor, Settings.VisualPriceSettings.BackgroundColor);
+        }
+
+        if (chaosValue >= Settings.VisualPriceSettings.SemiValuableColorThreshold.Value)
+        {
+            return (Settings.VisualPriceSettings.SemiValuableColor, Settings.VisualPriceSettings.BackgroundColor);
+        }
+
+        return (Settings.VisualPriceSettings.FontColor, Settings.VisualPriceSettings.BackgroundColor);
+    }
+
+    private void PriceBoxOverItem(CustomItem item, RectangleF? containerBox, Color? textColor = null, Color? backgroundColor = null)
     {
         var box = item.Element.GetClientRect();
         var drawBox = new RectangleF(box.X, box.Y - 2, box.Width, -Settings.PriceOverlaySettings.BoxHeight);
@@ -621,10 +647,11 @@ public partial class Main
         if ((containerBox == null || contains) && 
             !drawBox.Intersects(HoveredItem?.Element?.Tooltip?.GetClientRectCache ?? default))
         {
-            Graphics.DrawBox(drawBox, Settings.VisualPriceSettings.BackgroundColor);
+            var overlayColors = GetOverlayColors(item.PriceData.MinChaosValue);
+            Graphics.DrawBox(drawBox, backgroundColor ?? overlayColors.BackgroundColor);
             var textPosition = new Vector2(drawBox.Center.X, drawBox.Center.Y - ImGui.GetTextLineHeight() / 2);
             Graphics.DrawText(item.PriceData.MinChaosValue.FormatNumber(Settings.VisualPriceSettings.SignificantDigits.Value), textPosition,
-                textColor, FontAlign.Center);
+                textColor ?? overlayColors.TextColor, FontAlign.Center);
         }
     }
 
@@ -924,9 +951,7 @@ public partial class Main
                 Element = offer.GetChildFromIndices(0, 0),
             };
             GetValue(data);
-            PriceBoxOverItem(data, null, data.PriceData.MinChaosValue >= Settings.VisualPriceSettings.ValuableColorThreshold
-                ? Settings.VisualPriceSettings.ValuableColor
-                : Settings.VisualPriceSettings.FontColor);
+            PriceBoxOverItem(data, null);
         }
     }
 
@@ -992,7 +1017,7 @@ public partial class Main
 
                     if (!tooltipRect.Intersects(box) && !leftPanelRect.Intersects(box) && !rightPanelRect.Intersects(box))
                     {
-                        var isValuable = item.PriceData.MaxChaosValue >= Settings.VisualPriceSettings.ValuableColorThreshold;
+                        var isValuable = item.PriceData.MaxChaosValue >= Settings.VisualPriceSettings.ValuableColorThreshold.Value;
 
                         if (Settings.GroundItemSettings.PriceItemsOnGround &&
                             (Settings.GroundItemSettings.OnlyPriceItemsAboveThreshold
