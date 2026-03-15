@@ -177,9 +177,9 @@ public class VisualPriceSettings
     public ColorNode SemiValuableColor { get; set; } = new(new Color(0, 240, 56, 153));
     public RangeNode<int> ValuableColorThreshold { get; set; } = new(50, 0, 100000);
     public ColorNode ValuableColor { get; set; } = new(new Color(238, 130, 145, 255));
-    public RangeNode<int> ExtraValuableColorThreshold { get; set; } = new(100, 0, 100000);
+    public RangeNode<int> ExtraValuableColorThreshold { get; set; } = new(500, 0, 100000);
     public ColorNode ExtraValuableColor { get; set; } = new(new Color(255, 166, 0, 255));
-    public ColorNode ExtraValuableBackgroundColor { get; set; } = new(new Color(0, 4, 255, 255));
+    public ColorNode ExtraValuableBackgroundColor { get; set; } = new(new Color(89, 0, 255, 255));
 
     [Menu(null, "Set to 0 to disable")]
     public RangeNode<float> MaximalValueForFractionalDisplay { get; set; } = new(0.2f, 0, 1);
