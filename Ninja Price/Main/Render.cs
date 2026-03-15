@@ -335,8 +335,7 @@ public partial class Main
                                 continue;
                             }
 
-                            var overlayColors = GetOverlayColors(typePrice);
-                            Graphics.DrawTextWithBackground(text, topRight, overlayColors.TextColor, FontAlign.Right, overlayColors.BackgroundColor);
+                            Graphics.DrawTextWithBackground(text, topRight, Settings.VisualPriceSettings.FontColor, FontAlign.Right, Color.Black);
                         }
 
                         if (currencyOption.Owned is > 0 and var owned)
