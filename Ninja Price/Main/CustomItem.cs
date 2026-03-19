@@ -336,9 +336,14 @@ public class CustomItem
                  ClassName != "Incubator" &&
                  !BaseName.EndsWith(" Catalyst") &&
                  BaseName != "Valdo's Puzzle Box" &&
-                 !BaseName.StartsWith("Coin of"))
+                 !BaseName.StartsWith("Coin of") &&
+                 !BaseName.EndsWith(" Astrolabe"))
         {
             ItemType = ItemTypes.Currency;
+        }
+        else if (BaseName.EndsWith(" Astrolabe"))
+        {
+            ItemType = ItemTypes.Astrolabe;
         }
         else if (BaseName.StartsWith("Coin of"))
         {

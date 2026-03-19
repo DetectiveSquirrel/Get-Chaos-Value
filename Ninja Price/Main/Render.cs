@@ -422,6 +422,7 @@ public partial class Main
             case ItemTypes.KalguuranRune:
             case ItemTypes.AllflameEmber:
             case ItemTypes.DjinnCoin:
+            case ItemTypes.Astrolabe:
                 if (priceInDivines >= 0.1)
                 {
                     var priceInDivinessPerOne = priceInDivines / HoveredItem.CurrencyInfo.StackSize;

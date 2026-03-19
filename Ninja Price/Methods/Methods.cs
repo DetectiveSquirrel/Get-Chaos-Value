@@ -187,6 +187,14 @@ public partial class Main
                             item.PriceData.DetailsId = djinnSearch.Item.detailsId;
                         }
 
+                        var astrolabeSearch = CollectedData.Astrolabe.LinesByName.GetValueOrDefault(item.BaseName);
+                        if (astrolabeSearch != default)
+                        {
+                            item.PriceData.MinChaosValue = item.CurrencyInfo.StackSize * astrolabeSearch.ChaosEquivalent;
+                            item.PriceData.ChangeInLast7Days = astrolabeSearch.Line.sparkline.totalChange ?? 0;
+                            item.PriceData.DetailsId = astrolabeSearch.Item.detailsId;
+                        }
+
                         break;
                     case ItemTypes.Catalyst:
                         var catalystSearch = CollectedData.Currency.LinesByName.GetValueOrDefault(item.BaseName);

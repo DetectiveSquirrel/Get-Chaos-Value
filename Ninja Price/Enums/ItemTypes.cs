@@ -33,5 +33,6 @@ public enum ItemTypes
     InscribedUltimatum,
     AllflameEmber,
     DjinnCoin,
-    Wombgift
+    Wombgift,
+    Astrolabe
 }
