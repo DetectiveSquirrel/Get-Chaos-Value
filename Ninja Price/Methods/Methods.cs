@@ -186,7 +186,9 @@ public partial class Main
                             item.PriceData.ChangeInLast7Days = djinnSearch.Line.sparkline.totalChange ?? 0;
                             item.PriceData.DetailsId = djinnSearch.Item.detailsId;
                         }
+                        break;
 
+                    case ItemTypes.Astrolabe:
                         var astrolabeSearch = CollectedData.Astrolabe.LinesByName.GetValueOrDefault(item.BaseName);
                         if (astrolabeSearch != default)
                         {
