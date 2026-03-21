@@ -1,4 +1,4 @@
-﻿using ExileCore;
+using ExileCore;
 using ExileCore.PoEMemory.MemoryObjects;
 using Newtonsoft.Json;
 using Ninja_Price.API.PoeNinja;
@@ -30,6 +30,7 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
     public override bool Initialise()
     {
         Name = "Ninja Price";
+        Settings.StashValueSettings.InitializePriceOverlayStashTabs();
         NinjaDirectory = Path.Join(DirectoryFullName, "NinjaData");
         Directory.CreateDirectory(NinjaDirectory);
 
