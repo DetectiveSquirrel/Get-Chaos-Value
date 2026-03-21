@@ -140,6 +140,19 @@ public class UniqueIdentificationSettings
 [Submenu(CollapsedByDefault = true)]
 public class StashValueSettings
 {
+    private static readonly Dictionary<string, bool> DefaultPriceOverlayStashTabEnabled = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["CurrencyStash"] = true,
+        ["FragmentStash"] = true,
+        ["DelveStash"] = true,
+        ["DeliriumStash"] = true,
+        ["UltimatumStash"] = true,
+        ["BlightStash"] = true,
+    };
+
+    private static bool DefaultPriceOverlayEnabledFor(string typeName) =>
+        DefaultPriceOverlayStashTabEnabled.TryGetValue(typeName, out var on) && on;
+
     private static readonly string[] VerticalLabels = ["Top", "Bottom"];
     private static readonly string[] EdgeLabels = ["Outside", "Inside"];
 
@@ -156,26 +169,20 @@ public class StashValueSettings
 
                 foreach (var typeName in Enum.GetNames(typeof(InventoryType)))
                 {
-                    PriceOverlayStashTabs.TryAdd(typeName, false);
-                    if (!PriceOverlayStashTabLayouts.TryGetValue(typeName, out var layout) || layout == null)
-                    {
-                        layout = new StashPriceOverlayLayout();
-                        PriceOverlayStashTabLayouts[typeName] = layout;
-                    }
-
-                    var enabled = PriceOverlayStashTabs[typeName];
+                    var enabled = EffectivePriceOverlayEnabled(typeName);
                     if (ImGui.Checkbox($"##stash_overlay_{typeName}", ref enabled))
                     {
-                        PriceOverlayStashTabs[typeName] = enabled;
+                        UserTouchedPriceOverlayStashTabs[typeName] = enabled;
                     }
 
                     ImGui.SameLine();
 
+                    var layout = EffectivePriceOverlayLayout(typeName);
                     var v = (int)layout.Vertical;
                     ImGui.SetNextItemWidth(90);
                     if (ImGui.Combo($"##stash_overlay_v_{typeName}", ref v, VerticalLabels, VerticalLabels.Length))
                     {
-                        layout.Vertical = (PriceOverlayVertical)v;
+                        SetPriceOverlayLayoutOverride(typeName, (PriceOverlayVertical)v, layout.Edge);
                     }
 
                     ImGui.SameLine();
@@ -183,7 +190,7 @@ public class StashValueSettings
                     ImGui.SetNextItemWidth(90);
                     if (ImGui.Combo($"##stash_overlay_e_{typeName}", ref e, EdgeLabels, EdgeLabels.Length))
                     {
-                        layout.Edge = (PriceOverlayEdge)e;
+                        SetPriceOverlayLayoutOverride(typeName, layout.Vertical, (PriceOverlayEdge)e);
                     }
 
                     ImGui.SameLine();
@@ -194,6 +201,17 @@ public class StashValueSettings
             }
         };
     }
+
+    private bool EffectivePriceOverlayEnabled(string typeName) =>
+        UserTouchedPriceOverlayStashTabs != null && UserTouchedPriceOverlayStashTabs.TryGetValue(typeName, out var o)
+            ? o
+            : DefaultPriceOverlayEnabledFor(typeName);
+
+    private StashPriceOverlayLayout EffectivePriceOverlayLayout(string typeName) =>
+        PriceOverlayStashTabLayouts.TryGetValue(typeName, out var layout) && layout != null ? layout : new StashPriceOverlayLayout();
+
+    private void SetPriceOverlayLayoutOverride(string typeName, PriceOverlayVertical vertical, PriceOverlayEdge edge) =>
+        PriceOverlayStashTabLayouts[typeName] = new StashPriceOverlayLayout { Vertical = vertical, Edge = edge };
 
     [Menu(null, "Calculate value for the current visible stash tab")]
     public ToggleNode Show { get; set; } = new(true);
@@ -207,16 +225,14 @@ public class StashValueSettings
     public RangeNode<int> TopValuedItemCount { get; set; } = new(3, 0, 10);
     public ToggleNode EnableBackground { get; set; } = new(true);
     public ToggleNode IgnoreChatPanel { get; set; } = new(false);
-    public Dictionary<string, bool> PriceOverlayStashTabs { get; set; } = [];
+    public Dictionary<string, bool> UserTouchedPriceOverlayStashTabs { get; set; } = [];
+
     public Dictionary<string, StashPriceOverlayLayout> PriceOverlayStashTabLayouts { get; set; } = [];
 
     public void InitializePriceOverlayStashTabs()
     {
-        foreach (var typeName in Enum.GetNames(typeof(InventoryType)))
-        {
-            PriceOverlayStashTabs.TryAdd(typeName, false);
-            PriceOverlayStashTabLayouts.TryAdd(typeName, new StashPriceOverlayLayout());
-        }
+        UserTouchedPriceOverlayStashTabs ??= [];
+        PriceOverlayStashTabLayouts ??= [];
     }
 
     public StashPriceOverlayLayout GetPriceOverlayLayout(InventoryType? inventoryType)
@@ -237,9 +253,7 @@ public class StashValueSettings
     public CustomNode PriceOverlayStashTabsUi { get; set; }
 
     public bool IsOverlayEnabledFor(InventoryType? inventoryType) =>
-        inventoryType != null &&
-        PriceOverlayStashTabs.TryGetValue(inventoryType.Value.ToString(), out var enabled) &&
-        enabled;
+        inventoryType != null && EffectivePriceOverlayEnabled(inventoryType.Value.ToString());
 }
 
 public class StashPriceOverlayLayout
