@@ -31,6 +31,7 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
     {
         Name = "Ninja Price";
         Settings.StashValueSettings.InitializePriceOverlayStashTabs();
+        Settings.ValuationDisablingSettings.InitializeValuationDisabling();
         NinjaDirectory = Path.Join(DirectoryFullName, "NinjaData");
         Directory.CreateDirectory(NinjaDirectory);
 

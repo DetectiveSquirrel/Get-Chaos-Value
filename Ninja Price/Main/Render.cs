@@ -641,12 +641,13 @@ public partial class Main
         var h = Math.Abs(Settings.PriceOverlaySettings.BoxHeight.Value);
 
         const float gap = 2f;
-        var barTopY = layout.Vertical switch
+        var barTopY = (layout.Vertical, layout.Edge) switch
         {
-            PriceOverlayVertical.Top when layout.Edge == PriceOverlayEdge.Outside => box.Top - gap - h,
-            PriceOverlayVertical.Top => box.Top + gap,
-            PriceOverlayVertical.Bottom when layout.Edge == PriceOverlayEdge.Outside => box.Bottom + gap,
-            _ => box.Bottom - gap - h
+            (PriceOverlayVertical.Top, PriceOverlayEdge.Outside) => box.Top - gap - h,
+            (PriceOverlayVertical.Top, PriceOverlayEdge.Inside) => box.Top + gap,
+            (PriceOverlayVertical.Bottom, PriceOverlayEdge.Outside) => box.Bottom + gap,
+            (PriceOverlayVertical.Bottom, PriceOverlayEdge.Inside) => box.Bottom - gap - h,
+            _ => throw new ArgumentOutOfRangeException(nameof(layout), $"{layout.Vertical}, {layout.Edge}", "Unexpected price overlay layout.")
         };
 
         var drawBox = new RectangleF(box.X, barTopY, box.Width, h);
