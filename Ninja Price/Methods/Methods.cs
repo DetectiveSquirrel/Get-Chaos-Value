@@ -279,11 +279,11 @@ public partial class Main
                         }
 
                         break;
-                    }
+                        }
                     case ItemTypes.SkillGem:
                         var displayText = !string.IsNullOrEmpty(item.GemName) ? item.GemName : item.BaseName;
                         var fittingGems = CollectedData.SkillGems.Lines
-                           .Where(x => x.Name == displayText).ToList();
+                            .Where(x => x.Name == displayText).ToList();
                         var gemSearch = MoreLinq.MoreEnumerable.MaxBy(fittingGems,
                             x => (x.GemLevel == item.GemLevel,
                                   x.Corrupted == item.IsCorrupted,
@@ -298,12 +298,45 @@ public partial class Main
                             var minValueRecord = gemSearch.MinBy(x => x.ChaosValue)!;
                             item.PriceData.MinChaosValue = minValueRecord.ChaosValue;
                             item.PriceData.ChangeInLast7Days = minValueRecord.Sparkline.Data?.Any() == true
-                                                                   ? minValueRecord.Sparkline.TotalChange
-                                                                   : minValueRecord.LowConfidenceSparkline.TotalChange;
+                                ? minValueRecord.Sparkline.TotalChange
+                                : minValueRecord.LowConfidenceSparkline.TotalChange;
                             item.PriceData.DetailsId = minValueRecord.DetailsId;
                         }
 
                         break;
+                    case ItemTypes.BaseType:
+                    {
+                        var baseTypeName = item.BaseName;
+                        var influenceFlags = new (string Name, bool IsPresent)[]
+                        {
+                            ("Shaper", item.IsShaper),
+                            ("Elder", item.IsElder),
+                            ("Crusader", item.IsCrusader),
+                            ("Redeemer", item.IsRedeemer),
+                            ("Warlord", item.IsWarlord),
+                            ("Hunter", item.IsHunter)
+                        };
+                        var activeInfluences = influenceFlags.Where(x => x.IsPresent).Select(x => x.Name).ToList();
+                        var canonicalVariant = string.Join("/", activeInfluences);
+                        var effectiveItemLevel = item.ItemLevel >= 86 ? 86 : item.ItemLevel;
+                        var matchingLines = (CollectedData.BaseType.Lines ?? Enumerable.Empty<BaseTypes.Line>()).Where(line =>
+                            (line.BaseType ?? line.Name) == baseTypeName && VariantMatches(line.Variant) && line.LevelRequired == effectiveItemLevel).ToList();
+
+                        if (matchingLines.Count == 0) break;
+
+                        var cheapestMatch = matchingLines.MinBy(line => line.ChaosValue)!;
+                        var hasPrimarySparklineData = cheapestMatch.Sparkline.Data.Any();
+                        item.PriceData.MinChaosValue = cheapestMatch.ChaosValue;
+                        item.PriceData.ChangeInLast7Days = hasPrimarySparklineData ? cheapestMatch.Sparkline.TotalChange : cheapestMatch.LowConfidenceSparkline.TotalChange;
+                        item.PriceData.DetailsId = cheapestMatch.DetailsId;
+                        break;
+
+                        bool VariantMatches(string? variant)
+                        {
+                            if (string.IsNullOrWhiteSpace(variant)) return canonicalVariant.Length == 0;
+                            return string.Equals(variant.Trim(), canonicalVariant, StringComparison.OrdinalIgnoreCase);
+                        }
+                    }
                     case ItemTypes.ClusterJewel:
                         var passivesText = $"{item.ClusterJewelData.PassiveCount} passives";
                         var fittingJewels = CollectedData.ClusterJewels.Lines.Where(x =>

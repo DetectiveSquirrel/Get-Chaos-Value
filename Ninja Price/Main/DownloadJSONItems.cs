@@ -43,6 +43,7 @@ public partial class Main
     private const string ClusterJewelsUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=ClusterJewel&language=en";
     private const string BeastUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Beast&language=en";
     private const string VialUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=Vial&language=en";
+    private const string BaseTypeUrl = "https://poe.ninja/api/data/itemoverview?league={0}&type=BaseType&language=en";
 
     private class LeagueMetadata
     {
@@ -107,6 +108,7 @@ public partial class Main
                 await LoadData<BlightedMaps.RootObject>("BlightedMaps.json", BlightedMapsUrl, league, tryWebFirst, t => newData.BlightedMaps = t);
                 await LoadData<BlightRavagedMaps.RootObject>("BlightRavagedMaps.json", BlightRavagedMapsUrl, league, tryWebFirst, t => newData.BlightRavagedMaps = t);
                 await LoadData<ValdoMaps.RootObject>("ValdoMaps.json", ValdoMapsUrl, league, tryWebFirst, t => newData.ValdoMaps = t);
+                await LoadData<BaseTypes.RootObject>("BaseTypes.json", BaseTypeUrl, league, tryWebFirst, t => newData.BaseType = t);
 
                 new FileInfo(metadataPath).Directory?.Create();
                 await File.WriteAllTextAsync(metadataPath, JsonConvert.SerializeObject(new LeagueMetadata { LastLoadTime = DateTime.UtcNow }));

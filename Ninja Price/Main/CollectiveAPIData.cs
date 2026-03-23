@@ -38,4 +38,5 @@ public class CollectiveApiData
     public SkillGems.RootObject SkillGems { get; set; } = new();
     public Beasts.RootObject Beasts { get; set; } = new();
     public ClusterJewelNinjaData ClusterJewels { get; set; } = new();
+    public BaseTypes.RootObject BaseType { get; set; } = new();
 }

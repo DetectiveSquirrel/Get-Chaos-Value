@@ -23,11 +23,19 @@ public class CustomItem
     public string BaseName;
     public string UniqueName;
     public readonly string ClassName;
-    public readonly bool IsElder;
-    public readonly bool IsIdentified;
-    public readonly bool IsCorrupted;
+    public int ScourgeTier;
+    public bool IsIdentified;
+    public Influence InfluenceFlags;
+    public bool IsCorrupted;
+    public bool IsElder;
+    public bool IsShaper;
+    public bool IsCrusader;
+    public bool IsRedeemer;
+    public bool IsHunter;
+    public bool IsWarlord;
+    public bool IsInfluenced;
+    public bool IsMirrored;
     public readonly bool IsRgb;
-    public readonly bool IsShaper;
     public readonly bool IsWeapon;
     public readonly bool IsHovered;
     public Element Element;
@@ -145,8 +153,16 @@ public class CustomItem
 
             if (itemEntity.TryGetComponent<Base>(out var @base))
             {
+                InfluenceFlags = @base.InfluenceFlag;
+                ScourgeTier = @base.ScourgedTier;
                 IsElder = @base.isElder;
                 IsShaper = @base.isShaper;
+                IsHunter = @base.isHunter;
+                IsWarlord = @base.isWarlord;
+                IsCrusader = @base.isCrusader;
+                IsRedeemer = @base.isRedeemer;
+                IsCorrupted = @base.isCorrupted;
+                IsInfluenced = IsCrusader || IsRedeemer || IsWarlord || IsHunter || IsShaper || IsElder;
                 IsCorrupted = @base.isCorrupted;
                 ItemLevel = @base.CurrencyItemLevel;
             }
@@ -163,6 +179,7 @@ public class CustomItem
                 ItemLevel = mods.ItemLevel;
                 EnchantedStats = mods.EnchantedStats;
                 UniqueName = mods.UniqueName?.Replace('\x2019', '\x27');
+                IsMirrored = mods.IsMirrored;
                 if (!IsIdentified && Rarity == ItemRarity.Unique)
                 {
                     var artPath = itemEntity.GetComponent<RenderItem>()?.ResourcePath;
@@ -428,26 +445,30 @@ public class CustomItem
             var name = itemEntity?.GetComponent<Mods>()?.EnchantedStats.FirstOrDefault(x => x.StartsWith(namePrefix))?.Replace(namePrefix, null).Replace("\n", ", ");
             ClusterJewelData = new ClusterJewelData(name, passiveCount);
         }
+        else if (Rarity != ItemRarity.Unique && !IsMirrored && !IsCorrupted)
+        {
+            ItemType = ItemTypes.BaseType;
+        }
         else
         {
             switch (Rarity) // Unique information
             {
-                case ItemRarity.Unique or ItemRarity.Normal when ClassName is "Amulet" or "Ring" or "Belt":
+                case ItemRarity.Unique when ClassName is "Amulet" or "Ring" or "Belt":
                     ItemType = ItemTypes.UniqueAccessory;
                     break;
-                case ItemRarity.Unique or ItemRarity.Normal when itemEntity?.HasComponent<Armour>() == true || ClassName == "Quiver":
+                case ItemRarity.Unique when itemEntity?.HasComponent<Armour>() == true || ClassName == "Quiver":
                     ItemType = ItemTypes.UniqueArmour;
                     break;
                 case ItemRarity.Unique when itemEntity?.HasComponent<Flask>() == true:
                     ItemType = ItemTypes.UniqueFlask;
                     break;
-                case ItemRarity.Unique or ItemRarity.Normal when ClassName == "Jewel" || ClassName == "AbyssJewel":
+                case ItemRarity.Unique when ClassName is "Jewel" or "AbyssJewel":
                     ItemType = ItemTypes.UniqueJewel;
                     break;
                 case ItemRarity.Unique when MapInfo.IsMap:
                     ItemType = ItemTypes.UniqueMap;
                     break;
-                case ItemRarity.Unique or ItemRarity.Normal when itemEntity?.HasComponent<Weapon>() == true:
+                case ItemRarity.Unique when itemEntity?.HasComponent<Weapon>() == true:
                     ItemType = ItemTypes.UniqueWeapon;
                     break;
             }

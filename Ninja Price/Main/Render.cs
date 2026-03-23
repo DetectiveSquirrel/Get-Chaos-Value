@@ -457,11 +457,17 @@ public partial class Main
             case ItemTypes.InscribedUltimatum:
             case ItemTypes.Beast:
                 if (priceInDivines >= 0.1)
-                {
                     AddText($"\nDivine: {priceInDivinesText}d");
-                }
 
                 AddText($"\nChaos: {minPriceText}c");
+                break;
+            case ItemTypes.BaseType:
+                if (priceInChaos <= 0) break;
+                if (priceInDivines >= 0.1)
+                    AddText($"\nDivine: {priceInDivinesText}d");
+
+                AddText($"\nChaos: {minPriceText}c");
+                AddText("\nMatched Base Type");
                 break;
         }
 
@@ -625,6 +631,10 @@ public partial class Main
 
     private void PriceBoxOverItem(CustomItem item, RectangleF? containerBox, Color? textColor = null, Color? backgroundColor = null, StashPriceOverlayLayout layout = null)
     {
+        var itemValue = item.PriceData.MinChaosValue;
+
+        if (Settings.PriceOverlaySettings.ShoveAboveMinValueOnly && Settings.PriceOverlaySettings.MinValueForDisplay >= itemValue) return;
+
         layout ??= new StashPriceOverlayLayout();
 
         var box = item.Element.GetClientRect();
@@ -647,7 +657,6 @@ public partial class Main
         Graphics.DrawBox(drawBox, backgroundColor ?? overlayColors.BackgroundColor);
         var textPosition = new Vector2(drawBox.Center.X, drawBox.Center.Y - ImGui.GetTextLineHeight() / 2);
 
-        var itemValue = item.PriceData.MinChaosValue;
         if (Settings.PriceOverlaySettings.ShowUnitValue)
         {
             itemValue /= item.CurrencyInfo.StackSize;

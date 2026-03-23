@@ -34,5 +34,6 @@ public enum ItemTypes
     AllflameEmber,
     DjinnCoin,
     Wombgift,
-    Astrolabe
+    Astrolabe,
+    BaseType
 }
