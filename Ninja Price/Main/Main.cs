@@ -30,8 +30,6 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
     public override bool Initialise()
     {
         Name = "Ninja Price";
-        Settings.StashValueSettings.InitializePriceOverlayStashTabs();
-        Settings.ValuationDisablingSettings.InitializeValuationDisabling();
         NinjaDirectory = Path.Join(DirectoryFullName, "NinjaData");
         Directory.CreateDirectory(NinjaDirectory);
 
