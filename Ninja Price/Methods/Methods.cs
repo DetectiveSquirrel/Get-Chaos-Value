@@ -316,11 +316,13 @@ public partial class Main
                             ("Warlord", item.IsWarlord),
                             ("Hunter", item.IsHunter)
                         };
+
                         var activeInfluences = influenceFlags.Where(x => x.IsPresent).Select(x => x.Name).ToList();
                         var canonicalVariant = string.Join("/", activeInfluences);
+                        var hasInfluence = activeInfluences.Count > 0;
                         var effectiveItemLevel = item.ItemLevel >= 86 ? 86 : item.ItemLevel;
                         var matchingLines = (CollectedData.BaseType.Lines ?? Enumerable.Empty<BaseTypes.Line>()).Where(line =>
-                            (line.BaseType ?? line.Name) == baseTypeName && VariantMatches(line.Variant) && line.LevelRequired == effectiveItemLevel).ToList();
+                            (line.BaseType ?? line.Name) == baseTypeName && line.LevelRequired == effectiveItemLevel && VariantMatches(line.Variant)).ToList();
 
                         if (matchingLines.Count == 0) break;
 
@@ -333,8 +335,8 @@ public partial class Main
 
                         bool VariantMatches(string? variant)
                         {
-                            if (string.IsNullOrWhiteSpace(variant)) return canonicalVariant.Length == 0;
-                            return string.Equals(variant.Trim(), canonicalVariant, StringComparison.OrdinalIgnoreCase);
+                            if (!hasInfluence) return string.IsNullOrWhiteSpace(variant);
+                            return !string.IsNullOrWhiteSpace(variant) && string.Equals(variant.Trim(), canonicalVariant, StringComparison.OrdinalIgnoreCase);
                         }
                     }
                     case ItemTypes.ClusterJewel:
