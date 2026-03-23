@@ -467,7 +467,7 @@ public partial class Main
                     AddText($"\nDivine: {priceInDivinesText}d");
 
                 AddText($"\nChaos: {minPriceText}c");
-                AddText("\nMatched Base Type");
+                AddText("\nBased on BaseType");
                 break;
         }
 
@@ -633,7 +633,7 @@ public partial class Main
     {
         var itemValue = item.PriceData.MinChaosValue;
 
-        if (Settings.PriceOverlaySettings.ShoveAboveMinValueOnly && Settings.PriceOverlaySettings.MinValueForDisplay >= itemValue) return;
+        if (Settings.PriceOverlaySettings.ShowAboveMinValueOnly && Settings.PriceOverlaySettings.MinValueForDisplay >= itemValue) return;
 
         layout ??= new StashPriceOverlayLayout();
 
