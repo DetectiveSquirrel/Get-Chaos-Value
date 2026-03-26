@@ -898,7 +898,7 @@ public partial class Main
                         }
                         else if (ImGui.Selectable(item.Name))
                         {
-                            var query = $$$"""{"query":{"status":{"option":"online"},"term":"{{{item.Name}}}","stats":[{"type":"and","filters":[]}]},"sort":{"price":"asc"}}""";
+                            var query = $$$"""{"query":{"status":{"option":"securable"},"term":"{{{item.Name}}}","stats":[{"type":"and","filters":[]}]},"sort":{"price":"asc"}}""";
                             Process.Start(new ProcessStartInfo(
                                 $"https://www.pathofexile.com/trade/search/{Settings.DataSourceSettings.League.Value}?q={WebUtility.UrlEncode(query)}")
                             {
