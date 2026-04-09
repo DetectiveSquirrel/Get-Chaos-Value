@@ -51,7 +51,18 @@ public class DataSourceSettings
 
     public ListNode League { get; set; } = new();
 
+    public ToggleNode UseCustomLeague { get; set; } = new(false);
+
+    [Menu(null, "To be used at your own discretion for any reasons. Press Reload Prices after editing.")]
+    public TextNode CustomLeagueName { get; set; } = new("");
+
     public ToggleNode SyncCurrentLeague { get; set; } = new(true);
+
+    [JsonIgnore]
+    public string EffectiveLeague =>
+        UseCustomLeague && !string.IsNullOrWhiteSpace(CustomLeagueName.Value)
+            ? CustomLeagueName.Value.Trim()
+            : League.Value;
 
     [JsonIgnore]
     public ButtonNode ReloadPrices { get; set; } = new();

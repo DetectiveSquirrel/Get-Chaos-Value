@@ -140,14 +140,14 @@ public partial class Main
         // only update if the time between last update is more than AutoReloadTimer interval
         if (Settings.DataSourceSettings.AutoReload && Settings.DataSourceSettings.LastUpdateTime.AddMinutes(Settings.DataSourceSettings.ReloadPeriod.Value) < DateTime.Now)
         {
-            StartDataReload(Settings.DataSourceSettings.League.Value, true);
+            StartDataReload(Settings.DataSourceSettings.EffectiveLeague, true);
             Settings.DataSourceSettings.LastUpdateTime = DateTime.Now;
         }
 
         if (Settings.DebugSettings.EnableDebugLogging) LogMessage($"{GetCurrentMethod()}.Loop() is Alive", 5, Color.LawnGreen);
 
         if (Settings.DebugSettings.EnableDebugLogging)
-            LogMessage($"{GetCurrentMethod()}: Selected League: {Settings.DataSourceSettings.League.Value}", 5, Color.White);
+            LogMessage($"{GetCurrentMethod()}: Selected League: {Settings.DataSourceSettings.EffectiveLeague}", 5, Color.White);
 
         var tabType = StashPanel.VisibleStash?.InvType;
 
@@ -992,7 +992,7 @@ public partial class Main
                         {
                             var query = $$$"""{"query":{"status":{"option":"online"},"term":"{{{item.Name}}}","stats":[{"type":"and","filters":[]}]},"sort":{"price":"asc"}}""";
                             Process.Start(new ProcessStartInfo(
-                                $"https://www.pathofexile.com/trade/search/{Settings.DataSourceSettings.League.Value}?q={WebUtility.UrlEncode(query)}")
+                                $"https://www.pathofexile.com/trade/search/{Settings.DataSourceSettings.EffectiveLeague}?q={WebUtility.UrlEncode(query)}")
                             {
                                 UseShellExecute = true
                             });

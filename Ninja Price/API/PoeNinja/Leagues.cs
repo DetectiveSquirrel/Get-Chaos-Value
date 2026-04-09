@@ -1,4 +1,4 @@
-﻿namespace Ninja_Price.API.PoeNinja;
+namespace Ninja_Price.API.PoeNinja;
 
 public class NinjaLeagueListRootObject
 {
@@ -11,5 +11,4 @@ public class EconomyLeague
     public string url { get; set; }
     public string displayName { get; set; }
     public bool? hardcore { get; set; }
-    public bool indexed { get; set; }
 }

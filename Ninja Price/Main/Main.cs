@@ -34,9 +34,11 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         Directory.CreateDirectory(NinjaDirectory);
 
         UpdateLeagueList();
-        StartDataReload(Settings.DataSourceSettings.League.Value, false);
+        StartDataReload(Settings.DataSourceSettings.EffectiveLeague, false);
 
-        Settings.DataSourceSettings.ReloadPrices.OnPressed += () => StartDataReload(Settings.DataSourceSettings.League.Value, true);
+        Settings.DataSourceSettings.ReloadPrices.OnPressed += () => StartDataReload(Settings.DataSourceSettings.EffectiveLeague, true);
+        Settings.DataSourceSettings.UseCustomLeague.OnValueChanged += (_, _) =>
+            StartDataReload(Settings.DataSourceSettings.EffectiveLeague, false);
         Settings.UniqueIdentificationSettings.RebuildUniqueItemArtMappingBackup.OnPressed += () =>
         {
             var mapping = GetGameFileUniqueArtMapping();
@@ -108,6 +110,9 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
 
     private void SyncCurrentLeague()
     {
+        if (Settings.DataSourceSettings.UseCustomLeague)
+            return;
+
         if (Settings.DataSourceSettings.SyncCurrentLeague)
         {
             var playerLeague = PlayerLeague;
@@ -121,7 +126,7 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
                 if (Settings.DataSourceSettings.League.Value != playerLeague)
                 {
                     Settings.DataSourceSettings.League.Value = playerLeague;
-                    StartDataReload(Settings.DataSourceSettings.League.Value, false);
+                    StartDataReload(Settings.DataSourceSettings.EffectiveLeague, false);
                 }
             }
         }
@@ -215,7 +220,8 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         {
             var leagueListFromUrl = Utils.DownloadFromUrl("https://poe.ninja/poe1/api/data/index-state").Result;
             var leagueData = JsonConvert.DeserializeObject<NinjaLeagueListRootObject>(leagueListFromUrl);
-            leagueList.UnionWith(leagueData.economyLeagues.Where(league => league.indexed).Select(league => league.name));
+            if (leagueData?.economyLeagues != null)
+                leagueList.UnionWith(leagueData.economyLeagues.Select(league => league.name));
         }
         catch (Exception ex)
         {
@@ -225,9 +231,12 @@ public partial class Main : BaseSettingsPlugin<Settings.Settings>
         leagueList.Add("Standard");
         leagueList.Add("Hardcore");
 
-        if (!leagueList.Contains(Settings.DataSourceSettings.League.Value))
+        if (!Settings.DataSourceSettings.UseCustomLeague)
         {
-            Settings.DataSourceSettings.League.Value = leagueList.MaxBy(x => x == playerLeague);
+            if (!leagueList.Contains(Settings.DataSourceSettings.League.Value))
+            {
+                Settings.DataSourceSettings.League.Value = leagueList.MaxBy(x => x == playerLeague);
+            }
         }
 
         Settings.DataSourceSettings.League.SetListValues(leagueList.ToList());
