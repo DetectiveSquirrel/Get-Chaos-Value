@@ -69,6 +69,11 @@ public partial class Main
         return ShardMapping.TryGetValue(shardBaseName, out shardParent);
     }
 
+    private static bool MatchesMutatedModifiers(HashSet<string> foulbornMods, IEnumerable<string> mutatedModifierTexts)
+    {
+        return foulbornMods.SetEquals(mutatedModifierTexts ?? Enumerable.Empty<string>());
+    }
+
     private static void SetPriceChangeData(RelevantPriceData priceData, double? totalChange, IEnumerable sparklineData)
     {
         priceData.ChangeInLast7Days = totalChange ?? 0;
@@ -448,7 +453,7 @@ public partial class Main
 
                         var uniqueAccessorySearch = CollectedData.UniqueAccessories.Lines.FindAll(x =>
                             x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
-                        if (uniqueAccessorySearch.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        if (uniqueAccessorySearch.Where(x => MatchesMutatedModifiers(item.FoulbornMods, x.MutatedModifiers?.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
                         {
                             uniqueAccessorySearch = refined;
                         }
@@ -456,7 +461,7 @@ public partial class Main
                         if (uniqueAccessorySearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueAccessorySearch[0].ChaosValue ?? 0;
-                            SetPriceChangeData(item.PriceData, uniqueAccessorySearch[0].Sparkline.TotalChange, uniqueAccessorySearch[0].Sparkline.Data);
+                            SetPriceChangeData(item.PriceData, uniqueAccessorySearch[0].Sparkline?.TotalChange, uniqueAccessorySearch[0].Sparkline?.Data);
                             item.PriceData.DetailsId = uniqueAccessorySearch[0].DetailsId;
                         }
                         else if (uniqueAccessorySearch.Count > 1)
@@ -492,7 +497,7 @@ public partial class Main
                             6 => allLinksLines.Where(x => x.Links == 6).ToList(),
                             _ => new List<UniqueArmours.Line>()
                         };
-                        if (uniqueArmourSearchLinks.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        if (uniqueArmourSearchLinks.Where(x => MatchesMutatedModifiers(item.FoulbornMods, x.MutatedModifiers?.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
                         {
                             uniqueArmourSearchLinks = refined;
                         }
@@ -500,7 +505,7 @@ public partial class Main
                         if (uniqueArmourSearchLinks.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueArmourSearchLinks[0].ChaosValue ?? 0;
-                            SetPriceChangeData(item.PriceData, uniqueArmourSearchLinks[0].Sparkline.TotalChange, uniqueArmourSearchLinks[0].Sparkline.Data);
+                            SetPriceChangeData(item.PriceData, uniqueArmourSearchLinks[0].Sparkline?.TotalChange, uniqueArmourSearchLinks[0].Sparkline?.Data);
                             item.PriceData.DetailsId = uniqueArmourSearchLinks[0].DetailsId;
                         }
                         else if (uniqueArmourSearchLinks.Count > 1)
@@ -528,7 +533,7 @@ public partial class Main
 
                         var uniqueFlaskSearch = CollectedData.UniqueFlasks.Lines.FindAll(x =>
                             x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
-                        if (uniqueFlaskSearch.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        if (uniqueFlaskSearch.Where(x => MatchesMutatedModifiers(item.FoulbornMods, x.MutatedModifiers?.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
                         {
                             uniqueFlaskSearch = refined;
                         }
@@ -536,7 +541,7 @@ public partial class Main
                         if (uniqueFlaskSearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueFlaskSearch[0].ChaosValue ?? 0;
-                            SetPriceChangeData(item.PriceData, uniqueFlaskSearch[0].Sparkline.TotalChange, uniqueFlaskSearch[0].Sparkline.Data);
+                            SetPriceChangeData(item.PriceData, uniqueFlaskSearch[0].Sparkline?.TotalChange, uniqueFlaskSearch[0].Sparkline?.Data);
                             item.PriceData.DetailsId = uniqueFlaskSearch[0].DetailsId;
                         }
                         else if (uniqueFlaskSearch.Count > 1)
@@ -564,7 +569,7 @@ public partial class Main
                         
                         var uniqueJewelSearch = CollectedData.UniqueJewels.Lines.FindAll(x =>
                             x.Name == uniqueName || item.UniqueNameCandidates.Contains(x.Name));
-                        if (uniqueJewelSearch.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        if (uniqueJewelSearch.Where(x => MatchesMutatedModifiers(item.FoulbornMods, x.MutatedModifiers?.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
                         {
                             uniqueJewelSearch = refined;
                         }
@@ -572,7 +577,7 @@ public partial class Main
                         if (uniqueJewelSearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueJewelSearch[0].ChaosValue ?? 0;
-                            SetPriceChangeData(item.PriceData, uniqueJewelSearch[0].Sparkline.TotalChange, uniqueJewelSearch[0].Sparkline.Data);
+                            SetPriceChangeData(item.PriceData, uniqueJewelSearch[0].Sparkline?.TotalChange, uniqueJewelSearch[0].Sparkline?.Data);
                             item.PriceData.DetailsId = uniqueJewelSearch[0].DetailsId;
                         }
                         else if (uniqueJewelSearch.Count > 1)
@@ -597,7 +602,7 @@ public partial class Main
                         if (uniqueMapSearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueMapSearch[0].ChaosValue ?? 0;
-                            SetPriceChangeData(item.PriceData, uniqueMapSearch[0].Sparkline.TotalChange, uniqueMapSearch[0].Sparkline.Data);
+                            SetPriceChangeData(item.PriceData, uniqueMapSearch[0].Sparkline?.TotalChange, uniqueMapSearch[0].Sparkline?.Data);
                             item.PriceData.DetailsId = uniqueMapSearch[0].DetailsId;
                         }
                         else if (uniqueMapSearch.Count > 1)
@@ -652,7 +657,7 @@ public partial class Main
                             _ => new List<UniqueWeapons.Line>()
                         };
 
-                        if (uniqueArmourSearchLinks.Where(x => item.FoulbornMods.SetEquals(x.MutatedModifiers.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
+                        if (uniqueArmourSearchLinks.Where(x => MatchesMutatedModifiers(item.FoulbornMods, x.MutatedModifiers?.Select(m => m.Text))).ToList() is { Count: > 0 } refined)
                         {
                             uniqueArmourSearchLinks = refined;
                         }
@@ -660,7 +665,7 @@ public partial class Main
                         if (uniqueArmourSearchLinks.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueArmourSearchLinks[0].ChaosValue ?? 0;
-                            SetPriceChangeData(item.PriceData, uniqueArmourSearchLinks[0].Sparkline.TotalChange, uniqueArmourSearchLinks[0].Sparkline.Data);
+                            SetPriceChangeData(item.PriceData, uniqueArmourSearchLinks[0].Sparkline?.TotalChange, uniqueArmourSearchLinks[0].Sparkline?.Data);
                             item.PriceData.DetailsId = uniqueArmourSearchLinks[0].DetailsId;
                         }
                         else if (uniqueArmourSearchLinks.Count > 1)
