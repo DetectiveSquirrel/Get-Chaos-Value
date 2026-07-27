@@ -596,9 +596,9 @@ public partial class Main
                         break;
                     }
                     case ItemTypes.UniqueMap:
-                        var firstCandidate = item.UniqueNameCandidates?.FirstOrDefault();
-
-                        var uniqueMapSearch = CollectedData.UniqueMaps.Lines.FindAll(x => x.BaseType == item.BaseName && (x.Name == item.UniqueName || x.Name == firstCandidate));
+                    {
+                        var uniqueMapSearch = CollectedData.UniqueMaps.Lines?.FindAll(x =>
+                            x.Name == item.UniqueName || item.UniqueNameCandidates.Contains(x.Name)) ?? [];
                         if (uniqueMapSearch.Count == 1)
                         {
                             item.PriceData.MinChaosValue = uniqueMapSearch[0].ChaosValue ?? 0;
@@ -619,6 +619,7 @@ public partial class Main
                         }
 
                         break;
+                    }
                     case ItemTypes.Resonator:
                         var resonatorSearch = CollectedData.Resonators.LinesByName.GetValueOrDefault(item.BaseName);
                         if (resonatorSearch != default)
@@ -688,37 +689,37 @@ public partial class Main
                         {
                             case MapTypes.Blighted:
 
-                                var blightedBaseName = $"Blighted {item.BaseName}";
-                                var normalBlightedMapSearch = CollectedData.BlightedMaps.Lines.Find(x => x.BaseType == blightedBaseName);
+                                var blightedMapName = $"Blighted Map (Tier {item.MapInfo.MapTier})";
+                                var normalBlightedMapSearch = CollectedData.BlightedMaps.Lines?.Find(x => x.Name == blightedMapName);
 
                                 if (normalBlightedMapSearch != null)
                                 {
                                     item.PriceData.MinChaosValue = normalBlightedMapSearch.ChaosValue ?? 0;
-                                    SetPriceChangeData(item.PriceData, normalBlightedMapSearch.Sparkline.TotalChange, normalBlightedMapSearch.Sparkline.Data);
+                                    SetPriceChangeData(item.PriceData, normalBlightedMapSearch.Sparkline?.TotalChange, normalBlightedMapSearch.Sparkline?.Data);
                                     item.PriceData.DetailsId = normalBlightedMapSearch.DetailsId;
                                 }
 
                                 break;
                             case MapTypes.BlightRavaged:
 
-                                var blightRavagedBaseName = $"Blight-ravaged {item.BaseName}";
-                                var blightRavagedMapSearch = CollectedData.BlightRavagedMaps.Lines.Find(x => x.BaseType == blightRavagedBaseName);
+                                var blightRavagedMapName = $"Blight-ravaged Map (Tier {item.MapInfo.MapTier})";
+                                var blightRavagedMapSearch = CollectedData.BlightRavagedMaps.Lines?.Find(x => x.Name == blightRavagedMapName);
 
                                 if (blightRavagedMapSearch != null)
                                 {
                                     item.PriceData.MinChaosValue = blightRavagedMapSearch.ChaosValue ?? 0;
-                                    SetPriceChangeData(item.PriceData, blightRavagedMapSearch.Sparkline.TotalChange, blightRavagedMapSearch.Sparkline.Data);
+                                    SetPriceChangeData(item.PriceData, blightRavagedMapSearch.Sparkline?.TotalChange, blightRavagedMapSearch.Sparkline?.Data);
                                     item.PriceData.DetailsId = blightRavagedMapSearch.DetailsId;
                                 }
 
                                 break;
                             case MapTypes.Valdo:
-                                var valdoMapSearch = CollectedData.ValdoMaps.Lines.Find(x => x.Name == item.UniqueName);
+                                var valdoMapSearch = CollectedData.ValdoMaps.Lines?.Find(x => x.Name == item.UniqueName);
 
                                 if (valdoMapSearch != null)
                                 {
                                     item.PriceData.MinChaosValue = valdoMapSearch.ChaosValue ?? 0;
-                                    SetPriceChangeData(item.PriceData, valdoMapSearch.Sparkline.TotalChange, valdoMapSearch.Sparkline.Data);
+                                    SetPriceChangeData(item.PriceData, valdoMapSearch.Sparkline?.TotalChange, valdoMapSearch.Sparkline?.Data);
                                     item.PriceData.DetailsId = valdoMapSearch.DetailsId;
                                 }
 
@@ -747,13 +748,13 @@ public partial class Main
 
                                 #endregion
 
-                                var normalMapSearch = CollectedData.WhiteMaps.Lines.Find(x =>
+                                var normalMapSearch = CollectedData.WhiteMaps.Lines?.Find(x =>
                                     x.Name == normalMapBaseName);
 
                                 if (normalMapSearch != null)
                                 {
                                     item.PriceData.MinChaosValue = normalMapSearch.ChaosValue ?? 0;
-                                    SetPriceChangeData(item.PriceData, normalMapSearch.Sparkline.TotalChange, normalMapSearch.Sparkline.Data);
+                                    SetPriceChangeData(item.PriceData, normalMapSearch.Sparkline?.TotalChange, normalMapSearch.Sparkline?.Data);
                                     item.PriceData.DetailsId = normalMapSearch.DetailsId;
                                 }
 
